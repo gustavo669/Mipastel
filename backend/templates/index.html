@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧁 Mi Pastel - Sistema de Pedidos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .navbar-brand { font-weight: bold; color: #d63384 !important; }
+        .hero-section {
+            background: linear-gradient(135deg, #fff0f6 0%, #fffaf6 100%);
+            border-radius: 15px;
+            padding: 3rem 2rem;
+            margin: 2rem 0;
+        }
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(214, 51, 132, 0.1);
+            transition: transform 0.3s ease;
+        }
+        .card:hover { transform: translateY(-5px); }
+        .btn-primary {
+            background: linear-gradient(135deg, #ff66b2, #d63384);
+            border: none;
+            border-radius: 25px;
+            padding: 12px 30px;
+            font-weight: bold;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #e60073, #c2185b);
+            transform: scale(1.05);
+        }
+        .form-section {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 1rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .price-display {
+            background: #fff0f6;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+            border-left: 4px solid #d63384;
+        }
+        .floating-alert {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            animation: slideIn 0.5s ease;
+        }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-light" style="background-color: #fff0f6;">
+    <div class="container">
+        <a class="navbar-brand" href="/">
+            <i class="fas fa-birthday-cake"></i> Mi Pastel v2.0
+        </a>
+        <div class="navbar-nav ms-auto">
+            <a class="nav-link" href="/admin" style="color: #d63384;">
+                <i class="fas fa-chart-bar"></i> Panel Admin
+            </a>
+        </div>
+    </div>
+</nav>
+
+<!-- Hero Section -->
+<div class="container">
+    <div class="hero-section text-center">
+        <h1 class="display-4" style="color: #d63384;">
+            <i class="fas fa-birthday-cake"></i> Mi Pastel
+        </h1>
+        <p class="lead" style="color: #666;">
+            Sistema de ingreso de pedidos - Precios automáticos por sabor y tamaño
+        </p>
+    </div>
+
+    <!-- Alertas -->
+    {% if success %}
+    <div class="floating-alert alert alert-success alert-dismissible fade show">
+        <i class="fas fa-check-circle"></i> ¡Pedido registrado correctamente!
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endif %}
+
+    <!-- Tabs para formularios -->
+    <ul class="nav nav-pills nav-justified mb-4" id="myTab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="normales-tab" data-bs-toggle="tab" data-bs-target="#normales" type="button" role="tab">
+                <i class="fas fa-cake"></i> Pasteles Normales
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="clientes-tab" data-bs-toggle="tab" data-bs-target="#clientes" type="button" role="tab">
+                <i class="fas fa-star"></i> Pedidos de Clientes
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="myTabContent">
+        <!-- Formulario Pasteles Normales -->
+        <div class="tab-pane fade show active" id="normales" role="tabpanel">
+            <div class="form-section">
+                <h4 class="mb-4" style="color: #d63384;">
+                    <i class="fas fa-cake"></i> Ingresar Pastel Normal
+                </h4>
+                <form id="formNormal" action="/normales/registrar" method="post">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">🍰 Sabor</label>
+                            <select class="form-select" name="sabor" id="saborNormal" required>
+                                <option value="">Seleccionar sabor...</option>
+                                {% for sabor in sabores_normales %}
+                                <option value="{{ sabor }}">{{ sabor }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">📏 Tamaño</label>
+                            <select class="form-select" name="tamano" id="tamanoNormal" required>
+                                <option value="">Seleccionar tamaño...</option>
+                                {% for tamano in tamanos %}
+                                <option value="{{ tamano }}">{{ tamano }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">🔢 Cantidad</label>
+                            <input type="number" class="form-control" name="cantidad" id="cantidadNormal" value="1" min="1" required>
+                        </div>
+                        <div class="col-md-8">
+                            <label class="form-label">🏪 Sucursal</label>
+                            <select class="form-select" name="sucursal" required>
+                                <option value="">Seleccionar sucursal...</option>
+                                {% for sucursal in sucursales %}
+                                <option value="{{ sucursal }}">{{ sucursal }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">📝 Detalles adicionales (opcional)</label>
+                            <textarea class="form-control" name="detalles" rows="2" placeholder="Especificaciones especiales..."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Precio automático -->
+                    <div class="price-display mt-3">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <strong>💰 Precio unitario:</strong>
+                                <span id="precioUnitarioNormal">Q0.00</span>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>💵 Total a pagar:</strong>
+                                <span id="precioTotalNormal" style="color: #d63384; font-weight: bold;">Q0.00</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-save"></i> Registrar Pastel Normal
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Formulario Pedidos de Clientes -->
+        <div class="tab-pane fade" id="clientes" role="tabpanel">
+            <div class="form-section">
+                <h4 class="mb-4" style="color: #d63384;">
+                    <i class="fas fa-star"></i> Ingresar Pedido de Cliente
+                </h4>
+                <form id="formCliente" action="/clientes/registrar" method="post" enctype="multipart/form-data">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">🍰 Sabor</label>
+                            <select class="form-select" name="sabor" id="saborCliente" required>
+                                <option value="">Seleccionar sabor...</option>
+                                {% for sabor in sabores_clientes %}
+                                <option value="{{ sabor }}">{{ sabor }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">📏 Tamaño</label>
+                            <select class="form-select" name="tamano" id="tamanoCliente" required>
+                                <option value="">Seleccionar tamaño...</option>
+                                {% for tamano in tamanos %}
+                                <option value="{{ tamano }}">{{ tamano }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">🔢 Cantidad</label>
+                            <input type="number" class="form-control" name="cantidad" id="cantidadCliente" value="1" min="1" required>
+                        </div>
+                        <div class="col-md-8">
+                            <label class="form-label">🏪 Sucursal</label>
+                            <select class="form-select" name="sucursal" required>
+                                <option value="">Seleccionar sucursal...</option>
+                                {% for sucursal in sucursales %}
+                                <option value="{{ sucursal }}">{{ sucursal }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">🎨 Color (opcional)</label>
+                            <input type="text" class="form-control" name="color" placeholder="Ej: Rosado, Azul...">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">🖼️ Foto (opcional)</label>
+                            <input type="file" class="form-control" name="foto" accept="image/*">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">💬 Dedicatoria (opcional)</label>
+                            <textarea class="form-control" name="dedicatoria" rows="2" placeholder="Mensaje especial para el pastel..."></textarea>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">📝 Detalles adicionales (opcional)</label>
+                            <textarea class="form-control" name="detalles" rows="2" placeholder="Especificaciones del diseño, ingredientes..."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Precio automático -->
+                    <div class="price-display mt-3">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <strong>💰 Precio unitario:</strong>
+                                <span id="precioUnitarioCliente">Q0.00</span>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>💵 Total a pagar:</strong>
+                                <span id="precioTotalCliente" style="color: #d63384; font-weight: bold;">Q0.00</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-save"></i> Registrar Pedido de Cliente
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<footer class="bg-light text-center py-4 mt-5">
+    <div class="container">
+        <p class="mb-0" style="color: #666;">
+            <i class="fas fa-cake"></i> Mi Pastel - Sistema de Pedidos v2.0
+        </p>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Función para calcular precios automáticos
+    async function calcularPrecio(sabor, tamano, cantidad, tipo) {
+        if (!sabor || !tamano || !cantidad) return;
+
+        try {
+            const response = await fetch(`/api/obtener-precio?sabor=${encodeURIComponent(sabor)}&tamano=${encodeURIComponent(tamano)}`);
+            const data = await response.json();
+
+            if (data.encontrado) {
+                const precioUnitario = data.precio;
+                const precioTotal = precioUnitario * cantidad;
+
+                if (tipo === 'normal') {
+                    document.getElementById('precioUnitarioNormal').textContent = `Q${precioUnitario.toFixed(2)}`;
+                    document.getElementById('precioTotalNormal').textContent = `Q${precioTotal.toFixed(2)}`;
+                } else {
+                    document.getElementById('precioUnitarioCliente').textContent = `Q${precioUnitario.toFixed(2)}`;
+                    document.getElementById('precioTotalCliente').textContent = `Q${precioTotal.toFixed(2)}`;
+                }
+            } else {
+                if (tipo === 'normal') {
+                    document.getElementById('precioUnitarioNormal').textContent = 'No disponible';
+                    document.getElementById('precioTotalNormal').textContent = 'Q0.00';
+                } else {
+                    document.getElementById('precioUnitarioCliente').textContent = 'No disponible';
+                    document.getElementById('precioTotalCliente').textContent = 'Q0.00';
+                }
+            }
+        } catch (error) {
+            console.error('Error al calcular precio:', error);
+        }
+    }
+
+    // Event listeners para pasteles normales
+    document.getElementById('saborNormal').addEventListener('change', function() {
+        const sabor = this.value;
+        const tamano = document.getElementById('tamanoNormal').value;
+        const cantidad = document.getElementById('cantidadNormal').value;
+        calcularPrecio(sabor, tamano, cantidad, 'normal');
+    });
+
+    document.getElementById('tamanoNormal').addEventListener('change', function() {
+        const sabor = document.getElementById('saborNormal').value;
+        const tamano = this.value;
+        const cantidad = document.getElementById('cantidadNormal').value;
+        calcularPrecio(sabor, tamano, cantidad, 'normal');
+    });
+
+    document.getElementById('cantidadNormal').addEventListener('input', function() {
+        const sabor = document.getElementById('saborNormal').value;
+        const tamano = document.getElementById('tamanoNormal').value;
+        const cantidad = this.value;
+        calcularPrecio(sabor, tamano, cantidad, 'normal');
+    });
+
+    // Event listeners para pedidos de clientes
+    document.getElementById('saborCliente').addEventListener('change', function() {
+        const sabor = this.value;
+        const tamano = document.getElementById('tamanoCliente').value;
+        const cantidad = document.getElementById('cantidadCliente').value;
+        calcularPrecio(sabor, tamano, cantidad, 'cliente');
+    });
+
+    document.getElementById('tamanoCliente').addEventListener('change', function() {
+        const sabor = document.getElementById('saborCliente').value;
+        const tamano = this.value;
+        const cantidad = document.getElementById('cantidadCliente').value;
+        calcularPrecio(sabor, tamano, cantidad, 'cliente');
+    });
+
+    document.getElementById('cantidadCliente').addEventListener('input', function() {
+        const sabor = document.getElementById('saborCliente').value;
+        const tamano = document.getElementById('tamanoCliente').value;
+        const cantidad = this.value;
+        calcularPrecio(sabor, tamano, cantidad, 'cliente');
+    });
+
+    // Auto-ocultar alertas después de 5 segundos
+    setTimeout(() => {
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(alert => {
+            const bsAlert = new bootstrap.Alert(alert);
+            bsAlert.close();
+        });
+    }, 5000);
+</script>
+</body>
+</html>
