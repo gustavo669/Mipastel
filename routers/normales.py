@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Form, HTTPException, Request
-from fastapi.responses import RedirectResponse, JSONResponse
+from fastapi.responses import JSONResponse
 from fastapi.templating import Jinja2Templates
-from backend.database import get_conn_normales, DatabaseManager, obtener_precio_db
+from database import DatabaseManager, obtener_precio_db
 from datetime import datetime
 import logging
 
