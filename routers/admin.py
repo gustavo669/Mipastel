@@ -2,14 +2,20 @@ from fastapi import APIRouter, Request, HTTPException, Query
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 from datetime import datetime
+import logging
 
 # Importar desde el nuevo database.py
 from database import (
     DatabaseManager
 )
+# Importar desde config.py
+from config import (
+    SABORES_NORMALES, SABORES_CLIENTES, TAMANOS, SUCURSALES
+)
 
 router = APIRouter(prefix="/admin", tags=["Administración"])
 templates = Jinja2Templates(directory="templates")
+logger = logging.getLogger(__name__)
 
 @router.get("/", response_class=HTMLResponse)
 async def vista_admin(request: Request):
@@ -20,50 +26,34 @@ async def vista_admin(request: Request):
 
         # Obtener datos del día actual
         hoy = datetime.now().date()
-        inicio = datetime.combine(hoy, datetime.min.time())
-        fin = datetime.combine(hoy, datetime.max.time())
+        # Usamos solo fecha_inicio, el manager de DB sabe qué hacer
+        fecha_str = hoy.isoformat()
 
         normales = db.obtener_pasteles_normales(
-            fecha_inicio=inicio.isoformat(),
-            fecha_fin=fin.isoformat()
+            fecha_inicio=fecha_str
         )
 
         clientes = db.obtener_pedidos_clientes(
-            fecha_inicio=inicio.isoformat(),
-            fecha_fin=fin.isoformat()
+            fecha_inicio=fecha_str
         )
 
         # Obtener configuración de precios
         precios = db.obtener_precios()
-
-        # Listas para los combobox
-        sabores_normales = [
-            "Fresas", "Frutas", "Chocolate", "Selva negra", "Oreo", "Chocofresa",
-            "Tres Leches", "Tres leches con Arándanos", "Fiesta", "Ambiente", "Zanahoria", "Otro"
-        ]
-
-        sabores_clientes = sabores_normales + ["Boda", "Quince Años"]
-
-        tamanos = ["Mini", "Pequeño", "Mediano", "Grande", "Extra grande", "Media plancha"]
-
-        sucursales = [
-            "Jutiapa 1", "Jutiapa 2", "Jutiapa 3", "Progreso", "Quesada", "Acatempa",
-            "Yupiltepeque", "Atescatempa", "Adelanto", "Jeréz", "Comapa", "Cariña"
-        ]
 
         return templates.TemplateResponse("admin.html", {
             "request": request,
             "normales": normales,
             "clientes": clientes,
             "precios": precios,
-            "sabores_normales": sabores_normales,
-            "sabores_clientes": sabores_clientes,
-            "tamanos": tamanos,
-            "sucursales": sucursales,
+            "sabores_normales": SABORES_NORMALES, # Desde config
+            "sabores_clientes": SABORES_CLIENTES, # Desde config
+            "tamanos": TAMANOS, # Desde config
+            "sucursales": SUCURSALES, # Desde config
             "fecha_actual": hoy.strftime("%Y-%m-%d")
         })
 
     except Exception as e:
+        logger.error(f"Error al cargar vista admin: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Error al cargar datos: {str(e)}")
 
 @router.get("/normales")
@@ -75,29 +65,16 @@ async def obtener_normales(
     try:
         db = DatabaseManager()
 
-        fecha_inicio = None
-        fecha_fin = None
-
-        if fecha:
-            try:
-                fecha_obj = datetime.strptime(fecha, "%Y-%m-%d").date()
-                fecha_inicio = datetime.combine(fecha_obj, datetime.min.time()).isoformat()
-                fecha_fin = datetime.combine(fecha_obj, datetime.max.time()).isoformat()
-            except ValueError:
-                return JSONResponse(
-                    status_code=400,
-                    content={"error": "Formato de fecha inválido. Use YYYY-MM-DD"}
-                )
-
+        # El manager ya maneja la lógica de fecha_inicio/fin
         normales = db.obtener_pasteles_normales(
-            fecha_inicio=fecha_inicio,
-            fecha_fin=fecha_fin,
+            fecha_inicio=fecha, # Pasa la fecha (o None)
             sucursal=sucursal
         )
 
         return {"normales": normales}
 
     except Exception as e:
+        logger.error(f"Error en endpoint /normales: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Error al obtener pasteles normales: {str(e)}")
 
 @router.get("/clientes")
@@ -109,29 +86,15 @@ async def obtener_clientes(
     try:
         db = DatabaseManager()
 
-        fecha_inicio = None
-        fecha_fin = None
-
-        if fecha:
-            try:
-                fecha_obj = datetime.strptime(fecha, "%Y-%m-%d").date()
-                fecha_inicio = datetime.combine(fecha_obj, datetime.min.time()).isoformat()
-                fecha_fin = datetime.combine(fecha_obj, datetime.max.time()).isoformat()
-            except ValueError:
-                return JSONResponse(
-                    status_code=400,
-                    content={"error": "Formato de fecha inválido. Use YYYY-MM-DD"}
-                )
-
         clientes = db.obtener_pedidos_clientes(
-            fecha_inicio=fecha_inicio,
-            fecha_fin=fecha_fin,
+            fecha_inicio=fecha, # Pasa la fecha (o None)
             sucursal=sucursal
         )
 
         return {"clientes": clientes}
 
     except Exception as e:
+        logger.error(f"Error en endpoint /clientes: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Error al obtener pedidos de clientes: {str(e)}")
 
 @router.get("/precios")
@@ -142,6 +105,7 @@ async def obtener_precios():
         precios = db.obtener_precios()
         return {"precios": precios}
     except Exception as e:
+        logger.error(f"Error en endpoint /precios: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Error al obtener precios: {str(e)}")
 
 @router.post("/precios/actualizar")
@@ -157,12 +121,9 @@ async def actualizar_precios(precios_data: list):
                     status_code=400,
                     detail="Datos de precios incompletos"
                 )
-
-            if precio['precio'] < 0:
-                raise HTTPException(
-                    status_code=400,
-                    detail="El precio no puede ser negativo"
-                )
+            # Asegurarse de que el dict tenga 'tamano' (sin tilde)
+            if 'tamano' not in precio:
+                precio['tamano'] = precio.get('tamaño') # Fallback por si la UI envía tilde
 
         resultado = db.actualizar_precios(precios_data)
 
@@ -174,6 +135,7 @@ async def actualizar_precios(precios_data: list):
     except HTTPException:
         raise
     except Exception as e:
+        logger.error(f"Error en endpoint /precios/actualizar: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Error al actualizar precios: {str(e)}")
 
 @router.post("/normales/registrar")
@@ -191,18 +153,6 @@ async def registrar_pastel_normal(pastel_data: dict):
                     detail=f"Campo requerido faltante: {campo}"
                 )
 
-        if pastel_data['precio'] <= 0:
-            raise HTTPException(
-                status_code=400,
-                detail="El precio debe ser mayor a 0"
-            )
-
-        if pastel_data['cantidad'] <= 0:
-            raise HTTPException(
-                status_code=400,
-                detail="La cantidad debe ser mayor a 0"
-            )
-
         resultado = db.registrar_pastel_normal(pastel_data)
 
         if resultado:
@@ -213,6 +163,7 @@ async def registrar_pastel_normal(pastel_data: dict):
     except HTTPException:
         raise
     except Exception as e:
+        logger.error(f"Error en endpoint /normales/registrar: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Error al registrar pastel normal: {str(e)}")
 
 @router.post("/clientes/registrar")
@@ -230,18 +181,6 @@ async def registrar_pedido_cliente(pedido_data: dict):
                     detail=f"Campo requerido faltante: {campo}"
                 )
 
-        if pedido_data['precio'] <= 0:
-            raise HTTPException(
-                status_code=400,
-                detail="El precio debe ser mayor a 0"
-            )
-
-        if pedido_data['cantidad'] <= 0:
-            raise HTTPException(
-                status_code=400,
-                detail="La cantidad debe ser mayor a 0"
-            )
-
         resultado = db.registrar_pedido_cliente(pedido_data)
 
         if resultado:
@@ -252,6 +191,7 @@ async def registrar_pedido_cliente(pedido_data: dict):
     except HTTPException:
         raise
     except Exception as e:
+        logger.error(f"Error en endpoint /clientes/registrar: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Error al registrar pedido de cliente: {str(e)}")
 
 @router.delete("/normales/{pastel_id}")
@@ -259,20 +199,13 @@ async def eliminar_pastel_normal(pastel_id: int):
     """Endpoint para eliminar un pastel normal"""
     try:
         db = DatabaseManager()
-
-        if pastel_id <= 0:
-            raise HTTPException(status_code=400, detail="ID de pastel inválido")
-
         resultado = db.eliminar_pastel_normal(pastel_id)
-
         if resultado:
             return {"message": f"Pastel normal #{pastel_id} eliminado correctamente"}
         else:
             raise HTTPException(status_code=500, detail="Error al eliminar pastel normal")
-
-    except HTTPException:
-        raise
     except Exception as e:
+        logger.error(f"Error en endpoint /normales/delete: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Error al eliminar pastel normal: {str(e)}")
 
 @router.delete("/clientes/{pedido_id}")
@@ -280,20 +213,13 @@ async def eliminar_pedido_cliente(pedido_id: int):
     """Endpoint para eliminar un pedido de cliente"""
     try:
         db = DatabaseManager()
-
-        if pedido_id <= 0:
-            raise HTTPException(status_code=400, detail="ID de pedido inválido")
-
         resultado = db.eliminar_pedido_cliente(pedido_id)
-
         if resultado:
             return {"message": f"Pedido de cliente #{pedido_id} eliminado correctamente"}
         else:
             raise HTTPException(status_code=500, detail="Error al eliminar pedido de cliente")
-
-    except HTTPException:
-        raise
     except Exception as e:
+        logger.error(f"Error en endpoint /clientes/delete: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Error al eliminar pedido de cliente: {str(e)}")
 
 @router.get("/estadisticas")
@@ -303,39 +229,20 @@ async def obtener_estadisticas(
     """Endpoint para obtener estadísticas del sistema"""
     try:
         db = DatabaseManager()
-
-        fecha_inicio = None
-        fecha_fin = None
-
-        if fecha:
-            try:
-                fecha_obj = datetime.strptime(fecha, "%Y-%m-%d").date()
-                fecha_inicio = datetime.combine(fecha_obj, datetime.min.time()).isoformat()
-                fecha_fin = datetime.combine(fecha_obj, datetime.max.time()).isoformat()
-            except ValueError:
-                return JSONResponse(
-                    status_code=400,
-                    content={"error": "Formato de fecha inválido. Use YYYY-MM-DD"}
-                )
-
         estadisticas = db.obtener_estadisticas(
-            fecha_inicio=fecha_inicio,
-            fecha_fin=fecha_fin
+            fecha_inicio=fecha
         )
-
         return {"estadisticas": estadisticas}
-
     except Exception as e:
+        logger.error(f"Error en endpoint /estadisticas: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Error al obtener estadísticas: {str(e)}")
 
 @router.get("/health")
 async def health_check():
     """Endpoint de salud para verificar que el módulo admin está funcionando"""
     try:
-        # Probar conexiones a las bases de datos
         db = DatabaseManager()
         precios = db.obtener_precios()
-
         return {
             "status": "healthy",
             "module": "admin",

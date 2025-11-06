@@ -1,10 +1,21 @@
 """
 Módulo de conexión a bases de datos SQL Server
-Configuración para Mi Pastel - VERSIÓN COMPLETA v2.0
+Configuración para Mi Pastel - v4.1 (Corregido error 'total')
+
+Este archivo contiene:
+1. Conexiones básicas (get_conn_...) para reportes.py y PySide.
+2. Funciones de datos (obtener_precio_db, actualizar_precios_db) para PySide y routers.
+3. La clase DatabaseManager para el admin de FastAPI.
+4. Funciones CRUD completas (obtener por ID, registrar, actualizar, eliminar).
+
+<<-- CORRECCIÓN (v4.1): Se eliminó la columna 'total' de las funciones
+     registrar_pedido_cliente_db y actualizar_pedido_cliente_db
+     para dejar que el Trigger de SQL Server haga el cálculo. -->>
 """
 import pyodbc
 import logging
 from typing import List, Dict, Any, Optional
+from datetime import datetime
 
 # Configurar logging
 logging.basicConfig(level=logging.INFO)
@@ -16,558 +27,440 @@ DRIVER = '{ODBC Driver 17 for SQL Server}'
 DB_NORMALES = 'MiPastel'
 DB_CLIENTES = 'MiPastel_Clientes'
 
-# ==================== TABLA DE PRECIOS ====================
-PRECIOS_PASTELES = {
-    "Fresas": {"Mini": 60.00, "Pequeño": 85.00, "Mediano": 125.00, "Grande": 155.00, "Extra grande": 185.00, "Media plancha": 325.00},
-    "Frutas": {"Mini": 65.00, "Pequeño": 90.00, "Mediano": 130.00, "Grande": 160.00, "Extra grande": 195.00, "Media plancha": 335.00},
-    "Chocolate": {"Mini": 70.00, "Pequeño": 105.00, "Mediano": 140.00, "Grande": 185.00, "Extra grande": 245.00, "Media plancha": 400.00},
-    "Selva negra": {"Mini": 65.00, "Pequeño": 100.00, "Mediano": 130.00, "Grande": 180.00, "Extra grande": 240.00, "Media plancha": 390.00},
-    "Oreo": {"Mini": 70.00, "Pequeño": 105.00, "Mediano": 140.00, "Grande": 185.00, "Extra grande": 245.00, "Media plancha": 400.00},
-    "Chocofresa": {"Mini": 70.00, "Pequeño": 105.00, "Mediano": 140.00, "Grande": 185.00, "Extra grande": 245.00, "Media plancha": 400.00},
-    "Tres Leches": {"Mini": 70.00, "Pequeño": 105.00, "Mediano": 140.00, "Grande": 185.00, "Extra grande": 245.00, "Media plancha": 400.00},
-    "Tres leches con Arándanos": {"Mini": 75.00, "Pequeño": 110.00, "Mediano": 145.00, "Grande": 190.00, "Extra grande": 255.00, "Media plancha": 420.00},
-    "Fiesta": {"Mini": 55.00, "Pequeño": 70.00, "Mediano": 100.00, "Grande": 125.00, "Extra grande": 175.00, "Media plancha": 315.00},
-    "Ambiente": {"Mini": 60.00, "Pequeño": 85.00, "Mediano": 125.00, "Grande": 155.00, "Extra grande": 185.00, "Media plancha": 325.00},
-    "Zanahoria": {"Mini": 70.00, "Pequeño": 105.00, "Mediano": 140.00, "Grande": 185.00, "Extra grande": 245.00, "Media plancha": 400.00},
-    "Boda": {"Mini": 80.00, "Pequeño": 120.00, "Mediano": 160.00, "Grande": 210.00, "Extra grande": 280.00, "Media plancha": 450.00},
-    "Quince Años": {"Mini": 80.00, "Pequeño": 120.00, "Mediano": 160.00, "Grande": 210.00, "Extra grande": 280.00, "Media plancha": 450.00},
-    "Otro": {"Mini": 60.00, "Pequeño": 85.00, "Mediano": 125.00, "Grande": 155.00, "Extra grande": 185.00, "Media plancha": 325.00}
-}
+# ==========================================================
+# PARTE 1: Funciones de Conexión Básica
+# ==========================================================
 
-class DatabaseManager:
-    """Gestor principal de operaciones de base de datos"""
-
-    @staticmethod
-    def obtener_pasteles_normales(fecha_inicio: str = None, fecha_fin: str = None, sucursal: str = None) -> List[Dict[str, Any]]:
-        """Obtiene todos los pasteles normales con filtros opcionales"""
-        try:
-            conn = get_conn_normales()
-            cursor = conn.cursor()
-
-            query = """
-                SELECT id, sabor, tamano, precio, cantidad, sucursal, fecha, detalles, sabor_personalizado
-                FROM PastelesNormales 
-                WHERE 1=1
-            """
-            params = []
-
-            if fecha_inicio and fecha_fin:
-                query += " AND fecha BETWEEN ? AND ?"
-                params.extend([fecha_inicio, fecha_fin])
-
-            if sucursal and sucursal != "Todas":
-                query += " AND sucursal = ?"
-                params.append(sucursal)
-
-            query += " ORDER BY fecha DESC, id DESC"
-
-            cursor.execute(query, params)
-            resultados = cursor.fetchall()
-            conn.close()
-
-            pasteles = []
-            for row in resultados:
-                pasteles.append({
-                    'id': row[0],
-                    'sabor': row[1] or '',
-                    'tamano': row[2] or '',
-                    'precio': float(row[3]) if row[3] else 0.0,
-                    'cantidad': row[4] or 0,
-                    'sucursal': row[5] or '',
-                    'fecha': row[6].strftime('%Y-%m-%d %H:%M') if row[6] else '',
-                    'detalles': row[7] or '',
-                    'sabor_personalizado': row[8] or ''
-                })
-            return pasteles
-        except Exception as e:
-            logger.error(f"Error al obtener pasteles normales: {e}")
-            raise Exception(f"Error al obtener pasteles normales: {e}")
-
-    @staticmethod
-    def obtener_pedidos_clientes(fecha_inicio: str = None, fecha_fin: str = None, sucursal: str = None) -> List[Dict[str, Any]]:
-        """Obtiene todos los pedidos de clientes con filtros opcionales"""
-        try:
-            conn = get_conn_clientes()
-            cursor = conn.cursor()
-
-            query = """
-                SELECT id, color, sabor, tamano, cantidad, precio, total, sucursal, 
-                       fecha, dedicatoria, detalles, sabor_personalizado
-                FROM PastelesClientes 
-                WHERE 1=1
-            """
-            params = []
-
-            if fecha_inicio and fecha_fin:
-                query += " AND fecha BETWEEN ? AND ?"
-                params.extend([fecha_inicio, fecha_fin])
-
-            if sucursal and sucursal != "Todas":
-                query += " AND sucursal = ?"
-                params.append(sucursal)
-
-            query += " ORDER BY fecha DESC, id DESC"
-
-            cursor.execute(query, params)
-            resultados = cursor.fetchall()
-            conn.close()
-
-            pedidos = []
-            for row in resultados:
-                pedidos.append({
-                    'id': row[0],
-                    'color': row[1] or '',
-                    'sabor': row[2] or '',
-                    'tamano': row[3] or '',
-                    'cantidad': row[4] or 0,
-                    'precio': float(row[5]) if row[5] else 0.0,
-                    'total': float(row[6]) if row[6] else 0.0,
-                    'sucursal': row[7] or '',
-                    'fecha': row[8].strftime('%Y-%m-%d %H:%M') if row[8] else '',
-                    'dedicatoria': row[9] or '',
-                    'detalles': row[10] or '',
-                    'sabor_personalizado': row[11] or ''
-                })
-            return pedidos
-        except Exception as e:
-            logger.error(f"Error al obtener pedidos clientes: {e}")
-            raise Exception(f"Error al obtener pedidos clientes: {e}")
-
-    @staticmethod
-    def obtener_precios() -> List[Dict[str, Any]]:
-        """Obtiene la configuración de precios"""
-        try:
-            conn = get_conn_normales()
-            cursor = conn.cursor()
-            cursor.execute("""
-                SELECT id, sabor, tamano, precio 
-                FROM PastelesPrecios 
-                ORDER BY sabor, tamano
-            """)
-            resultados = cursor.fetchall()
-            conn.close()
-
-            precios = []
-            for row in resultados:
-                precios.append({
-                    'id': row[0],
-                    'sabor': row[1],
-                    'tamano': row[2],
-                    'precio': float(row[3]) if row[3] else 0.0
-                })
-            return precios
-        except Exception as e:
-            logger.error(f"Error al obtener precios: {e}")
-            raise Exception(f"Error al obtener precios: {e}")
-
-    @staticmethod
-    def actualizar_precios(precios_data: List[Dict[str, Any]]) -> bool:
-        """Actualiza los precios en la base de datos"""
-        try:
-            conn = get_conn_normales()
-            cursor = conn.cursor()
-
-            for precio in precios_data:
-                cursor.execute("""
-                    UPDATE PastelesPrecios 
-                    SET precio = ? 
-                    WHERE id = ?
-                """, (precio['precio'], precio['id']))
-
-            conn.commit()
-            conn.close()
-            return True
-        except Exception as e:
-            logger.error(f"Error al actualizar precios: {e}")
-            raise Exception(f"Error al actualizar precios: {e}")
-
-    @staticmethod
-    def obtener_precio_automatico(sabor: str, tamano: str) -> float:
-        """Obtiene el precio automático para un sabor y tamaño"""
-        try:
-            conn = get_conn_normales()
-            cursor = conn.cursor()
-            cursor.execute("""
-                SELECT precio FROM PastelesPrecios 
-                WHERE sabor = ? AND tamano = ?
-            """, (sabor, tamano))
-
-            resultado = cursor.fetchone()
-            conn.close()
-
-            if resultado:
-                return float(resultado[0])
-            return 0.0
-        except Exception as e:
-            logger.error(f"Error al obtener precio automático: {e}")
-            return 0.0
-
-    @staticmethod
-    def registrar_pedido_cliente(pedido_data: Dict[str, Any]) -> bool:
-        """Registra un nuevo pedido de cliente"""
-        try:
-            conn = get_conn_clientes()
-            cursor = conn.cursor()
-
-            # Calcular total
-            total = pedido_data['precio'] * pedido_data['cantidad']
-
-            cursor.execute("""
-                INSERT INTO PastelesClientes 
-                (color, sabor, tamano, cantidad, precio, total, sucursal, dedicatoria, detalles, fecha)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, GETDATE())
-            """, (
-                pedido_data.get('color', ''),
-                pedido_data['sabor'],
-                pedido_data['tamano'],
-                pedido_data['cantidad'],
-                pedido_data['precio'],
-                total,
-                pedido_data['sucursal'],
-                pedido_data.get('dedicatoria', ''),
-                pedido_data.get('detalles', '')
-            ))
-
-            conn.commit()
-            conn.close()
-            return True
-        except Exception as e:
-            logger.error(f"Error al registrar pedido: {e}")
-            raise Exception(f"Error al registrar pedido: {e}")
-
-    @staticmethod
-    def registrar_pastel_normal(pastel_data: Dict[str, Any]) -> bool:
-        """Registra un nuevo pastel normal"""
-        try:
-            conn = get_conn_normales()
-            cursor = conn.cursor()
-
-            cursor.execute("""
-                INSERT INTO PastelesNormales 
-                (sabor, tamano, cantidad, precio, sucursal, detalles, fecha)
-                VALUES (?, ?, ?, ?, ?, ?, GETDATE())
-            """, (
-                pastel_data['sabor'],
-                pastel_data['tamano'],
-                pastel_data['cantidad'],
-                pastel_data['precio'],
-                pastel_data['sucursal'],
-                pastel_data.get('detalles', '')
-            ))
-
-            conn.commit()
-            conn.close()
-            return True
-        except Exception as e:
-            logger.error(f"Error al registrar pastel normal: {e}")
-            raise Exception(f"Error al registrar pastel normal: {e}")
-
-    @staticmethod
-    def eliminar_pastel_normal(pastel_id: int) -> bool:
-        """Elimina un pastel normal por ID"""
-        try:
-            conn = get_conn_normales()
-            cursor = conn.cursor()
-            cursor.execute("DELETE FROM PastelesNormales WHERE id = ?", (pastel_id,))
-            conn.commit()
-            conn.close()
-            return True
-        except Exception as e:
-            logger.error(f"Error al eliminar pastel normal: {e}")
-            raise Exception(f"Error al eliminar pastel normal: {e}")
-
-    @staticmethod
-    def eliminar_pedido_cliente(pedido_id: int) -> bool:
-        """Elimina un pedido de cliente por ID"""
-        try:
-            conn = get_conn_clientes()
-            cursor = conn.cursor()
-            cursor.execute("DELETE FROM PastelesClientes WHERE id = ?", (pedido_id,))
-            conn.commit()
-            conn.close()
-            return True
-        except Exception as e:
-            logger.error(f"Error al eliminar pedido cliente: {e}")
-            raise Exception(f"Error al eliminar pedido cliente: {e}")
-
-    @staticmethod
-    def obtener_estadisticas(fecha_inicio: str = None, fecha_fin: str = None) -> Dict[str, Any]:
-        """Obtiene estadísticas del sistema"""
-        try:
-            stats = {}
-
-            # Estadísticas pasteles normales
-            conn_normales = get_conn_normales()
-            cursor_normales = conn_normales.cursor()
-
-            query_normales = "SELECT COUNT(*), SUM(cantidad), SUM(precio * cantidad) FROM PastelesNormales WHERE 1=1"
-            params = []
-
-            if fecha_inicio and fecha_fin:
-                query_normales += " AND fecha BETWEEN ? AND ?"
-                params.extend([fecha_inicio, fecha_fin])
-
-            cursor_normales.execute(query_normales, params)
-            result_normales = cursor_normales.fetchone()
-            conn_normales.close()
-
-            stats['normales_count'] = result_normales[0] or 0
-            stats['normales_cantidad'] = result_normales[1] or 0
-            stats['normales_ingresos'] = float(result_normales[2] or 0)
-
-            # Estadísticas pedidos clientes
-            conn_clientes = get_conn_clientes()
-            cursor_clientes = conn_clientes.cursor()
-
-            query_clientes = "SELECT COUNT(*), SUM(cantidad), SUM(total) FROM PastelesClientes WHERE 1=1"
-            params_clientes = []
-
-            if fecha_inicio and fecha_fin:
-                query_clientes += " AND fecha BETWEEN ? AND ?"
-                params_clientes.extend([fecha_inicio, fecha_fin])
-
-            cursor_clientes.execute(query_clientes, params_clientes)
-            result_clientes = cursor_clientes.fetchone()
-            conn_clientes.close()
-
-            stats['clientes_count'] = result_clientes[0] or 0
-            stats['clientes_cantidad'] = result_clientes[1] or 0
-            stats['clientes_ingresos'] = float(result_clientes[2] or 0)
-
-            # Totales
-            stats['total_pedidos'] = stats['normales_count'] + stats['clientes_count']
-            stats['total_ingresos'] = stats['normales_ingresos'] + stats['clientes_ingresos']
-
-            return stats
-
-        except Exception as e:
-            logger.error(f"Error al obtener estadísticas: {e}")
-            return {}
-
-# ==================== FUNCIONES DE CONEXIÓN ====================
+def get_db_connection(database_name):
+    """Función genérica para obtener una conexión"""
+    try:
+        conn_str = f'DRIVER={DRIVER};SERVER={SERVER};DATABASE={database_name};Trusted_Connection=yes;'
+        conn = pyodbc.connect(conn_str)
+        return conn
+    except Exception as e:
+        logger.error(f"Error al conectar a {database_name}: {e}")
+        raise Exception(f"Error de conexión: {e}")
 
 def get_conn_normales():
-    """Obtiene una conexión a la base de datos de Pasteles Normales"""
-    try:
-        conn_string = (
-            f"DRIVER={DRIVER};"
-            f"SERVER={SERVER};"
-            f"DATABASE={DB_NORMALES};"
-            "Trusted_Connection=yes;"
-        )
-        conn = pyodbc.connect(conn_string)
-        logger.debug(f"Conexión exitosa a {DB_NORMALES}")
-        return conn
-    except pyodbc.Error as e:
-        logger.error(f"Error al conectar a {DB_NORMALES}: {e}")
-        raise
+    return get_db_connection(DB_NORMALES)
 
 def get_conn_clientes():
-    """Obtiene una conexión a la base de datos de Pedidos de Clientes"""
-    try:
-        conn_string = (
-            f"DRIVER={DRIVER};"
-            f"SERVER={SERVER};"
-            f"DATABASE={DB_CLIENTES};"
-            "Trusted_Connection=yes;"
-        )
-        conn = pyodbc.connect(conn_string)
-        logger.debug(f"Conexión exitosa a {DB_CLIENTES}")
-        return conn
-    except pyodbc.Error as e:
-        logger.error(f"Error al conectar a {DB_CLIENTES}: {e}")
-        raise
+    return get_db_connection(DB_CLIENTES)
 
-def obtener_precio_db(sabor, tamano):
-    """Obtiene el precio desde la base de datos MiPastel"""
+# ==========================================================
+# PARTE 2: Funciones de Datos (Standalone)
+# ==========================================================
+
+def obtener_precio_db(sabor: str = None, tamano: str = None) -> Any:
+    """
+    Obtiene precios.
+    - Si se da sabor y tamano, devuelve un float (precio unitario).
+    - Si no se da nada, devuelve una lista de tuplas (precios).
+    """
     try:
         conn = get_conn_normales()
         cursor = conn.cursor()
-        cursor.execute("""
-            SELECT precio FROM PastelesPrecios
-            WHERE sabor = ? AND tamano = ?
-        """, (sabor, tamano))
-        row = cursor.fetchone()
-        conn.close()
-        return float(row[0]) if row else 0.0
+
+        if sabor and tamano:
+            # --- Modo 1: Obtener precio unitario ---
+            query = "SELECT precio FROM PastelesPrecios WHERE sabor = ? AND tamano = ?"
+            cursor.execute(query, (sabor, tamano))
+            resultado = cursor.fetchone()
+            conn.close()
+            return float(resultado[0]) if resultado else 0.0
+        else:
+            # --- Modo 2: Obtener toda la lista ---
+            query = "SELECT id, sabor, tamano, precio FROM PastelesPrecios ORDER BY sabor, id"
+            cursor.execute(query)
+            resultados = cursor.fetchall()
+            conn.close()
+            return resultados # Devuelve lista de tuplas
+
     except Exception as e:
-        logger.error(f"Error al obtener precio desde BD: {e}")
-        return 0.0
+        logger.error(f"Error al obtener precios: {e}", exc_info=True)
+        if "Invalid object name 'PastelesPrecios'" in str(e):
+            logger.warning("Tabla 'PastelesPrecios' no encontrada. Creando tabla de ejemplo...")
+            crear_tabla_precios_ejemplo()
+            return [] if not sabor else 0.0
+        raise e
 
-# ==================== INICIALIZACIÓN DE BASE DE DATOS ====================
-
-def inicializar_tabla_precios():
-    """Inicializa la tabla de precios con los valores por defecto"""
+def actualizar_precios_db(lista_precios: List[Dict[str, Any]]) -> bool:
+    """Actualiza masivamente los precios (para app PySide)"""
     try:
         conn = get_conn_normales()
         cursor = conn.cursor()
+        query = "UPDATE PastelesPrecios SET sabor = ?, tamano = ?, precio = ? WHERE id = ?"
+        params = [(p['sabor'], p['tamano'], p['precio'], p['id']) for p in lista_precios]
 
-        # Verificar si la tabla existe
-        cursor.execute("""
-            IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='PastelesPrecios' AND xtype='U')
-            CREATE TABLE PastelesPrecios (
-                id INT IDENTITY(1,1) PRIMARY KEY,
-                sabor NVARCHAR(100) NOT NULL,
-                tamano NVARCHAR(50) NOT NULL,
-                precio DECIMAL(10,2) NOT NULL,
-                UNIQUE(sabor, tamano)
-            )
-        """)
-
-        # Insertar o actualizar precios
-        for sabor, tamanos in PRECIOS_PASTELES.items():
-            for tamano, precio in tamanos.items():
-                cursor.execute("""
-                    MERGE PastelesPrecios AS target
-                    USING (VALUES (?, ?, ?)) AS source (sabor, tamano, precio)
-                    ON target.sabor = source.sabor AND target.tamano = source.tamano
-                    WHEN MATCHED THEN
-                        UPDATE SET precio = source.precio
-                    WHEN NOT MATCHED THEN
-                        INSERT (sabor, tamano, precio) VALUES (source.sabor, source.tamano, source.precio);
-                """, (sabor, tamano, precio))
-
+        cursor.executemany(query, params)
         conn.commit()
         conn.close()
-        print("✅ Tabla de precios inicializada correctamente")
-
-    except Exception as e:
-        print(f"❌ Error al inicializar tabla de precios: {e}")
-
-def actualizar_esquema():
-    """Actualiza el esquema de las bases de datos con los nuevos campos"""
-    try:
-        # Actualizar tabla PastelesNormales
-        conn1 = get_conn_normales()
-        cur1 = conn1.cursor()
-
-        # Verificar si las columnas ya existen
-        cur1.execute("""
-            IF NOT EXISTS (SELECT * FROM sys.columns 
-                          WHERE object_id = OBJECT_ID('PastelesNormales') 
-                          AND name = 'sabor_personalizado')
-            BEGIN
-                ALTER TABLE PastelesNormales ADD sabor_personalizado NVARCHAR(100) NULL
-            END
-        """)
-
-        cur1.execute("""
-            IF NOT EXISTS (SELECT * FROM sys.columns 
-                          WHERE object_id = OBJECT_ID('PastelesNormales') 
-                          AND name = 'detalles')
-            BEGIN
-                ALTER TABLE PastelesNormales ADD detalles NVARCHAR(MAX) NULL
-            END
-        """)
-
-        conn1.commit()
-        conn1.close()
-        print("✅ Esquema de PastelesNormales actualizado")
-
-        # Actualizar tabla PastelesClientes
-        conn2 = get_conn_clientes()
-        cur2 = conn2.cursor()
-
-        cur2.execute("""
-            IF NOT EXISTS (SELECT * FROM sys.columns 
-                          WHERE object_id = OBJECT_ID('PastelesClientes') 
-                          AND name = 'sabor_personalizado')
-            BEGIN
-                ALTER TABLE PastelesClientes ADD sabor_personalizado NVARCHAR(100) NULL
-            END
-        """)
-
-        cur2.execute("""
-            IF NOT EXISTS (SELECT * FROM sys.columns 
-                          WHERE object_id = OBJECT_ID('PastelesClientes') 
-                          AND name = 'detalles')
-            BEGIN
-                ALTER TABLE PastelesClientes ADD detalles NVARCHAR(MAX) NULL
-            END
-        """)
-
-        cur2.execute("""
-            IF NOT EXISTS (SELECT * FROM sys.columns 
-                          WHERE object_id = OBJECT_ID('PastelesClientes') 
-                          AND name = 'dedicatoria')
-            BEGIN
-                ALTER TABLE PastelesClientes ADD dedicatoria NVARCHAR(MAX) NULL
-            END
-        """)
-
-        conn2.commit()
-        conn2.close()
-        print("✅ Esquema de PastelesClientes actualizado")
-
-    except Exception as e:
-        print(f"❌ Error al actualizar esquema: {e}")
-
-def test_connections():
-    """Prueba las conexiones a ambas bases de datos"""
-    try:
-        print("🔍 Probando conexión a MiPastel...")
-        conn1 = get_conn_normales()
-
-        # Probar consulta simple
-        cursor1 = conn1.cursor()
-        cursor1.execute("SELECT COUNT(*) FROM PastelesNormales")
-        count1 = cursor1.fetchone()[0]
-        conn1.close()
-        print(f"✅ Conexión exitosa a MiPastel (registros: {count1})")
-
-        print("🔍 Probando conexión a MiPastel_Clientes...")
-        conn2 = get_conn_clientes()
-
-        # Probar consulta simple
-        cursor2 = conn2.cursor()
-        cursor2.execute("SELECT COUNT(*) FROM PastelesClientes")
-        count2 = cursor2.fetchone()[0]
-        conn2.close()
-        print(f"✅ Conexión exitosa a MiPastel_Clientes (registros: {count2})")
-
-        print("\n✅ Todas las conexiones funcionan correctamente")
+        logger.info(f"Se actualizaron {len(params)} precios (via PySide).")
         return True
     except Exception as e:
-        print(f"\n❌ Error de conexión: {e}")
-        print("\n💡 Verifica:")
-        print("   1. SQL Server está corriendo")
-        print("   2. Las bases de datos existen")
-        print(f"   3. El servidor '{SERVER}' es correcto")
-        print(f"   4. El driver '{DRIVER}' está instalado")
-        return False
+        logger.error(f"Error al actualizar precios (PySide): {e}", exc_info=True)
+        raise Exception(f"Error al actualizar precios: {e}")
 
-def inicializar_sistema():
-    """Inicializa todo el sistema de base de datos"""
-    print("🧁 Inicializando sistema de base de datos...")
+# --- Función de Ayuda para crear la tabla de precios si no existe ---
+def crear_tabla_precios_ejemplo():
+    # Esta función es solo un fallback de emergencia
+    try:
+        conn = get_conn_normales()
+        cursor = conn.cursor()
+        cursor.execute("""
+        CREATE TABLE PastelesPrecios (
+            id INT IDENTITY(1,1) PRIMARY KEY,
+            sabor NVARCHAR(100) NOT NULL,
+            tamano NVARCHAR(50) NOT NULL,
+            precio FLOAT NOT NULL,
+            UNIQUE(sabor, tamano)
+        )
+        """)
+        precios_ejemplo = [('Fresas', 'Mini', 60.00), ('Chocolate', 'Mediano', 140.00)]
+        cursor.executemany("INSERT INTO PastelesPrecios (sabor, tamano, precio) VALUES (?, ?, ?)", precios_ejemplo)
+        conn.commit()
+        logger.info("Tabla 'PastelesPrecios' creada con datos de ejemplo.")
+    except Exception as e:
+        logger.error(f"No se pudo crear la tabla de precios: {e}")
+    finally:
+        if conn:
+            conn.close()
 
-    if test_connections():
-        print("🔄 Actualizando esquema...")
-        actualizar_esquema()
+# ==========================================================
+# PARTE 3: Funciones CRUD (Standalone)
+# (Usadas por admin_app.py y dialogos.py)
+# ==========================================================
 
-        print("💰 Inicializando tabla de precios...")
-        inicializar_tabla_precios()
+# --- CRUD PASTELES NORMALES ---
 
-        print("✅ Sistema de base de datos inicializado correctamente")
+def registrar_pastel_normal_db(data: Dict[str, Any]) -> bool:
+    """Registra un nuevo pastel normal."""
+    query = """
+        INSERT INTO PastelesNormales 
+        (sabor, tamano, cantidad, precio, sucursal, detalles, sabor_personalizado, fecha)
+        VALUES (?, ?, ?, ?, ?, ?, ?, GETDATE())
+    """
+    params = (
+        data.get('sabor'), data.get('tamano'), data.get('cantidad'),
+        data.get('precio'), data.get('sucursal'), data.get('detalles'),
+        data.get('sabor_personalizado')
+    )
+    try:
+        conn = get_conn_normales()
+        cursor = conn.cursor()
+        cursor.execute(query, params)
+        conn.commit()
+        conn.close()
         return True
-    else:
-        print("❌ No se pudo inicializar el sistema de base de datos")
-        return False
+    except Exception as e:
+        logger.error(f"Error al registrar pastel normal: {e}", exc_info=True)
+        raise Exception(f"Error de base de datos: {e}")
 
-if __name__ == "__main__":
-    print("=" * 60)
-    print("🧁 Mi Pastel - Sistema de Base de Datos v2.0")
-    print("=" * 60)
-    print()
+def actualizar_pastel_normal_db(pedido_id: int, data: Dict[str, Any]) -> bool:
+    """Actualiza un pastel normal existente."""
+    query = """
+        UPDATE PastelesNormales SET
+            sabor = ?, tamano = ?, cantidad = ?, precio = ?, sucursal = ?, 
+            detalles = ?, sabor_personalizado = ?
+        WHERE id = ?
+    """
+    params = (
+        data.get('sabor'), data.get('tamano'), data.get('cantidad'),
+        data.get('precio'), data.get('sucursal'), data.get('detalles'),
+        data.get('sabor_personalizado'),
+        pedido_id
+    )
+    try:
+        conn = get_conn_normales()
+        cursor = conn.cursor()
+        cursor.execute(query, params)
+        conn.commit()
+        conn.close()
+        return True
+    except Exception as e:
+        logger.error(f"Error al actualizar pastel normal ID {pedido_id}: {e}", exc_info=True)
+        raise Exception(f"Error de base de datos: {e}")
 
-    print("⚙️ Configuración actual:")
-    print(f"   • Servidor: {SERVER}")
-    print(f"   • Driver: {DRIVER}")
-    print(f"   • BD Normales: {DB_NORMALES}")
-    print(f"   • BD Clientes: {DB_CLIENTES}")
-    print()
+def eliminar_normal_db(pedido_id: int) -> bool:
+    """Elimina un pastel normal por ID."""
+    try:
+        conn = get_conn_normales()
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM PastelesNormales WHERE id = ?", (pedido_id,))
+        conn.commit()
+        conn.close()
+        return True
+    except Exception as e:
+        logger.error(f"Error al eliminar pastel normal ID {pedido_id}: {e}", exc_info=True)
+        raise Exception(f"Error de base de datos: {e}")
 
-    # Inicializar sistema completo
-    inicializar_sistema()
+def obtener_normal_por_id_db(pedido_id: int) -> Optional[Dict[str, Any]]:
+    """Obtiene los datos de un pastel normal para editar."""
+    try:
+        conn = get_conn_normales()
+        cursor = conn.cursor()
+        query = "SELECT id, sabor, tamano, cantidad, precio, sucursal, fecha, detalles, sabor_personalizado FROM PastelesNormales WHERE id = ?"
+        cursor.execute(query, (pedido_id,))
+        row = cursor.fetchone()
+        conn.close()
 
-    print()
-    print("=" * 60)
+        if not row:
+            return None
+
+        return {
+            'id': row[0], 'sabor': row[1], 'tamano': row[2], 'cantidad': row[3],
+            'precio': float(row[4]), 'sucursal': row[5], 'fecha': row[6].isoformat(),
+            'detalles': row[7], 'sabor_personalizado': row[8]
+        }
+    except Exception as e:
+        logger.error(f"Error al obtener normal por ID {pedido_id}: {e}", exc_info=True)
+        raise Exception(f"Error de base de datos: {e}")
+
+# --- CRUD PEDIDOS CLIENTES ---
+
+def registrar_pedido_cliente_db(data: Dict[str, Any]) -> bool:
+    """Registra un nuevo pedido de cliente."""
+
+    # <<-- CORRECCIÓN: 'total' ELIMINADO DE LA CONSULTA -->>
+    query = """
+        INSERT INTO PastelesClientes 
+        (color, sabor, tamano, cantidad, precio, sucursal, fecha, 
+         dedicatoria, detalles, sabor_personalizado, foto_path, fecha_entrega)
+        VALUES (?, ?, ?, ?, ?, ?, GETDATE(), ?, ?, ?, ?, ?)
+    """
+    params = (
+        data.get('color'), data.get('sabor'), data.get('tamano'), data.get('cantidad'),
+        data.get('precio'), data.get('sucursal'),
+        data.get('dedicatoria'), data.get('detalles'), data.get('sabor_personalizado'),
+        data.get('foto_path'), data.get('fecha_entrega')
+    )
+    try:
+        conn = get_conn_clientes()
+        cursor = conn.cursor()
+        cursor.execute(query, params)
+        conn.commit()
+        conn.close()
+        return True
+    except Exception as e:
+        logger.error(f"Error al registrar pedido cliente: {e}", exc_info=True)
+        raise Exception(f"Error de base de datos: {e}")
+
+def actualizar_pedido_cliente_db(pedido_id: int, data: Dict[str, Any]) -> bool:
+    """Actualiza un pedido de cliente existente."""
+
+    # <<-- CORRECCIÓN: 'total = ?' ELIMINADO DE LA CONSULTA -->>
+    query = """
+        UPDATE PastelesClientes SET
+            color = ?, sabor = ?, tamano = ?, cantidad = ?, precio = ?, sucursal = ?,
+            dedicatoria = ?, detalles = ?, sabor_personalizado = ?, 
+            foto_path = ?, fecha_entrega = ?
+        WHERE id = ?
+    """
+    params = (
+        data.get('color'), data.get('sabor'), data.get('tamano'), data.get('cantidad'),
+        data.get('precio'), data.get('sucursal'),
+        data.get('dedicatoria'), data.get('detalles'), data.get('sabor_personalizado'),
+        data.get('foto_path'), data.get('fecha_entrega'),
+        pedido_id
+    )
+    try:
+        conn = get_conn_clientes()
+        cursor = conn.cursor()
+        cursor.execute(query, params)
+        conn.commit()
+        conn.close()
+        return True
+    except Exception as e:
+        logger.error(f"Error al actualizar pedido cliente ID {pedido_id}: {e}", exc_info=True)
+        raise Exception(f"Error de base de datos: {e}")
+
+def eliminar_cliente_db(pedido_id: int) -> bool:
+    """Elimina un pedido de cliente por ID."""
+    try:
+        conn = get_conn_clientes()
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM PastelesClientes WHERE id = ?", (pedido_id,))
+        conn.commit()
+        conn.close()
+        return True
+    except Exception as e:
+        logger.error(f"Error al eliminar cliente ID {pedido_id}: {e}", exc_info=True)
+        raise Exception(f"Error de base de datos: {e}")
+
+def obtener_cliente_por_id_db(pedido_id: int) -> Optional[Dict[str, Any]]:
+    """Obtiene los datos de un pedido de cliente para editar."""
+    try:
+        conn = get_conn_clientes()
+        cursor = conn.cursor()
+        query = """
+            SELECT id, color, sabor, tamano, cantidad, precio, total, sucursal, 
+                   fecha, foto_path, dedicatoria, detalles, fecha_entrega, sabor_personalizado
+            FROM PastelesClientes WHERE id = ?
+        """
+        cursor.execute(query, (pedido_id,))
+        row = cursor.fetchone()
+        conn.close()
+
+        if not row:
+            return None
+
+        return {
+            'id': row[0], 'color': row[1], 'sabor': row[2], 'tamano': row[3],
+            'cantidad': row[4], 'precio': float(row[5]), 'total': float(row[6]),
+            'sucursal': row[7], 'fecha': row[8].isoformat(), 'foto_path': row[9],
+            'dedicatoria': row[10], 'detalles': row[11],
+            'fecha_entrega': row[12].isoformat() if row[12] else None,
+            'sabor_personalizado': row[13]
+        }
+    except Exception as e:
+        logger.error(f"Error al obtener cliente por ID {pedido_id}: {e}", exc_info=True)
+        raise Exception(f"Error de base de datos: {e}")
+
+
+# ==========================================================
+# PARTE 4: DatabaseManager (Clase)
+# (Usada por router_admin.py, router_clientes.py, router_normales.py)
+# ==========================================================
+
+class DatabaseManager:
+    """Gestor principal de operaciones de base de datos para la API de FastAPI"""
+
+    def _ejecutar_query(self, conn_func, query, params=(), commit=False, fetchone=False, fetchall=False):
+        """Método helper para ejecutar consultas de forma segura"""
+        try:
+            conn = conn_func()
+            cursor = conn.cursor()
+            cursor.execute(query, params)
+
+            resultado = None
+            if fetchone:
+                resultado = cursor.fetchone()
+            if fetchall:
+                resultado = cursor.fetchall()
+
+            if commit:
+                conn.commit()
+
+            conn.close()
+            return resultado
+        except Exception as e:
+            logger.error(f"Error de DB en query ({query[:50]}...): {e}", exc_info=True)
+            # Re-lanzar para que FastAPI lo capture
+            raise Exception(f"Error de base de datos: {e}")
+
+    # --- Métodos de Precios ---
+    def obtener_precios(self) -> List[Dict[str, Any]]:
+        """Obtiene la lista de precios (para API)"""
+        resultados = obtener_precio_db() # Reutiliza la función standalone
+        precios = []
+        for row in resultados:
+            precios.append({
+                'id': row[0], 'sabor': row[1], 'tamano': row[2], 'precio': float(row[3])
+            })
+        return precios
+
+    def actualizar_precios(self, lista_precios: List[Dict[str, Any]]) -> bool:
+        """Actualiza masivamente los precios (para API)"""
+        return actualizar_precios_db(lista_precios) # Reutiliza la función standalone
+
+    # --- Métodos de Pasteles Normales ---
+    def registrar_pastel_normal(self, data: Dict[str, Any]) -> bool:
+        """Registra un pastel normal (para API)"""
+        return registrar_pastel_normal_db(data) # Reutiliza la función standalone
+
+    def obtener_pasteles_normales(self, fecha_inicio: str = None, fecha_fin: str = None, sucursal: str = None) -> List[Dict[str, Any]]:
+        query = "SELECT id, sabor, tamano, precio, cantidad, sucursal, fecha, detalles, sabor_personalizado FROM PastelesNormales WHERE 1=1"
+        params = []
+
+        if fecha_inicio and not fecha_fin: # Si solo viene inicio, tomamos ese día
+            fecha_fin = fecha_inicio
+
+        if fecha_inicio and fecha_fin:
+            query += " AND CAST(fecha AS DATE) BETWEEN ? AND ?"
+            params.extend([fecha_inicio, fecha_fin])
+
+        if not fecha_inicio: # Filtro por defecto: solo hoy
+            query += " AND CAST(fecha AS DATE) = CAST(GETDATE() AS DATE)"
+
+        if sucursal and sucursal.lower() != "todas":
+            query += " AND sucursal = ?"
+            params.append(sucursal)
+
+        query += " ORDER BY fecha DESC"
+
+        resultados = self._ejecutar_query(get_conn_normales, query, tuple(params), fetchall=True)
+
+        pasteles = []
+        for row in resultados:
+            pasteles.append({
+                'id': row[0], 'sabor': row[1], 'tamano': row[2], 'precio': float(row[3]),
+                'cantidad': row[4], 'sucursal': row[5], 'fecha': row[6].isoformat(),
+                'detalles': row[7], 'sabor_personalizado': row[8]
+            })
+        return pasteles
+
+    def eliminar_pastel_normal(self, pastel_id: int) -> bool:
+        """Elimina un pastel normal (para API)"""
+        return eliminar_normal_db(pastel_id) # Reutiliza la función standalone
+
+    # --- Métodos de Pedidos Clientes ---
+    def registrar_pedido_cliente(self, data: Dict[str, Any]) -> bool:
+        """Registra un pedido de cliente (para API)"""
+        return registrar_pedido_cliente_db(data) # Reutiliza la función standalone
+
+    def obtener_pedidos_clientes(self, fecha_inicio: str = None, fecha_fin: str = None, sucursal: str = None) -> List[Dict[str, Any]]:
+        query = "SELECT id, color, sabor, tamano, cantidad, precio, total, sucursal, fecha, foto_path, dedicatoria, detalles, fecha_entrega, sabor_personalizado FROM PastelesClientes WHERE 1=1"
+        params = []
+
+        if fecha_inicio and not fecha_fin: # Si solo viene inicio, tomamos ese día
+            fecha_fin = fecha_inicio
+
+        if fecha_inicio and fecha_fin:
+            query += " AND CAST(fecha AS DATE) BETWEEN ? AND ?"
+            params.extend([fecha_inicio, fecha_fin])
+
+        if not fecha_inicio: # Filtro por defecto: solo hoy
+            query += " AND CAST(fecha AS DATE) = CAST(GETDATE() AS DATE)"
+
+        if sucursal and sucursal.lower() != "todas":
+            query += " AND sucursal = ?"
+            params.append(sucursal)
+
+        query += " ORDER BY fecha DESC"
+
+        resultados = self._ejecutar_query(get_conn_clientes, query, tuple(params), fetchall=True)
+
+        pedidos = []
+        for row in resultados:
+            pedidos.append({
+                'id': row[0], 'color': row[1], 'sabor': row[2], 'tamano': row[3],
+                'cantidad': row[4], 'precio': float(row[5]), 'total': float(row[6]),
+                'sucursal': row[7], 'fecha': row[8].isoformat(), 'foto_path': row[9],
+                'dedicatoria': row[10], 'detalles': row[11],
+                'fecha_entrega': row[12].isoformat() if row[12] else None,
+                'sabor_personalizado': row[13]
+            })
+        return pedidos
+
+    def eliminar_pedido_cliente(self, pedido_id: int) -> bool:
+        """Elimina un pedido de cliente (para API)"""
+        return eliminar_cliente_db(pedido_id) # Reutiliza la función standalone
+
+    # --- Método de Estadísticas ---
+    def obtener_estadisticas(self, fecha_inicio: str = None, fecha_fin: str = None) -> Dict[str, Any]:
+
+        if fecha_inicio and not fecha_fin:
+            fecha_fin = fecha_inicio
+
+        normales = self.obtener_pasteles_normales(fecha_inicio, fecha_fin)
+        clientes = self.obtener_pedidos_clientes(fecha_inicio, fecha_fin)
+
+        stats = {
+            'normales_count': len(normales),
+            'normales_cantidad': sum(p['cantidad'] for p in normales),
+            'normales_ingresos': sum(p['precio'] * p['cantidad'] for p in normales),
+            'clientes_count': len(clientes),
+            'clientes_cantidad': sum(p['cantidad'] for p in clientes),
+            'clientes_ingresos': sum(p['total'] for p in clientes),
+        }
+        return stats
