@@ -49,7 +49,7 @@ async def mostrar_formulario_normales(request: Request):
 async def registrar_pedido_normal(
         request: Request,
         sabor: str = Form(...),
-        tamano: str = Form(...), # <--- tamano (sin tilde)
+        tamano: str = Form(...),
         cantidad: int = Form(..., gt=0),
         sucursal: str = Form(...),
         detalles: Optional[str] = Form(None),

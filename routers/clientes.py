@@ -188,11 +188,11 @@ async def eliminar_pedido_cliente(pedido_id: int):
         if pedido_id <= 0:
             raise HTTPException(status_code=400, detail="ID de pedido inválido")
 
-        #Info del pedido ANTES de borrarlo
+        # Info del pedido ANTES de borrarlo
         pedidos = db.obtener_pedidos_clientes()
         pedido = next((p for p in pedidos if p['id'] == pedido_id), None)
 
-        # Borramos el registro de la DB
+        # Borra el registro de la DB
         resultado = db.eliminar_pedido_cliente(pedido_id)
 
         if resultado:

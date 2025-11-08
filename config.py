@@ -1,5 +1,5 @@
 """
-Configuración Maestra - Mi Pastel v3.0
+Configuración Maestra - Mi Pastel
 --------------------------------------
 Este archivo es la ÚNICA FUENTE DE VERDAD para
 las listas maestras del sistema (sabores, tamaños, sucursales).
@@ -25,7 +25,7 @@ TAMANOS = ["Mini", "Pequeño", "Mediano", "Grande", "Extra grande", "Media planc
 # Lista maestra para reportes y formularios de ingreso
 SUCURSALES = [
     "Jutiapa 1", "Jutiapa 2", "Jutiapa 3", "Progreso", "Quesada", "Acatempa",
-    "Yupiltepeque", "Atescatempa", "Adelanto", "Jeréz", "Comapa", "Cariña"
+    "Yupiltepeque", "Atescatempa", "Adelanto", "Jeréz", "Comapa", "Carina"
 ]
 
 # Lista para los filtros de la App Admin (incluye "Todas")

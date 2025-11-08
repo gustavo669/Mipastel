@@ -11,12 +11,11 @@ logger = logging.getLogger(__name__)
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from PySide6.QtWidgets import (
-    QApplication, QMainWindow, QWidget, QTabWidget, QVBoxLayout, QTableWidget,
+    QMainWindow, QWidget, QTabWidget, QVBoxLayout, QTableWidget,
     QTableWidgetItem, QPushButton, QLabel, QHBoxLayout, QComboBox, QDateEdit,
     QMessageBox, QFileDialog, QAbstractItemView, QHeaderView
 )
 from PySide6.QtCore import QDate, Qt, Slot
-from PySide6.QtGui import QFont
 
 # Importamos las funciones de base de datos actualizadas
 try:
@@ -44,7 +43,7 @@ except ImportError as e:
 DARK_STYLE = """
     /* Fondo general */
     QWidget {
-        background-color: #282a36; /* Fondo principal (Dracula BG) */
+        background-color: #00000; /* Fondo principal (Dracula BG) */
         color: #f8f8f2; /* Texto principal (Dracula FG) */
         font-family: "Segoe UI Variable", "Lato", sans-serif;
         font-size: 10pt;
@@ -242,13 +241,13 @@ class AdminApp(QMainWindow):
         self.setWindowTitle("Mi Pastel — Administración de Pedidos")
         self.resize(1300, 800)
 
-        # --- CONSTRUCCIÓN DE UI MANUAL ---
+        # CONSTRUCCIÓN DE UI MANUAL
         self.central_widget = QWidget()
         self.setCentralWidget(self.central_widget)
 
         self.layout_principal = QVBoxLayout(self.central_widget)
 
-        # --- Layout Superior para Botón de Precios ---
+        # Layout Superior para Botón de Precios
         layout_superior = QHBoxLayout()
         self.btn_admin_precios = QPushButton("Administrar Precios")
         layout_superior.addStretch()
@@ -259,7 +258,7 @@ class AdminApp(QMainWindow):
         self.tabs = QTabWidget()
         self.layout_principal.addWidget(self.tabs)
 
-        # ==================== Pestaña Clientes ====================
+        # Pestaña Clientes
         self.tab_clientes = QWidget()
         self.layout_clientes = QVBoxLayout(self.tab_clientes)
 
@@ -272,7 +271,7 @@ class AdminApp(QMainWindow):
         self.btn_filtrar_clientes = QPushButton("Filtrar")
         self.btn_reporte_clientes = QPushButton("Imprimir Reporte")
 
-        # --- Botones CRUD Clientes ---
+        # Botones CRUD Clientes
         self.btn_nuevo_cliente = QPushButton("Nuevo")
         self.btn_nuevo_cliente.setProperty("cssClass", "btnVerde")
         self.btn_editar_cliente = QPushButton("Editar")
@@ -309,11 +308,11 @@ class AdminApp(QMainWindow):
         self.layout_clientes.addWidget(self.table_clientes)
         self.tabs.addTab(self.tab_clientes, "Pedidos de Clientes")
 
-        # ==================== Pestaña Pedidos Normales ====================
+        # Pestaña Pedidos Normales
         self.tab_normales = QWidget()
         self.layout_normales = QVBoxLayout(self.tab_normales)
 
-        # Layout de filtros y CRUD (Centrado)
+        # Layout de filtros y CRUD
         filtros_layout_normales = QHBoxLayout()
         self.date_normales = QDateEdit(calendarPopup=True)
         self.date_normales.setDate(QDate.currentDate())
@@ -322,7 +321,7 @@ class AdminApp(QMainWindow):
         self.btn_filtrar_normales = QPushButton("Filtrar")
         self.btn_reporte_normales = QPushButton("Imprimir Reporte")
 
-        # --- Botones CRUD Normales ---
+        # Botones CRUD Normales
         self.btn_nuevo_normal = QPushButton("Nuevo")
         self.btn_nuevo_normal.setProperty("cssClass", "btnVerde")
         self.btn_editar_normal = QPushButton("Editar")
@@ -355,9 +354,9 @@ class AdminApp(QMainWindow):
         self.table_normales.horizontalHeader().setStretchLastSection(True)
         self.layout_normales.addWidget(self.table_normales)
         self.tabs.addTab(self.tab_normales, "Pedidos Normales")
-        # --- FIN DE CONSTRUCCIÓN DE UI ---
 
-        # ==================== Conectar Señales y Cargar Datos ====================
+
+        # Conectar Señales y Cargar Datos
         self.conectar_senales()
         self.cargar_datos_iniciales()
         self.statusBar().showMessage("Sistema cargado. Mostrando pedidos de hoy.")
@@ -368,6 +367,7 @@ class AdminApp(QMainWindow):
 
     def conectar_senales(self):
         """Conecta todos los botones a sus funciones"""
+
         # Admin Precios
         self.btn_admin_precios.clicked.connect(self.abrir_dialogo_precios)
 
@@ -391,7 +391,6 @@ class AdminApp(QMainWindow):
         """Carga todos los datos al iniciar"""
         self.cargar_clientes()
         self.cargar_normales()
-
 
     def _crear_item_centrado(self, texto: str) -> QTableWidgetItem:
         """Helper para crear un QTableWidgetItem centrado y no editable."""
@@ -425,7 +424,6 @@ class AdminApp(QMainWindow):
                 header = table.horizontalHeaderItem(col).text()
                 item = table.item(row, col)
                 data[header] = item.text() if item else ""
-
 
             data_db = {
                 'id': data.get('ID'),
@@ -475,7 +473,7 @@ class AdminApp(QMainWindow):
             for fila, datos in enumerate(resultados):
                 for col, valor in enumerate(datos):
                     valor_str = ""
-                    if col == 8 and valor: # Columna de fecha
+                    if col == 8 and valor:
                         valor_str = valor.strftime('%Y-%m-%d %H:%M')
                     else:
                         valor_str = str(valor if valor is not None else '')
@@ -483,7 +481,6 @@ class AdminApp(QMainWindow):
                     item = self._crear_item_centrado(valor_str)
                     self.table_clientes.setItem(fila, col, item)
 
-            # self.table_clientes.resizeColumnsToContents() # El header ya lo hace
             self.statusBar().showMessage(f"Clientes: {len(resultados)} pedidos cargados para {fecha}")
         except Exception as e:
             logger.error(f"ERROR DETALLADO (cargar_clientes): {e}", exc_info=True)
@@ -519,7 +516,7 @@ class AdminApp(QMainWindow):
             for fila, datos in enumerate(resultados):
                 for col, valor in enumerate(datos):
                     valor_str = ""
-                    if col == 6 and valor: # Columna de fecha
+                    if col == 6 and valor:
                         valor_str = valor.strftime('%Y-%m-%d %H:%M')
                     else:
                         valor_str = str(valor if valor is not None else '')
@@ -527,7 +524,6 @@ class AdminApp(QMainWindow):
                     item = self._crear_item_centrado(valor_str)
                     self.table_normales.setItem(fila, col, item)
 
-            # self.table_normales.resizeColumnsToContents() # El header ya lo hace
             self.statusBar().showMessage(f"Normales: {len(resultados)} pedidos cargados para {fecha}")
         except Exception as e:
             logger.error(f"ERROR DETALLADO (cargar_normales): {e}", exc_info=True)
@@ -535,16 +531,16 @@ class AdminApp(QMainWindow):
         finally:
             self.actualizar_botones_crud_normales()
 
-    # ==================== Funciones de Diálogos y CRUD ====================
+    # Funciones de Diálogos y CRUD
 
     @Slot()
     def abrir_dialogo_precios(self):
         """Abre el diálogo de administración de precios."""
         dialog = DialogoPrecios(self)
         dialog.exec()
-        # No es necesario recargar nada aquí
 
-    # --- CRUD Clientes ---
+    # CRUD Clientes
+
     @Slot()
     def actualizar_botones_crud_clientes(self):
         """Habilita/deshabilita botones CRUD si hay una fila seleccionada."""
@@ -568,7 +564,6 @@ class AdminApp(QMainWindow):
             return
 
         try:
-            # Obtener datos frescos de la DB
             data = obtener_cliente_por_id_db(pedido_id)
             if not data:
                 QMessageBox.critical(self, "Error", f"No se encontraron datos para el ID {pedido_id}.")
@@ -581,7 +576,6 @@ class AdminApp(QMainWindow):
             logger.error(f"Error al abrir diálogo editar cliente: {e}", exc_info=True)
             QMessageBox.critical(self, "Error", f"No se pudieron cargar los datos para editar:\n{e}")
 
-
     @Slot()
     def eliminar_cliente(self):
         """Elimina el pedido de cliente seleccionado."""
@@ -593,8 +587,7 @@ class AdminApp(QMainWindow):
         respuesta = QMessageBox.warning(self, "Confirmar Eliminación",
                                         f"¿Está seguro de que desea eliminar el pedido de cliente #{pedido_id}?\n\nEsta acción no se puede deshacer.",
                                         QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                                        QMessageBox.StandardButton.No
-                                        )
+                                        QMessageBox.StandardButton.No)
 
         if respuesta == QMessageBox.StandardButton.Yes:
             try:
@@ -605,7 +598,8 @@ class AdminApp(QMainWindow):
                 logger.error(f"Error al eliminar cliente: {e}", exc_info=True)
                 QMessageBox.critical(self, "Error", f"No se pudo eliminar el pedido:\n{e}")
 
-    # --- CRUD Normales ---
+    # CRUD Normales
+
     @Slot()
     def actualizar_botones_crud_normales(self):
         """Habilita/deshabilita botones CRUD si hay una fila seleccionada."""
@@ -629,7 +623,6 @@ class AdminApp(QMainWindow):
             return
 
         try:
-            # Obtener datos frescos de la DB
             data = obtener_normal_por_id_db(pedido_id)
             if not data:
                 QMessageBox.critical(self, "Error", f"No se encontraron datos para el ID {pedido_id}.")
@@ -653,8 +646,7 @@ class AdminApp(QMainWindow):
         respuesta = QMessageBox.warning(self, "Confirmar Eliminación",
                                         f"¿Está seguro de que desea eliminar el pedido normal #{pedido_id}?\n\nEsta acción no se puede deshacer.",
                                         QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                                        QMessageBox.StandardButton.No
-                                        )
+                                        QMessageBox.StandardButton.No)
 
         if respuesta == QMessageBox.StandardButton.Yes:
             try:
@@ -665,15 +657,15 @@ class AdminApp(QMainWindow):
                 logger.error(f"Error al eliminar normal: {e}", exc_info=True)
                 QMessageBox.critical(self, "Error", f"No se pudo eliminar el pedido:\n{e}")
 
-    # ==================== Reportes (Sin cambios) ====================
+    # Reportes
 
     def generar_reporte_avanzado(self):
         tab_actual = self.tabs.currentIndex()
-        if tab_actual == 0: # Pestaña Clientes (Índice 0 ahora)
+        if tab_actual == 0:
             fecha = self.date_clientes.date().toPython()
             sucursal = self.cmb_sucursal_clientes.currentText()
             tipo_reporte = "Clientes"
-        elif tab_actual == 1: # Pestaña Normales (Índice 1 ahora)
+        elif tab_actual == 1:
             fecha = self.date_normales.date().toPython()
             sucursal = self.cmb_sucursal_normales.currentText()
             tipo_reporte = "Normales"
@@ -701,7 +693,7 @@ class AdminApp(QMainWindow):
                 sucursal=sucursal,
                 output_path=nombre_pdf
             )
-            QMessageBox.information(self, "Reporte generado", f"📄 Reporte guardado en:\n{nombre_pdf}")
+            QMessageBox.information(self, "Reporte generado", f"Reporte guardado en:\n{nombre_pdf}")
             self.statusBar().showMessage("Reporte generado exitosamente")
 
             try:
@@ -712,20 +704,3 @@ class AdminApp(QMainWindow):
         except Exception as e:
             logger.error(f"ERROR DETALLADO (generar_reporte): {e}", exc_info=True)
             QMessageBox.critical(self, "Error", f"No se pudo generar el reporte:\n{e}")
-
-
-# ==================== PUNTO DE ENTRADA ====================
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-
-    font = QFont("Segoe UI Variable", 10)
-
-    if not font.exactMatch():
-        font = QFont("Lato", 10)
-    app.setFont(font)
-
-    app.setStyleSheet(DARK_STYLE)
-
-    ventana = AdminApp()
-    ventana.show()
-    sys.exit(app.exec())

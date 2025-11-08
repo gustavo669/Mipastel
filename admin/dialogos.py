@@ -1,12 +1,3 @@
-"""
-Diálogos Emergentes para la App Admin v4.0
---------------------------------------------
-Este archivo contiene:
-1. DialogoPrecios: Para ver y editar la lista de precios.
-2. _BaseFormDialog: Una clase base para los formularios de pedido.
-3. DialogoNuevoNormal: Formulario para pedidos normales (Crear/Editar).
-4. DialogoNuevoCliente: Formulario para pedidos de cliente (Crear/Editar).
-"""
 import sys
 import logging
 from typing import Optional, Dict, Any, List
@@ -20,6 +11,7 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Qt, Slot
 
 # Importar funciones de la base de datos y configuración
+
 try:
     from database import (
         obtener_precio_db,
@@ -36,9 +28,7 @@ except ImportError as e:
 
 logger = logging.getLogger(__name__)
 
-# ==========================================================
 # DIÁLOGO DE ADMINISTRACIÓN DE PRECIOS
-# ==========================================================
 
 class DialogoPrecios(QDialog):
     """Diálogo para ver y editar la lista de precios."""
@@ -69,7 +59,6 @@ class DialogoPrecios(QDialog):
         self.table_precios.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.table_precios.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.table_precios.setSelectionMode(QAbstractItemView.SingleSelection)
-        # Permitir editar con doble click
         self.table_precios.setEditTriggers(QAbstractItemView.DoubleClicked | QAbstractItemView.EditKeyPressed)
 
         layout.addWidget(self.table_precios)
@@ -138,7 +127,7 @@ class DialogoPrecios(QDialog):
             if estado_actual != self.precios_originales[fila]:
                 self.btn_guardar.setEnabled(True)
         except Exception:
-            pass # Error al parsear float, el usuario está escribiendo
+            pass
 
     @Slot()
     def guardar_precios(self):
@@ -176,7 +165,6 @@ class DialogoPrecios(QDialog):
                 QMessageBox.information(self, "Sin Cambios", "No hay cambios que guardar.")
                 return
 
-            # Confirmar
             respuesta = QMessageBox.question(self, "Confirmar Cambios",
                                              f"¿Está seguro de que desea guardar {len(precios_actualizados)} cambios en los precios?",
                                              QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
@@ -189,10 +177,7 @@ class DialogoPrecios(QDialog):
             logger.error(f"Error al guardar precios: {e}", exc_info=True)
             QMessageBox.critical(self, "Error", f"Error al guardar precios:\n{e}")
 
-
-# ==========================================================
 # CLASE BASE PARA FORMULARIOS DE PEDIDO
-# ==========================================================
 
 class _BaseFormDialog(QDialog):
     """Clase base para los formularios de 'Nuevo Pedido'."""
@@ -209,11 +194,11 @@ class _BaseFormDialog(QDialog):
         self.setWindowTitle(titulo)
         self.setMinimumWidth(500)
 
-        # --- Layouts ---
+        # Layouts
         self.layout_principal = QVBoxLayout(self)
         self.form_layout = QFormLayout()
 
-        # --- Widgets Comunes ---
+        # Widgets Comunes
         self.cmb_sabor = QComboBox()
         self.cmb_tamano = QComboBox()
         self.spin_cantidad = QSpinBox()
@@ -234,10 +219,10 @@ class _BaseFormDialog(QDialog):
 
         self.line_detalles = QLineEdit()
 
-        # --- Botones OK/Cancel ---
+        # Botones OK/Cancel
         self.botones = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
 
-        # --- Conexiones Comunes ---
+        # Conexiones Comunes
         self.cmb_sabor.currentTextChanged.connect(self.actualizar_precio)
         self.cmb_tamano.currentTextChanged.connect(self.actualizar_precio)
         self.spin_cantidad.valueChanged.connect(self.actualizar_precio)
@@ -323,9 +308,7 @@ class _BaseFormDialog(QDialog):
         """Función placeholder, debe ser implementada por las clases hijas."""
         raise NotImplementedError
 
-# ==========================================================
 # DIÁLOGO PARA PASTELES NORMALES
-# ==========================================================
 
 class DialogoNuevoNormal(_BaseFormDialog):
     def __init__(self, parent=None, data_dict: Optional[Dict[str, Any]] = None, pedido_id: Optional[int] = None):
@@ -400,11 +383,7 @@ class DialogoNuevoNormal(_BaseFormDialog):
 
     def actualizar_en_db(self, data: Dict[str, Any]):
         actualizar_pastel_normal_db(self.pedido_id, data)
-
-
-# ==========================================================
 # DIÁLOGO PARA PEDIDOS DE CLIENTES
-# ==========================================================
 
 class DialogoNuevoCliente(_BaseFormDialog):
     def __init__(self, parent=None, data_dict: Optional[Dict[str, Any]] = None, pedido_id: Optional[int] = None):

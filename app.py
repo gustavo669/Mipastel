@@ -24,14 +24,11 @@ REPORTS_DIR = BASE_DIR / "pdf_reports"
 
 os.makedirs(UPLOADS_DIR, exist_ok=True)
 os.makedirs(REPORTS_DIR, exist_ok=True)
-# --- FIN CORRECCIÓN ---
 
 # Importar routers
 try:
     from routers import normales, clientes, admin
-    print("Routers importados correctamente")
 except ImportError as e:
-    print(f"Error importando routers: {e}")
     # Crear routers básicos si no existen
     from fastapi import APIRouter
     normales = APIRouter(prefix="/normales", tags=["Normales"])
@@ -42,8 +39,6 @@ except ImportError as e:
 try:
     from config import SABORES_NORMALES, SABORES_CLIENTES, TAMANOS, SUCURSALES
 except ImportError:
-    print("Error: No se encontró config.py. Usando listas de emergencia.")
-    # Mantener esto como fallback por si acaso
     SABORES_NORMALES = ["Error"]
     SABORES_CLIENTES = ["Error"]
     TAMANOS = ["Error"]
@@ -113,12 +108,6 @@ async def health_check():
 @app.on_event("startup")
 async def startup_event():
     """Ejecutar al iniciar el servidor"""
-    print("=" * 60)
-    print("Mi Pastel - Servidor Web Iniciado")
-    print(f"URL: http://127.0.0.1:5000")
-    print(f"Health: http://127.0.0.1:5000/health")
-    print(f"Admin: http://127.0.0.1:5000/admin")
-    print("=" * 60)
 
 if __name__ == "__main__":
     uvicorn.run(

@@ -1,14 +1,3 @@
-"""
-Módulo de conexión a bases de datos SQL Server
-Configuración para Mi Pastel
-
-Este archivo contiene:
-1. Conexiones básicas (get_conn_...) para reportes.py y PySide.
-2. Funciones de datos (obtener_precio_db, actualizar_precios_db) para PySide y routers.
-3. La clase DatabaseManager para el admin de FastAPI.
-4. Funciones CRUD completas (obtener por ID, registrar, actualizar, eliminar).
-
-"""
 import pyodbc
 import logging
 from typing import List, Dict, Any, Optional
@@ -18,15 +7,13 @@ from datetime import datetime
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# ==================== CONFIGURACIÓN ====================
+# CONFIGURACIÓN
 SERVER = '(localdb)\\MSSQLLocalDB'
 DRIVER = '{ODBC Driver 17 for SQL Server}'
 DB_NORMALES = 'MiPastel'
 DB_CLIENTES = 'MiPastel_Clientes'
 
-# ==========================================================
 # PARTE 1: Funciones de Conexión Básica
-# ==========================================================
 
 def get_db_connection(database_name):
     """Función genérica para obtener una conexión"""
@@ -44,34 +31,28 @@ def get_conn_normales():
 def get_conn_clientes():
     return get_db_connection(DB_CLIENTES)
 
-# ==========================================================
+
 # PARTE 2: Funciones de Datos (Standalone)
-# ==========================================================
 
 def obtener_precio_db(sabor: str = None, tamano: str = None) -> Any:
-    """
-    Obtiene precios.
-    - Si se da sabor y tamano, devuelve un float (precio unitario).
-    - Si no se da nada, devuelve una lista de tuplas (precios).
-    """
     try:
         conn = get_conn_normales()
         cursor = conn.cursor()
 
         if sabor and tamano:
-            # --- Modo 1: Obtener precio unitario ---
+            # Modo 1: Obtener precio unitario
             query = "SELECT precio FROM PastelesPrecios WHERE sabor = ? AND tamano = ?"
             cursor.execute(query, (sabor, tamano))
             resultado = cursor.fetchone()
             conn.close()
             return float(resultado[0]) if resultado else 0.0
         else:
-            # --- Modo 2: Obtener toda la lista ---
+            # Modo 2: Obtener toda la lista
             query = "SELECT id, sabor, tamano, precio FROM PastelesPrecios ORDER BY sabor, id"
             cursor.execute(query)
             resultados = cursor.fetchall()
             conn.close()
-            return resultados # Devuelve lista de tuplas
+            return resultados
 
     except Exception as e:
         logger.error(f"Error al obtener precios: {e}", exc_info=True)
@@ -97,13 +78,10 @@ def actualizar_precios_db(lista_precios: List[Dict[str, Any]]) -> bool:
         logger.error(f"Error al actualizar precios (PySide): {e}", exc_info=True)
         raise Exception(f"Error al actualizar precios: {e}")
 
-
-# ==========================================================
 # PARTE 3: Funciones CRUD (Standalone)
 # (Usadas por admin_app.py y dialogos.py)
-# ==========================================================
 
-# --- CRUD PASTELES NORMALES ---
+# CRUD PASTELES NORMALES
 
 def registrar_pastel_normal_db(data: Dict[str, Any]) -> bool:
     """Registra un nuevo pastel normal."""
@@ -188,7 +166,7 @@ def obtener_normal_por_id_db(pedido_id: int) -> Optional[Dict[str, Any]]:
         logger.error(f"Error al obtener normal por ID {pedido_id}: {e}", exc_info=True)
         raise Exception(f"Error de base de datos: {e}")
 
-# --- CRUD PEDIDOS CLIENTES ---
+# CRUD PEDIDOS CLIENTES
 
 def registrar_pedido_cliente_db(data: Dict[str, Any]) -> bool:
     """Registra un nuevo pedido de cliente."""
@@ -285,11 +263,7 @@ def obtener_cliente_por_id_db(pedido_id: int) -> Optional[Dict[str, Any]]:
         logger.error(f"Error al obtener cliente por ID {pedido_id}: {e}", exc_info=True)
         raise Exception(f"Error de base de datos: {e}")
 
-
-# ==========================================================
-# PARTE 4: DatabaseManager (Clase)
-# (Usada por router_admin.py, router_clientes.py, router_normales.py)
-# ==========================================================
+# PARTE 4: DatabaseManager
 
 class DatabaseManager:
     """Gestor principal de operaciones de base de datos para la API de FastAPI"""
@@ -314,10 +288,9 @@ class DatabaseManager:
             return resultado
         except Exception as e:
             logger.error(f"Error de DB en query ({query[:50]}...): {e}", exc_info=True)
-            # Re-lanzar para que FastAPI lo capture
             raise Exception(f"Error de base de datos: {e}")
 
-    # --- Métodos de Precios ---
+    # Métodos de Precios
     def obtener_precios(self) -> List[Dict[str, Any]]:
         """Obtiene la lista de precios (para API)"""
         resultados = obtener_precio_db() # Reutiliza la función standalone
@@ -332,7 +305,7 @@ class DatabaseManager:
         """Actualiza masivamente los precios (para API)"""
         return actualizar_precios_db(lista_precios)
 
-    # --- Métodos de Pasteles Normales ---
+    # Métodos de Pasteles Normales
     def registrar_pastel_normal(self, data: Dict[str, Any]) -> bool:
         """Registra un pastel normal (para API)"""
         return registrar_pastel_normal_db(data)
@@ -370,9 +343,9 @@ class DatabaseManager:
 
     def eliminar_pastel_normal(self, pastel_id: int) -> bool:
         """Elimina un pastel normal (para API)"""
-        return eliminar_normal_db(pastel_id) # Reutiliza la función standalone
+        return eliminar_normal_db(pastel_id)
 
-    # --- Métodos de Pedidos Clientes ---
+    # Métodos de Pedidos Clientes
     def registrar_pedido_cliente(self, data: Dict[str, Any]) -> bool:
         """Registra un pedido de cliente (para API)"""
         return registrar_pedido_cliente_db(data)
@@ -388,7 +361,7 @@ class DatabaseManager:
             query += " AND CAST(fecha AS DATE) BETWEEN ? AND ?"
             params.extend([fecha_inicio, fecha_fin])
 
-        if not fecha_inicio: # Filtro por defecto: solo hoy
+        if not fecha_inicio:
             query += " AND CAST(fecha AS DATE) = CAST(GETDATE() AS DATE)"
 
         if sucursal and sucursal.lower() != "todas":
@@ -413,9 +386,9 @@ class DatabaseManager:
 
     def eliminar_pedido_cliente(self, pedido_id: int) -> bool:
         """Elimina un pedido de cliente (para API)"""
-        return eliminar_cliente_db(pedido_id) # Reutiliza la función standalone
+        return eliminar_cliente_db(pedido_id)
 
-    # --- Método de Estadísticas ---
+    # Método de Estadísticas
     def obtener_estadisticas(self, fecha_inicio: str = None, fecha_fin: str = None) -> Dict[str, Any]:
 
         if fecha_inicio and not fecha_fin:
