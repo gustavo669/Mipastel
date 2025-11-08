@@ -7,7 +7,7 @@ import os
 import logging
 from typing import Optional
 
-# Importar desde config.py
+
 from config import (
     SABORES_CLIENTES, TAMANOS, SUCURSALES
 )
@@ -23,7 +23,7 @@ ALLOWED_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.gif', '.bmp'}
 MAX_FILE_SIZE = 5 * 1024 * 1024  # 5 MB
 
 def validar_imagen(file: UploadFile) -> bool:
-    """Valida que el archivo sea una imagen válida"""
+    """Válida que el archivo sea una imagen válida"""
     if not file or not file.filename:
         return False
     ext = os.path.splitext(file.filename)[1].lower()
@@ -52,9 +52,9 @@ async def mostrar_formulario_clientes(request: Request):
     try:
         return templates.TemplateResponse("formulario_clientes.html", {
             "request": request,
-            "sabores_clientes": SABORES_CLIENTES, # Desde config
-            "tamanos": TAMANOS, # Desde config
-            "sucursales": SUCURSALES # Desde config
+            "sabores_clientes": SABORES_CLIENTES,
+            "tamanos": TAMANOS,
+            "sucursales": SUCURSALES
         })
     except Exception as e:
         logger.error(f"Error al cargar formulario clientes: {e}", exc_info=True)
@@ -64,7 +64,7 @@ async def mostrar_formulario_clientes(request: Request):
 async def registrar_pedido_cliente(
         request: Request,
         sabor: str = Form(..., min_length=1, max_length=50),
-        tamano: str = Form(...), # <--- tamano (sin tilde)
+        tamano: str = Form(...),
         cantidad: int = Form(..., gt=0),
         sucursal: str = Form(..., min_length=1, max_length=100),
         color: Optional[str] = Form(None, max_length=50),
@@ -80,7 +80,6 @@ async def registrar_pedido_cliente(
     foto_path_disk = None
 
     try:
-        # <<-- CORRECCIÓN -->> tamano (sin tilde)
         if tamano not in TAMANOS:
             raise HTTPException(status_code=400, detail="Tamaño inválido")
 
@@ -116,7 +115,7 @@ async def registrar_pedido_cliente(
             filename = f"cliente_{timestamp}{extension}"
 
             foto_path_disk = os.path.join(UPLOAD_DIR, filename)
-            foto_path_db = f"/static/uploads/{filename}"  # Ruta relativa para la web
+            foto_path_db = f"/static/uploads/{filename}"
 
             with open(foto_path_disk, "wb") as f:
                 f.write(contenido)
@@ -125,7 +124,7 @@ async def registrar_pedido_cliente(
         pedido_data = {
             'color': color or '',
             'sabor': sabor_real,
-            'tamano': tamano, # <--- tamano (sin tilde)
+            'tamano': tamano,
             'cantidad': cantidad,
             'precio': precio_unitario,
             'sucursal': sucursal,
@@ -151,14 +150,13 @@ async def registrar_pedido_cliente(
             raise HTTPException(status_code=500, detail="Error al registrar el pedido en la base de datos")
 
     except HTTPException:
-        # Si ya hay error HTTP, solo lo relanzamos
         if foto_path_disk and os.path.exists(foto_path_disk):
-            os.remove(foto_path_disk) # Limpiar foto si hay error
+            os.remove(foto_path_disk)
         raise
     except Exception as e:
         logger.error(f"Error al registrar pedido de cliente: {e}", exc_info=True)
         if foto_path_disk and os.path.exists(foto_path_disk):
-            os.remove(foto_path_disk) # Limpiar foto si hay error
+            os.remove(foto_path_disk)
         raise HTTPException(status_code=500, detail=f"Error al registrar el pedido: {str(e)}")
 
 @router.get("/precio")
@@ -167,8 +165,6 @@ async def obtener_precio_cliente(sabor: str, tamano: str, cantidad: int = 1):
     try:
         if cantidad <= 0:
             raise HTTPException(status_code=400, detail="La cantidad debe ser mayor a 0")
-
-        # <<-- CORRECCIÓN -->> tamano (sin tilde)
         precio_unitario = obtener_precio_unitario(sabor, tamano)
         precio_total = calcular_precio(sabor, tamano, cantidad)
 
@@ -176,7 +172,7 @@ async def obtener_precio_cliente(sabor: str, tamano: str, cantidad: int = 1):
             "precio_total": precio_total,
             "precio_unitario": precio_unitario,
             "sabor": sabor,
-            "tamano": tamano, # <--- tamano (sin tilde)
+            "tamano": tamano,
             "cantidad": cantidad,
             "encontrado": precio_unitario > 0
         }
@@ -192,17 +188,17 @@ async def eliminar_pedido_cliente(pedido_id: int):
         if pedido_id <= 0:
             raise HTTPException(status_code=400, detail="ID de pedido inválido")
 
-        # Obtenemos la info del pedido ANTES de borrarlo
-        pedidos = db.obtener_pedidos_clientes() # Obtiene todos, para encontrar el path
+        #Info del pedido ANTES de borrarlo
+        pedidos = db.obtener_pedidos_clientes()
         pedido = next((p for p in pedidos if p['id'] == pedido_id), None)
 
         # Borramos el registro de la DB
         resultado = db.eliminar_pedido_cliente(pedido_id)
 
         if resultado:
-            # Si se borra de la DB, borramos la foto
+            # Si se borra de la DB, borra la foto
             if pedido and pedido.get('foto_path'):
-                foto_path_rel = pedido['foto_path'] # /static/uploads/foto.jpg
+                foto_path_rel = pedido['foto_path']
                 foto_path_disk = os.path.abspath(os.path.join(UPLOAD_DIR, os.path.basename(foto_path_rel)))
                 if os.path.exists(foto_path_disk):
                     try:

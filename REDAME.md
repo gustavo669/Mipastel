@@ -1,8 +1,8 @@
-🧁 Sistema de Gestión de Pedidos "Mi Pastel" v4.0
+Sistema de Gestión de Pedidos "Mi Pastel" 
 
 "Mi Pastel" es un sistema de gestión de pedidos híbrido diseñado para pastelerías. Combina una aplicación web (FastAPI) para que las sucursales ingresen pedidos y una potente aplicación de escritorio (PySide6) para que la administración central gestione ventas, precios y reportes.
 
-🌟 Características Principales
+Características Principales
 
 El sistema está dividido en dos componentes principales que se ejecutan simultáneamente:
 
@@ -14,7 +14,7 @@ Interfaz Moderna: Tema oscuro completo (estilo "Dracula" Morado/Rosado) con fuen
 
 Gestión CRUD Completa: Funcionalidad total de Crear, Leer, Editar y Eliminar para pedidos Normales y de Clientes.
 
-Gestión de Precios Centralizada: Un diálogo emergente (⚙️ Administrar Precios) permite editar la lista de precios maestra directamente en la base de datos.
+Gestión de Precios Centralizada: Un diálogo emergente (Administrar Precios) permite editar la lista de precios maestra directamente en la base de datos.
 
 Filtrado Avanzado: Permite filtrar los pedidos por fecha y por sucursal.
 
@@ -27,8 +27,8 @@ Reporte de Normales: Incluye dos tablas pivot:
 Una tabla de Sabor-Tamaño vs. Sucursales (excluyendo medias planchas).
 
 Una tabla de Total por Sabor vs. Sucursales (incluyendo todos los tamaños) con una fila de "TOTAL GENERAL".
-
-2. Aplicación Web (Servidor - FastAPI)
+ 
+Aplicación Web (Servidor - FastAPI)
 
 Es la interfaz ligera que usan las sucursales para ingresar nuevos pedidos.
 
@@ -58,7 +58,7 @@ Configuración Centralizada (config.py): Un único archivo define las listas mae
 
 Lanzador Unificado (run.py): Un script principal que inicia el servidor web FastAPI en un subproceso y luego lanza la aplicación de escritorio PySide6. Al cerrar la ventana de admin, el servidor también se detiene.
 
-🛠️ Tecnologías Utilizadas
+Tecnologías Utilizadas
 
 Backend (Servidor Web): FastAPI, Uvicorn
 
@@ -70,7 +70,7 @@ Reportes: ReportLab
 
 Lenguaje: Python 3
 
-📂 Estructura del Proyecto
+Estructura del Proyecto
 
 /Mipastel/
 │
@@ -86,7 +86,7 @@ Lenguaje: Python 3
 ├── templates/
 │   ├── index.html       # Formulario web principal
 │   ├── exito.html       # Página de "Pedido guardado"
-│   └── ...
+│   └── admin.html       # Página de "Panel de administración - Solo Lectura"
 │
 ├── static/
 │   └── uploads/         # Aquí se guardan las fotos de clientes
@@ -96,48 +96,6 @@ Lenguaje: Python 3
 ├── database.py          # Lógica de conexión y CRUD con SQL Server
 ├── reportes.py          # Lógica de generación de PDFs con ReportLab
 ├── run.py               # El lanzador que inicia todo
-├── mipastel_db_v3.1.sql # Script para crear la base de datos
-└── requirements.txt     # Dependencias del proyecto
+├── Mipastel.sql         # Script para crear las base de datos
+└── requirements.txt     # Dependencias 
 
-
-🚀 Cómo Ejecutar el Proyecto
-
-Clonar el Repositorio
-
-git clone [URL_DEL_REPOSITORIO]
-cd Mipastel
-
-
-Crear Entorno Virtual
-
-python -m venv venv
-venv\Scripts\activate  # En Windows
-
-
-Instalar Dependencias
-Asegúrate de tener todas las dependencias listadas en requirements.txt:
-
-pip install -r requirements.txt
-
-
-Configurar la Base de Datos
-
-Abre tu gestor de SQL Server (como SSMS).
-
-Ejecuta el script mipastel_db_v3.1.sql para crear las dos bases de datos (MiPastel y MiPastel_Clientes) y todas sus tablas, triggers y precios.
-
-Verificar la Conexión
-
-Abre el archivo database.py.
-
-Verifica que las variables SERVER y DRIVER coincidan con tu configuración local de SQL Server. Por defecto, usa (localdb)\MSSQLLocalDB y ODBC Driver 17 for SQL Server.
-
-¡Ejecutar!
-Usa el lanzador principal para iniciar el servidor y la app de admin al mismo tiempo:
-
-python run.py
-
-
-El servidor web estará disponible en http://127.0.0.1:5000.
-
-La aplicación de administración se abrirá automáticamente.

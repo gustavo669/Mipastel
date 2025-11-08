@@ -1,6 +1,6 @@
 """
 Módulo de conexión a bases de datos SQL Server
-Configuración para Mi Pastel - v4.1 (Corregido error 'total')
+Configuración para Mi Pastel
 
 Este archivo contiene:
 1. Conexiones básicas (get_conn_...) para reportes.py y PySide.
@@ -8,9 +8,6 @@ Este archivo contiene:
 3. La clase DatabaseManager para el admin de FastAPI.
 4. Funciones CRUD completas (obtener por ID, registrar, actualizar, eliminar).
 
-<<-- CORRECCIÓN (v4.1): Se eliminó la columna 'total' de las funciones
-     registrar_pedido_cliente_db y actualizar_pedido_cliente_db
-     para dejar que el Trigger de SQL Server haga el cálculo. -->>
 """
 import pyodbc
 import logging
@@ -80,7 +77,6 @@ def obtener_precio_db(sabor: str = None, tamano: str = None) -> Any:
         logger.error(f"Error al obtener precios: {e}", exc_info=True)
         if "Invalid object name 'PastelesPrecios'" in str(e):
             logger.warning("Tabla 'PastelesPrecios' no encontrada. Creando tabla de ejemplo...")
-            crear_tabla_precios_ejemplo()
             return [] if not sabor else 0.0
         raise e
 
@@ -101,30 +97,6 @@ def actualizar_precios_db(lista_precios: List[Dict[str, Any]]) -> bool:
         logger.error(f"Error al actualizar precios (PySide): {e}", exc_info=True)
         raise Exception(f"Error al actualizar precios: {e}")
 
-# --- Función de Ayuda para crear la tabla de precios si no existe ---
-def crear_tabla_precios_ejemplo():
-    # Esta función es solo un fallback de emergencia
-    try:
-        conn = get_conn_normales()
-        cursor = conn.cursor()
-        cursor.execute("""
-        CREATE TABLE PastelesPrecios (
-            id INT IDENTITY(1,1) PRIMARY KEY,
-            sabor NVARCHAR(100) NOT NULL,
-            tamano NVARCHAR(50) NOT NULL,
-            precio FLOAT NOT NULL,
-            UNIQUE(sabor, tamano)
-        )
-        """)
-        precios_ejemplo = [('Fresas', 'Mini', 60.00), ('Chocolate', 'Mediano', 140.00)]
-        cursor.executemany("INSERT INTO PastelesPrecios (sabor, tamano, precio) VALUES (?, ?, ?)", precios_ejemplo)
-        conn.commit()
-        logger.info("Tabla 'PastelesPrecios' creada con datos de ejemplo.")
-    except Exception as e:
-        logger.error(f"No se pudo crear la tabla de precios: {e}")
-    finally:
-        if conn:
-            conn.close()
 
 # ==========================================================
 # PARTE 3: Funciones CRUD (Standalone)
@@ -220,8 +192,6 @@ def obtener_normal_por_id_db(pedido_id: int) -> Optional[Dict[str, Any]]:
 
 def registrar_pedido_cliente_db(data: Dict[str, Any]) -> bool:
     """Registra un nuevo pedido de cliente."""
-
-    # <<-- CORRECCIÓN: 'total' ELIMINADO DE LA CONSULTA -->>
     query = """
         INSERT INTO PastelesClientes 
         (color, sabor, tamano, cantidad, precio, sucursal, fecha, 
@@ -248,7 +218,6 @@ def registrar_pedido_cliente_db(data: Dict[str, Any]) -> bool:
 def actualizar_pedido_cliente_db(pedido_id: int, data: Dict[str, Any]) -> bool:
     """Actualiza un pedido de cliente existente."""
 
-    # <<-- CORRECCIÓN: 'total = ?' ELIMINADO DE LA CONSULTA -->>
     query = """
         UPDATE PastelesClientes SET
             color = ?, sabor = ?, tamano = ?, cantidad = ?, precio = ?, sucursal = ?,
@@ -361,25 +330,25 @@ class DatabaseManager:
 
     def actualizar_precios(self, lista_precios: List[Dict[str, Any]]) -> bool:
         """Actualiza masivamente los precios (para API)"""
-        return actualizar_precios_db(lista_precios) # Reutiliza la función standalone
+        return actualizar_precios_db(lista_precios)
 
     # --- Métodos de Pasteles Normales ---
     def registrar_pastel_normal(self, data: Dict[str, Any]) -> bool:
         """Registra un pastel normal (para API)"""
-        return registrar_pastel_normal_db(data) # Reutiliza la función standalone
+        return registrar_pastel_normal_db(data)
 
     def obtener_pasteles_normales(self, fecha_inicio: str = None, fecha_fin: str = None, sucursal: str = None) -> List[Dict[str, Any]]:
         query = "SELECT id, sabor, tamano, precio, cantidad, sucursal, fecha, detalles, sabor_personalizado FROM PastelesNormales WHERE 1=1"
         params = []
 
-        if fecha_inicio and not fecha_fin: # Si solo viene inicio, tomamos ese día
+        if fecha_inicio and not fecha_fin:
             fecha_fin = fecha_inicio
 
         if fecha_inicio and fecha_fin:
             query += " AND CAST(fecha AS DATE) BETWEEN ? AND ?"
             params.extend([fecha_inicio, fecha_fin])
 
-        if not fecha_inicio: # Filtro por defecto: solo hoy
+        if not fecha_inicio:
             query += " AND CAST(fecha AS DATE) = CAST(GETDATE() AS DATE)"
 
         if sucursal and sucursal.lower() != "todas":
@@ -406,13 +375,13 @@ class DatabaseManager:
     # --- Métodos de Pedidos Clientes ---
     def registrar_pedido_cliente(self, data: Dict[str, Any]) -> bool:
         """Registra un pedido de cliente (para API)"""
-        return registrar_pedido_cliente_db(data) # Reutiliza la función standalone
+        return registrar_pedido_cliente_db(data)
 
     def obtener_pedidos_clientes(self, fecha_inicio: str = None, fecha_fin: str = None, sucursal: str = None) -> List[Dict[str, Any]]:
         query = "SELECT id, color, sabor, tamano, cantidad, precio, total, sucursal, fecha, foto_path, dedicatoria, detalles, fecha_entrega, sabor_personalizado FROM PastelesClientes WHERE 1=1"
         params = []
 
-        if fecha_inicio and not fecha_fin: # Si solo viene inicio, tomamos ese día
+        if fecha_inicio and not fecha_fin:
             fecha_fin = fecha_inicio
 
         if fecha_inicio and fecha_fin:

@@ -8,7 +8,7 @@ Todos los demás módulos (app.py, admin_app.py, reportes.py)
 deben importar las listas desde aquí.
 """
 
-print("⚙️  Cargando configuración maestra (config.py)...")
+print("Cargando configuración maestra (config.py)...")
 
 # --- SABORES ---
 SABORES_NORMALES = [

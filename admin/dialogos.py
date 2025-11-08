@@ -484,8 +484,8 @@ class DialogoNuevoCliente(_BaseFormDialog):
             "dedicatoria": self.line_dedicatoria.text(),
             "detalles": self.line_detalles.text(),
             "sabor_personalizado": self.line_sabor_personalizado.text() if self.check_es_otro.isChecked() else None,
-            "foto_path": self.data_dict.get('foto_path'), # Mantenemos la foto si estamos editando
-            "fecha_entrega": self.data_dict.get('fecha_entrega') # Mantenemos la fecha
+            "foto_path": self.data_dict.get('foto_path'),
+            "fecha_entrega": self.data_dict.get('fecha_entrega')
         }
 
     def registrar_en_db(self, data: Dict[str, Any]):

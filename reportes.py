@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 # Importamos la lista maestra de sucursales
 try:
     from config import SUCURSALES
-    print("✅ Reportes.py: Configuración de sucursales cargada.")
+    print("Reportes.py: Configuración de sucursales cargada.")
 except ImportError:
     logger.warning("WARNING (Reportes): No se encontró config.py, usando lista de emergencia")
     SUCURSALES = ["Jutiapa 1", "Jutiapa 2", "Jutiapa 3", "Progreso", "Quesada"] # Fallback
@@ -85,7 +85,7 @@ def generar_reporte_completo(target_date, sucursal=None, output_path=None):
     titulo_style = ParagraphStyle('Title', parent=styles['Heading1'], fontSize=20, alignment=TA_CENTER)
 
     elements = []
-    elements.append(Paragraph("🧁 Mi Pastel — Reporte del día", titulo_style))
+    elements.append(Paragraph("Mi Pastel Reporte del día", titulo_style))
     elements.append(Paragraph(f"Fecha: {hoy.strftime('%d/%m/%Y')}", styles['Normal']))
     if sucursal:
         elements.append(Paragraph(f"Sucursal: {sucursal}", styles['Normal']))
@@ -95,16 +95,16 @@ def generar_reporte_completo(target_date, sucursal=None, output_path=None):
     # <<-- SECCIÓN DE PASTELES NORMALES (ACTUALIZADA CON 2 TABLAS) -->>
     # ==================================================================
 
-    # --- Tabla 1: Pivot Normales (POR TAMAÑO) ---
-    elements.append(Paragraph("🍰 Resumen - Pasteles Normales (por Tamaño)", styles['Heading2']))
+    # --- Tabla 1: Normales (POR TAMAÑO) ---
+    elements.append(Paragraph("Resumen - Pasteles Normales (por Tamaño)", styles['Heading2']))
     pivot_table_tamano, pivot_note = generar_pdf_normales_pivot_por_tamano(normales, SUCURSALES)
     elements.append(pivot_table_tamano)
     elements.append(Spacer(1, 12))
     elements.append(Paragraph(pivot_note, styles['Normal']))
     elements.append(Spacer(1, 18))
 
-    # --- Tabla 2: Pivot Normales (TOTAL POR SABOR) ---
-    elements.append(Paragraph("🍓 Resumen - Pasteles Normales (Total por Sabor)", styles['Heading2']))
+    # --- Tabla 2: Normales (TOTAL POR SABOR) ---
+    elements.append(Paragraph("Resumen - Pasteles Normales (Total por Sabor)", styles['Heading2']))
     pivot_table_sabor = generar_pdf_normales_pivot_por_sabor(normales, SUCURSALES)
     elements.append(pivot_table_sabor)
     elements.append(Spacer(1, 18))
@@ -112,7 +112,7 @@ def generar_reporte_completo(target_date, sucursal=None, output_path=None):
     # ==================================================================
     # <<-- SECCIÓN DE PEDIDOS DE CLIENTES -->>
     # ==================================================================
-    elements.append(Paragraph("🧁 Detalle - Pedidos de Clientes", styles['Heading2']))
+    elements.append(Paragraph("Detalle - Pedidos de Clientes", styles['Heading2']))
     clientes_table = generar_pdf_clientes_detalle(clientes)
     elements.append(clientes_table)
     elements.append(Spacer(1, 20))

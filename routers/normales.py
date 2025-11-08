@@ -6,7 +6,6 @@ from datetime import datetime
 import logging
 from typing import Optional
 
-# Importar desde config.py
 from config import (
     SABORES_NORMALES, TAMANOS, SUCURSALES
 )
@@ -59,7 +58,6 @@ async def registrar_pedido_normal(
 ):
     """Registra un nuevo pedido de pastel normal con precio automático"""
     try:
-        # <<-- CORRECCIÓN -->> tamano (sin tilde)
         if tamano not in TAMANOS:
             raise HTTPException(status_code=400, detail="Tamaño inválido")
 
@@ -76,7 +74,7 @@ async def registrar_pedido_normal(
 
         pastel_data = {
             'sabor': sabor_real,
-            'tamano': tamano, # <--- tamano (sin tilde)
+            'tamano': tamano,
             'cantidad': cantidad,
             'precio': precio_unitario,
             'sucursal': sucursal,
@@ -111,7 +109,6 @@ async def obtener_precio_automatico(sabor: str, tamano: str, cantidad: int = 1):
         if cantidad <= 0:
             raise HTTPException(status_code=400, detail="La cantidad debe ser mayor a 0")
 
-        # <<-- CORRECCIÓN -->> tamano (sin tilde)
         precio_unitario = obtener_precio_unitario(sabor, tamano)
         precio_total = calcular_precio(sabor, tamano, cantidad)
 
@@ -119,7 +116,7 @@ async def obtener_precio_automatico(sabor: str, tamano: str, cantidad: int = 1):
             "precio_total": precio_total,
             "precio_unitario": precio_unitario,
             "sabor": sabor,
-            "tamano": tamano, # <--- tamano (sin tilde)
+            "tamano": tamano,
             "cantidad": cantidad,
             "encontrado": precio_unitario > 0
         }

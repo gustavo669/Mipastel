@@ -1,7 +1,7 @@
 import sys, os
 from datetime import date
 import logging
-from typing import Optional, Dict, Any # <-- Import de typing
+from typing import Optional, Dict, Any
 
 # Configurar logging
 logging.basicConfig(level=logging.INFO)
@@ -25,26 +25,22 @@ try:
         get_conn_normales,
         eliminar_cliente_db,
         eliminar_normal_db,
-        obtener_cliente_por_id_db, # <-- CRUD
-        obtener_normal_por_id_db   # <-- CRUD
+        obtener_cliente_por_id_db,
+        obtener_normal_por_id_db
     )
     import reportes
     from config import SUCURSALES_FILTRO
-    # Importamos los NUEVOS DIÁLOGOS
     from admin.dialogos import (
         DialogoNuevoNormal,
         DialogoNuevoCliente,
         DialogoPrecios
     )
 
-    print("✅ Módulos de Admin (database, reportes, config, dialogos) importados.")
+    print("Módulos de Admin (database, reportes, config, dialogos) importados.")
 except ImportError as e:
-    logger.error(f"❌ Error fatal en imports de admin_app: {e}", exc_info=True)
+    logger.error(f"Error fatal en imports de admin_app: {e}", exc_info=True)
     sys.exit(f"Error fatal en imports: {e}")
 
-# ==========================================================
-# <<-- TEMA OSCURO (DARK THEME QSS) -->>
-# ==========================================================
 DARK_STYLE = """
     /* Fondo general */
     QWidget {
@@ -243,7 +239,7 @@ DARK_STYLE = """
 class AdminApp(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("🧁 Mi Pastel — Administración de Pedidos v4.0 (Tema Oscuro)")
+        self.setWindowTitle("Mi Pastel — Administración de Pedidos")
         self.resize(1300, 800)
 
         # --- CONSTRUCCIÓN DE UI MANUAL ---
@@ -254,7 +250,7 @@ class AdminApp(QMainWindow):
 
         # --- Layout Superior para Botón de Precios ---
         layout_superior = QHBoxLayout()
-        self.btn_admin_precios = QPushButton("⚙️ Administrar Precios")
+        self.btn_admin_precios = QPushButton("Administrar Precios")
         layout_superior.addStretch()
         layout_superior.addWidget(self.btn_admin_precios)
         layout_superior.addStretch()
@@ -267,22 +263,22 @@ class AdminApp(QMainWindow):
         self.tab_clientes = QWidget()
         self.layout_clientes = QVBoxLayout(self.tab_clientes)
 
-        # Layout de filtros y CRUD (Centrado)
+        # Layout de filtros y CRUD
         filtros_layout_clientes = QHBoxLayout()
         self.date_clientes = QDateEdit(calendarPopup=True)
         self.date_clientes.setDate(QDate.currentDate())
         self.cmb_sucursal_clientes = QComboBox()
         self.cmb_sucursal_clientes.addItems(SUCURSALES_FILTRO)
-        self.btn_filtrar_clientes = QPushButton("🔍 Filtrar")
-        self.btn_reporte_clientes = QPushButton("🖨️ Imprimir Reporte")
+        self.btn_filtrar_clientes = QPushButton("Filtrar")
+        self.btn_reporte_clientes = QPushButton("Imprimir Reporte")
 
         # --- Botones CRUD Clientes ---
-        self.btn_nuevo_cliente = QPushButton("➕ Nuevo")
-        self.btn_nuevo_cliente.setProperty("cssClass", "btnVerde") # Estilo verde
-        self.btn_editar_cliente = QPushButton("✏️ Editar")
-        self.btn_editar_cliente.setProperty("cssClass", "btnNaranja") # Estilo Naranja
-        self.btn_eliminar_cliente = QPushButton("❌ Eliminar")
-        self.btn_eliminar_cliente.setProperty("cssClass", "btnRosa") # Estilo Rosa
+        self.btn_nuevo_cliente = QPushButton("Nuevo")
+        self.btn_nuevo_cliente.setProperty("cssClass", "btnVerde")
+        self.btn_editar_cliente = QPushButton("Editar")
+        self.btn_editar_cliente.setProperty("cssClass", "btnNaranja")
+        self.btn_eliminar_cliente = QPushButton("Eliminar")
+        self.btn_eliminar_cliente.setProperty("cssClass", "btnRosa")
 
         filtros_layout_clientes.addStretch()
         filtros_layout_clientes.addWidget(QLabel("Fecha:"))
@@ -306,8 +302,8 @@ class AdminApp(QMainWindow):
             "Sucursal", "Fecha", "Dedicatoria", "Detalles"
         ])
         self.table_clientes.setEditTriggers(QAbstractItemView.NoEditTriggers)
-        self.table_clientes.setSelectionBehavior(QAbstractItemView.SelectRows) # Seleccionar fila entera
-        self.table_clientes.setSelectionMode(QAbstractItemView.SingleSelection) # Solo 1 a la vez
+        self.table_clientes.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.table_clientes.setSelectionMode(QAbstractItemView.SingleSelection)
         self.table_clientes.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
         self.table_clientes.horizontalHeader().setStretchLastSection(True)
         self.layout_clientes.addWidget(self.table_clientes)
@@ -323,15 +319,15 @@ class AdminApp(QMainWindow):
         self.date_normales.setDate(QDate.currentDate())
         self.cmb_sucursal_normales = QComboBox()
         self.cmb_sucursal_normales.addItems(SUCURSALES_FILTRO)
-        self.btn_filtrar_normales = QPushButton("🔍 Filtrar")
-        self.btn_reporte_normales = QPushButton("🖨️ Imprimir Reporte")
+        self.btn_filtrar_normales = QPushButton("Filtrar")
+        self.btn_reporte_normales = QPushButton("Imprimir Reporte")
 
         # --- Botones CRUD Normales ---
-        self.btn_nuevo_normal = QPushButton("➕ Nuevo")
+        self.btn_nuevo_normal = QPushButton("Nuevo")
         self.btn_nuevo_normal.setProperty("cssClass", "btnVerde")
-        self.btn_editar_normal = QPushButton("✏️ Editar")
+        self.btn_editar_normal = QPushButton("Editar")
         self.btn_editar_normal.setProperty("cssClass", "btnNaranja")
-        self.btn_eliminar_normal = QPushButton("❌ Eliminar")
+        self.btn_eliminar_normal = QPushButton("Eliminar")
         self.btn_eliminar_normal.setProperty("cssClass", "btnRosa")
 
         filtros_layout_normales.addStretch()
@@ -364,7 +360,7 @@ class AdminApp(QMainWindow):
         # ==================== Conectar Señales y Cargar Datos ====================
         self.conectar_senales()
         self.cargar_datos_iniciales()
-        self.statusBar().showMessage("✅ Sistema cargado. Mostrando pedidos de hoy.")
+        self.statusBar().showMessage("Sistema cargado. Mostrando pedidos de hoy.")
 
         # Deshabilitar botones CRUD al inicio
         self.actualizar_botones_crud_clientes()
@@ -393,11 +389,9 @@ class AdminApp(QMainWindow):
 
     def cargar_datos_iniciales(self):
         """Carga todos los datos al iniciar"""
-        # (Ya no cargamos precios aquí)
         self.cargar_clientes()
         self.cargar_normales()
 
-    # ==================== Funciones de Carga (Centradas) ====================
 
     def _crear_item_centrado(self, texto: str) -> QTableWidgetItem:
         """Helper para crear un QTableWidgetItem centrado y no editable."""
@@ -412,7 +406,6 @@ class AdminApp(QMainWindow):
             return None
 
         try:
-            # El ID está en la primera columna (col 0)
             id_item = table.item(selected_items[0].row(), 0)
             return int(id_item.text())
         except Exception as e:
@@ -433,8 +426,7 @@ class AdminApp(QMainWindow):
                 item = table.item(row, col)
                 data[header] = item.text() if item else ""
 
-            # Renombrar claves para que coincidan con la DB
-            # Esto es más robusto porque usa los headers de la tabla
+
             data_db = {
                 'id': data.get('ID'),
                 'color': data.get('Color'),
@@ -494,7 +486,7 @@ class AdminApp(QMainWindow):
             # self.table_clientes.resizeColumnsToContents() # El header ya lo hace
             self.statusBar().showMessage(f"Clientes: {len(resultados)} pedidos cargados para {fecha}")
         except Exception as e:
-            logger.error(f"❌ ERROR DETALLADO (cargar_clientes): {e}", exc_info=True)
+            logger.error(f"ERROR DETALLADO (cargar_clientes): {e}", exc_info=True)
             QMessageBox.critical(self, "Error", f"No se pudieron cargar los pedidos de clientes:\n{e}")
         finally:
             self.actualizar_botones_crud_clientes()
@@ -538,7 +530,7 @@ class AdminApp(QMainWindow):
             # self.table_normales.resizeColumnsToContents() # El header ya lo hace
             self.statusBar().showMessage(f"Normales: {len(resultados)} pedidos cargados para {fecha}")
         except Exception as e:
-            logger.error(f"❌ ERROR DETALLADO (cargar_normales): {e}", exc_info=True)
+            logger.error(f"ERROR DETALLADO (cargar_normales): {e}", exc_info=True)
             QMessageBox.critical(self, "Error", f"No se pudieron cargar los pedidos normales:\n{e}")
         finally:
             self.actualizar_botones_crud_normales()
@@ -710,7 +702,7 @@ class AdminApp(QMainWindow):
                 output_path=nombre_pdf
             )
             QMessageBox.information(self, "Reporte generado", f"📄 Reporte guardado en:\n{nombre_pdf}")
-            self.statusBar().showMessage("✅ Reporte generado exitosamente")
+            self.statusBar().showMessage("Reporte generado exitosamente")
 
             try:
                 os.startfile(os.path.realpath(nombre_pdf))
@@ -718,7 +710,7 @@ class AdminApp(QMainWindow):
                 logger.warning(f"No se pudo abrir el PDF automáticamente: {e}")
 
         except Exception as e:
-            logger.error(f"❌ ERROR DETALLADO (generar_reporte): {e}", exc_info=True)
+            logger.error(f"ERROR DETALLADO (generar_reporte): {e}", exc_info=True)
             QMessageBox.critical(self, "Error", f"No se pudo generar el reporte:\n{e}")
 
 
@@ -726,14 +718,12 @@ class AdminApp(QMainWindow):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
 
-    # Establecer fuente bonita
     font = QFont("Segoe UI Variable", 10)
-    # --- CORRECCIÓN DE LA LÍNEA ---
-    if not font.exactMatch(): # Comprueba la instancia 'font', no la clase 'QFont'
-        font = QFont("Lato", 10) # Fallback
+
+    if not font.exactMatch():
+        font = QFont("Lato", 10)
     app.setFont(font)
 
-    # Aplicar el TEMA OSCURO
     app.setStyleSheet(DARK_STYLE)
 
     ventana = AdminApp()

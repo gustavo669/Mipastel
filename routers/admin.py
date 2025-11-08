@@ -4,11 +4,10 @@ from fastapi.templating import Jinja2Templates
 from datetime import datetime
 import logging
 
-# Importar desde el nuevo database.py
 from database import (
     DatabaseManager
 )
-# Importar desde config.py
+
 from config import (
     SABORES_NORMALES, SABORES_CLIENTES, TAMANOS, SUCURSALES
 )
@@ -26,7 +25,6 @@ async def vista_admin(request: Request):
 
         # Obtener datos del día actual
         hoy = datetime.now().date()
-        # Usamos solo fecha_inicio, el manager de DB sabe qué hacer
         fecha_str = hoy.isoformat()
 
         normales = db.obtener_pasteles_normales(
@@ -45,10 +43,10 @@ async def vista_admin(request: Request):
             "normales": normales,
             "clientes": clientes,
             "precios": precios,
-            "sabores_normales": SABORES_NORMALES, # Desde config
-            "sabores_clientes": SABORES_CLIENTES, # Desde config
-            "tamanos": TAMANOS, # Desde config
-            "sucursales": SUCURSALES, # Desde config
+            "sabores_normales": SABORES_NORMALES,
+            "sabores_clientes": SABORES_CLIENTES,
+            "tamanos": TAMANOS,
+            "sucursales": SUCURSALES,
             "fecha_actual": hoy.strftime("%Y-%m-%d")
         })
 
@@ -65,9 +63,8 @@ async def obtener_normales(
     try:
         db = DatabaseManager()
 
-        # El manager ya maneja la lógica de fecha_inicio/fin
         normales = db.obtener_pasteles_normales(
-            fecha_inicio=fecha, # Pasa la fecha (o None)
+            fecha_inicio=fecha,
             sucursal=sucursal
         )
 
@@ -87,7 +84,7 @@ async def obtener_clientes(
         db = DatabaseManager()
 
         clientes = db.obtener_pedidos_clientes(
-            fecha_inicio=fecha, # Pasa la fecha (o None)
+            fecha_inicio=fecha,
             sucursal=sucursal
         )
 
@@ -121,9 +118,8 @@ async def actualizar_precios(precios_data: list):
                     status_code=400,
                     detail="Datos de precios incompletos"
                 )
-            # Asegurarse de que el dict tenga 'tamano' (sin tilde)
             if 'tamano' not in precio:
-                precio['tamano'] = precio.get('tamaño') # Fallback por si la UI envía tilde
+                precio['tamano'] = precio.get('tamaño')
 
         resultado = db.actualizar_precios(precios_data)
 
