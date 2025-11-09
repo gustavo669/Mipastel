@@ -195,7 +195,6 @@ def registrar_pedido_cliente_db(data: Dict[str, Any]) -> bool:
 
 def actualizar_pedido_cliente_db(pedido_id: int, data: Dict[str, Any]) -> bool:
     """Actualiza un pedido de cliente existente."""
-
     query = """
         UPDATE PastelesClientes SET
             color = ?, sabor = ?, tamano = ?, cantidad = ?, precio = ?, sucursal = ?,

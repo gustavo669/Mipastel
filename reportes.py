@@ -144,21 +144,31 @@ def generar_reporte_completo(target_date, sucursal=None, output_path=None):
 
 
 def generar_pdf_normales_pivot_por_tamano(normales_rows, sucursales_maestra):
+    """Genera tabla pivot de pasteles normales por tamaño y sabor."""
     sucursales = sorted(list(set(sucursales_maestra)))
+
+    # Filtrar y crear keys únicas (sabor - tamaño)
     filas_keys = sorted({
         f"{r[0]} - {r[1]}" for r in normales_rows
-        if (r[1] and r[1].lower() != "media plancha")
+        if r[0] and r[1] and r[1].lower() != "media plancha"
     })
-    tabla = {k: {s: 0 for s in sucursales} for k in filas_keys}
 
+    # Inicializar tabla
+    tabla = {k: {s: 0 for s in sucursales} for k in filas_keys}
+    totales_columna = {s: 0 for s in sucursales}
+    total_general = 0
+
+    # Procesar datos
     for r in normales_rows:
         sabor, tamano, precio, cantidad, sucursal_row, fecha = r
-        if not tamano or tamano.lower() == "media plancha":
+        if not sabor or not tamano or tamano.lower() == "media plancha":
             continue
+
         key = f"{sabor} - {tamano}"
-        if sucursal_row in tabla[key]:
+        if key in tabla and sucursal_row in tabla[key]:
             tabla[key][sucursal_row] += (cantidad or 0)
 
+    # Construir tabla de datos
     encabezado = ["Sabor - Tamaño"] + sucursales + ["Total"]
     data = [encabezado]
 
@@ -169,13 +179,21 @@ def generar_pdf_normales_pivot_por_tamano(normales_rows, sucursales_maestra):
             c = tabla[key].get(s, 0)
             fila.append(Paragraph(str(c), cell_style))
             total_fila += c
+            totales_columna[s] += c
+            total_general += c
         fila.append(Paragraph(str(total_fila), cell_style))
         data.append(fila)
 
+    # Fila de totales
+    fila_totales = ["TOTAL GENERAL"] + [str(totales_columna[s]) for s in sucursales] + [str(total_general)]
+    data.append(fila_totales)
+
+    # Configurar ancho de columnas
     ancho_total = 10.5 * inch
     ancho_col = ancho_total / (len(sucursales) + 2)
     col_widths = [ancho_col] * (len(sucursales) + 2)
 
+    # Crear y estilizar tabla
     t = Table(data, repeatRows=1, colWidths=col_widths)
     t.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#764ba2')),
@@ -183,28 +201,45 @@ def generar_pdf_normales_pivot_por_tamano(normales_rows, sucursales_maestra):
         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
         ('GRID', (0, 0), (-1, -1), 0.4, colors.grey),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('BACKGROUND', (0, -1), (-1, -1), colors.HexColor('#44475a')),
+        ('TEXTCOLOR', (0, -1), (-1, -1), colors.whitesmoke),
+        ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold')
     ]))
 
+    nota = "Nota: Esta tabla excluye 'Media Plancha' y solo incluye combinaciones válidas de sabor y tamaño."
+    return t, nota
+
+
 def generar_pdf_normales_pivot_por_sabor(normales_rows, sucursales_maestra):
+    """Genera tabla pivot de pasteles normales por sabor (totales)."""
     sucursales = sorted(list(set(sucursales_maestra)))
+
+    # Filtrar sabores válidos
     filas_keys = sorted({r[0] for r in normales_rows if r[0]})
+
+    # Inicializar tabla
     tabla = {k: {s: 0 for s in sucursales} for k in filas_keys}
-
-    for r in normales_rows:
-        sabor, tamano, precio, cantidad, sucursal_row, fecha = r
-        if sucursal_row in tabla[sabor]:
-            tabla[sabor][sucursal_row] += (cantidad or 0)
-
-    encabezado = ["Sabor (Total)"] + sucursales + ["Total"]
-    data = [encabezado]
     totales_columna = {s: 0 for s in sucursales}
     total_general = 0
+
+    # Procesar datos
+    for r in normales_rows:
+        sabor, tamano, precio, cantidad, sucursal_row, fecha = r
+        if not sabor:
+            continue
+
+        if sabor in tabla and sucursal_row in tabla[sabor]:
+            tabla[sabor][sucursal_row] += (cantidad or 0)
+
+    # Construir tabla de datos
+    encabezado = ["Sabor (Total)"] + sucursales + ["Total"]
+    data = [encabezado]
 
     for key in filas_keys:
         fila = [Paragraph(key, cell_style)]
         total_fila = 0
         for s in sucursales:
-            c = tabla[key][s]
+            c = tabla[key].get(s, 0)
             fila.append(Paragraph(str(c), cell_style))
             total_fila += c
             totales_columna[s] += c
@@ -212,13 +247,16 @@ def generar_pdf_normales_pivot_por_sabor(normales_rows, sucursales_maestra):
         fila.append(Paragraph(str(total_fila), cell_style))
         data.append(fila)
 
+    # Fila de totales
     fila_totales = ["TOTAL GENERAL"] + [str(totales_columna[s]) for s in sucursales] + [str(total_general)]
     data.append(fila_totales)
 
+    # Configurar ancho de columnas
     ancho_total = 10.5 * inch
     ancho_col = ancho_total / (len(sucursales) + 2)
     col_widths = [ancho_col] * (len(sucursales) + 2)
 
+    # Crear y estilizar tabla
     t = Table(data, repeatRows=1, colWidths=col_widths)
     t.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#ff79c6')),
@@ -234,12 +272,14 @@ def generar_pdf_normales_pivot_por_sabor(normales_rows, sucursales_maestra):
 
 
 def generar_pdf_clientes_detalle(clientes_rows):
+    """Genera tabla detallada de pedidos de clientes."""
     encabezado = ["Sabor", "ID Pedido", "Cantidad", "Sucursal", "Detalles", "FotoID", "Dedicatoria", "Color"]
     data = [encabezado]
 
     for r in clientes_rows:
         id_pedido, color, sabor, tamano, cantidad, precio, total, sucursal, fecha, foto_path, dedicatoria, detalles = r
         foto_id = f"F-{id_pedido}" if foto_path else ""
+
         fila = [
             Paragraph(f"{sabor} ({tamano})", cell_style),
             str(id_pedido),
@@ -252,15 +292,28 @@ def generar_pdf_clientes_detalle(clientes_rows):
         ]
         data.append(fila)
 
+    # Configurar ancho de columnas
     ancho_total = 10.5 * inch
     col_widths = [ancho_total / len(encabezado)] * len(encabezado)
 
+    # Crear y estilizar tabla
     t = Table(data, repeatRows=1, colWidths=col_widths)
     t.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#667eea')),
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
         ('GRID', (0, 0), (-1, -1), 0.4, colors.grey),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ('FONTSIZE', (0, 1), (-1, -1), 9)
+        ('FONTSIZE', (0, 1), (-1, -1), 9),
+        ('ALIGN', (1, 1), (2, -1), 'CENTER'),  # Centrar ID Pedido y Cantidad
     ]))
     return t
+
+
+def generar_reporte_consolidado(fecha_inicio, fecha_fin, sucursal=None):
+    """
+    Genera un reporte consolidado para un rango de fechas.
+    Similar a generar_reporte_completo pero para múltiples días.
+    """
+    # Esta función puede expandirse para reportes por rango de fechas
+    pass

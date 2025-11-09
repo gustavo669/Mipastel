@@ -191,10 +191,10 @@ class MiPastelLauncher:
             self.servidor_proceso.terminate()
             try:
                 self.servidor_proceso.wait(timeout=5)
-                print("✓ Servidor web detenido")
+                print("Servidor web detenido")
             except subprocess.TimeoutExpired:
                 self.servidor_proceso.kill()
-                print("⚠ Servidor forzado a cerrar")
+                print("Servidor forzado a cerrar")
             self.servidor_activo = False
 
     def cleanup(self):

@@ -1,13 +1,11 @@
 from fastapi import APIRouter, Form, HTTPException, Request
-from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from database import DatabaseManager, obtener_precio_db
 from datetime import datetime
 import logging
 from typing import Optional
-
 from config import (
-    SABORES_NORMALES, TAMANOS, SUCURSALES
+    SABORES_NORMALES, TAMANOS_NORMALES, SUCURSALES
 )
 
 router = APIRouter(prefix="/normales", tags=["Pasteles Normales"])
@@ -15,7 +13,6 @@ logger = logging.getLogger(__name__)
 templates = Jinja2Templates(directory="templates")
 
 def calcular_precio(sabor: str, tamano: str, cantidad: int) -> float:
-    """Calcula el precio total basado en sabor, tamaño y cantidad"""
     try:
         precio_unitario = obtener_precio_db(sabor, tamano)
         return precio_unitario * cantidad
@@ -24,7 +21,6 @@ def calcular_precio(sabor: str, tamano: str, cantidad: int) -> float:
         return 0.0
 
 def obtener_precio_unitario(sabor: str, tamano: str) -> float:
-    """Obtiene el precio unitario desde la base de datos"""
     try:
         return obtener_precio_db(sabor, tamano)
     except Exception as e:
@@ -33,13 +29,12 @@ def obtener_precio_unitario(sabor: str, tamano: str) -> float:
 
 @router.get("/formulario")
 async def mostrar_formulario_normales(request: Request):
-    """Muestra el formulario para pasteles normales"""
     try:
         return templates.TemplateResponse("formulario_normales.html", {
             "request": request,
-            "sabores_normales": SABORES_NORMALES, # Desde config
-            "tamanos": TAMANOS, # Desde config
-            "sucursales": SUCURSALES # Desde config
+            "sabores_normales": SABORES_NORMALES,
+            "tamanos": TAMANOS_NORMALES,
+            "sucursales": SUCURSALES
         })
     except Exception as e:
         logger.error(f"Error al cargar formulario normales: {e}", exc_info=True)
@@ -56,9 +51,8 @@ async def registrar_pedido_normal(
         es_otro: bool = Form(False),
         sabor_personalizado: Optional[str] = Form(None)
 ):
-    """Registra un nuevo pedido de pastel normal con precio automático"""
     try:
-        if tamano not in TAMANOS:
+        if tamano not in TAMANOS_NORMALES:
             raise HTTPException(status_code=400, detail="Tamaño inválido")
 
         sabor_real = sabor_personalizado if es_otro and sabor_personalizado else sabor
@@ -71,7 +65,6 @@ async def registrar_pedido_normal(
             )
 
         precio_total = precio_unitario * cantidad
-
         pastel_data = {
             'sabor': sabor_real,
             'tamano': tamano,
@@ -96,30 +89,6 @@ async def registrar_pedido_normal(
         else:
             raise HTTPException(status_code=500, detail="Error al registrar el pastel en la base de datos")
 
-    except HTTPException:
-        raise
     except Exception as e:
         logger.error(f"Error al registrar pastel normal: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Error al registrar el pastel: {str(e)}")
-
-@router.get("/precio")
-async def obtener_precio_automatico(sabor: str, tamano: str, cantidad: int = 1):
-    """Endpoint para obtener precio automático"""
-    try:
-        if cantidad <= 0:
-            raise HTTPException(status_code=400, detail="La cantidad debe ser mayor a 0")
-
-        precio_unitario = obtener_precio_unitario(sabor, tamano)
-        precio_total = calcular_precio(sabor, tamano, cantidad)
-
-        return {
-            "precio_total": precio_total,
-            "precio_unitario": precio_unitario,
-            "sabor": sabor,
-            "tamano": tamano,
-            "cantidad": cantidad,
-            "encontrado": precio_unitario > 0
-        }
-    except Exception as e:
-        logger.error(f"Error en /precio normales: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Error al calcular precio: {str(e)}")

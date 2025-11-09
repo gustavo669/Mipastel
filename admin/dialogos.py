@@ -21,7 +21,7 @@ try:
         registrar_pedido_cliente_db,
         actualizar_pedido_cliente_db
     )
-    from config import SABORES_NORMALES, SABORES_CLIENTES, TAMANOS, SUCURSALES
+    from config import SABORES_NORMALES, SABORES_CLIENTES, TAMANOS_NORMALES, TAMANOS_CLIENTES, SUCURSALES
 except ImportError as e:
     logging.error(f"Error fatal en imports de dialogos.py: {e}")
     sys.exit(f"Error fatal en imports de dialogos: {e}")
@@ -34,7 +34,7 @@ class DialogoPrecios(QDialog):
     """Diálogo para ver y editar la lista de precios."""
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("⚙️ Administración de Precios")
+        self.setWindowTitle("Administración de Precios")
         self.setMinimumSize(700, 500)
         self.precios_originales = {}
 
@@ -42,8 +42,8 @@ class DialogoPrecios(QDialog):
 
         # Botones
         btn_layout = QHBoxLayout()
-        self.btn_cargar = QPushButton("🔄 Cargar Precios")
-        self.btn_guardar = QPushButton("💾 Guardar Cambios")
+        self.btn_cargar = QPushButton("Cargar Precios")
+        self.btn_guardar = QPushButton("Guardar Cambios")
         self.btn_guardar.setProperty("cssClass", "btnVerde")
         btn_layout.addStretch()
         btn_layout.addWidget(self.btn_cargar)
@@ -55,7 +55,7 @@ class DialogoPrecios(QDialog):
         self.table_precios = QTableWidget()
         self.table_precios.setColumnCount(4)
         self.table_precios.setHorizontalHeaderLabels(["ID", "Sabor", "Tamano", "Precio (Q)"])
-        self.table_precios.setColumnHidden(0, True) # Ocultamos ID
+        self.table_precios.setColumnHidden(0, True)
         self.table_precios.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.table_precios.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.table_precios.setSelectionMode(QAbstractItemView.SingleSelection)
@@ -85,7 +85,7 @@ class DialogoPrecios(QDialog):
 
                 # ID (Col 0)
                 item_id = QTableWidgetItem(str(id_precio))
-                item_id.setFlags(item_id.flags() & ~Qt.ItemIsEditable) # No editable
+                item_id.setFlags(item_id.flags() & ~Qt.ItemIsEditable)
                 item_id.setTextAlignment(Qt.AlignCenter)
                 self.table_precios.setItem(fila, 0, item_id)
 
@@ -105,7 +105,7 @@ class DialogoPrecios(QDialog):
                 self.table_precios.setItem(fila, 3, item_precio)
 
             self.table_precios.resizeColumnsToContents()
-            self.btn_guardar.setEnabled(False) # Deshabilitar hasta que haya cambios
+            self.btn_guardar.setEnabled(False)
         except Exception as e:
             QMessageBox.critical(self, "Error", f"No se pudieron cargar los precios:\n{e}")
 
@@ -114,7 +114,7 @@ class DialogoPrecios(QDialog):
         """Habilita el botón de guardar si el contenido de una celda cambia."""
         fila = item.row()
         if fila not in self.precios_originales:
-            return # Fila nueva, aún no relevante
+            return
 
         # Reconstruir el estado actual
         try:
@@ -172,7 +172,7 @@ class DialogoPrecios(QDialog):
             if respuesta == QMessageBox.StandardButton.Yes:
                 actualizar_precios_db(precios_actualizados)
                 QMessageBox.information(self, "Éxito", f"Se actualizaron {len(precios_actualizados)} precios")
-                self.cargar_precios() # Recargar para resetear el estado
+                self.cargar_precios()
         except Exception as e:
             logger.error(f"Error al guardar precios: {e}", exc_info=True)
             QMessageBox.critical(self, "Error", f"Error al guardar precios:\n{e}")
@@ -212,14 +212,12 @@ class _BaseFormDialog(QDialog):
 
         self.check_es_otro = QCheckBox("Es un sabor personalizado")
         self.line_sabor_personalizado = QLineEdit()
-        self.line_sabor_personalizado.setPlaceholderText("Ej: Vainilla con almendras")
+        self.line_sabor_personalizado.setPlaceholderText("Ej: Mocha, Mandarina...")
 
         self.cmb_sucursal = QComboBox()
-        self.cmb_sucursal.addItems(SUCURSALES) # Lista maestra sin "Todas"
+        self.cmb_sucursal.addItems(SUCURSALES)
 
         self.line_detalles = QLineEdit()
-
-        # Botones OK/Cancel
         self.botones = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
 
         # Conexiones Comunes
@@ -237,7 +235,7 @@ class _BaseFormDialog(QDialog):
         self.line_sabor_personalizado.setEnabled(es_otro)
         if not es_otro:
             self.line_sabor_personalizado.clear()
-        self.actualizar_precio() # Recalcular
+        self.actualizar_precio()
 
     @Slot()
     def actualizar_precio(self):
@@ -247,24 +245,22 @@ class _BaseFormDialog(QDialog):
         cantidad = self.spin_cantidad.value()
         es_otro = self.check_es_otro.isChecked()
 
-        # Si es "Otro" y no es modo edición, el precio es 0 (manual)
+
         if es_otro and not self.is_edit_mode:
             precio_unitario = 0.0
             self.line_precio_unitario.setText("0.00 (Manual)")
-            self.line_precio_unitario.setReadOnly(False) # Permitir editar
+            self.line_precio_unitario.setReadOnly(False)
 
-        # Si es modo edición y es "Otro", usar el precio guardado
         elif es_otro and self.is_edit_mode:
             precio_unitario = float(self.data_dict.get('precio', 0.0))
             self.line_precio_unitario.setText(f"{precio_unitario:.2f} (Manual)")
             self.line_precio_unitario.setReadOnly(False) # Permitir editar
 
-        # Si es un sabor normal, buscarlo en la DB
         else:
             try:
                 precio_unitario = obtener_precio_db(sabor, tamano)
                 self.line_precio_unitario.setText(f"{precio_unitario:.2f}")
-                self.line_precio_unitario.setReadOnly(True) # No editable
+                self.line_precio_unitario.setReadOnly(True)
             except Exception as e:
                 logger.error(f"Error al obtener precio: {e}")
                 precio_unitario = 0.0
@@ -289,12 +285,11 @@ class _BaseFormDialog(QDialog):
                 self.registrar_en_db(data)
 
             QMessageBox.information(self, "Éxito", "Pedido guardado correctamente.")
-            super().accept() # Cierra el diálogo
+            super().accept()
 
         except Exception as e:
             logger.error(f"Error al guardar pedido: {e}", exc_info=True)
             QMessageBox.critical(self, "Error al Guardar", str(e))
-            # No cerramos el diálogo si hay error
 
     def obtener_datos_formulario(self) -> Dict[str, Any]:
         """Función placeholder, debe ser implementada por las clases hijas."""
@@ -316,7 +311,7 @@ class DialogoNuevoNormal(_BaseFormDialog):
 
         # Llenar ComboBoxes
         self.cmb_sabor.addItems(SABORES_NORMALES)
-        self.cmb_tamano.addItems(TAMANOS)
+        self.cmb_tamano.addItems(TAMANOS_NORMALES)
 
         # Construir formulario
         self.form_layout.addRow("Sabor:", self.cmb_sabor)
@@ -327,7 +322,6 @@ class DialogoNuevoNormal(_BaseFormDialog):
         self.form_layout.addRow("Precio Unitario (Q):", self.line_precio_unitario)
         self.form_layout.addRow("Precio Total (Q):", self.line_precio_total)
         self.form_layout.addRow("Sucursal:", self.cmb_sucursal)
-        self.form_layout.addRow("Detalles:", self.line_detalles)
 
         self.layout_principal.addLayout(self.form_layout)
         self.layout_principal.addWidget(self.botones)
@@ -345,21 +339,18 @@ class DialogoNuevoNormal(_BaseFormDialog):
         self.cmb_tamano.setCurrentText(self.data_dict.get('tamano', ''))
         self.spin_cantidad.setValue(int(self.data_dict.get('cantidad', 1)))
         self.cmb_sucursal.setCurrentText(self.data_dict.get('sucursal', ''))
-        self.line_detalles.setText(self.data_dict.get('detalles', ''))
 
         sabor_otro = self.data_dict.get('sabor_personalizado', '')
         if sabor_otro:
             self.check_es_otro.setChecked(True)
             self.line_sabor_personalizado.setText(sabor_otro)
 
-        # El precio se actualiza automáticamente al final
         self.actualizar_precio()
 
     def obtener_datos_formulario(self) -> Dict[str, Any]:
         """Recoge los datos del formulario de Pedido Normal."""
         sabor_real = self.line_sabor_personalizado.text() if self.check_es_otro.isChecked() else self.cmb_sabor.currentText()
 
-        # Si el precio fue manual, leerlo del QLineEdit
         if not self.line_precio_unitario.isReadOnly():
             try:
                 precio_unitario = float(self.line_precio_unitario.text())
@@ -374,7 +365,6 @@ class DialogoNuevoNormal(_BaseFormDialog):
             "cantidad": self.spin_cantidad.value(),
             "precio": precio_unitario,
             "sucursal": self.cmb_sucursal.currentText(),
-            "detalles": self.line_detalles.text(),
             "sabor_personalizado": self.line_sabor_personalizado.text() if self.check_es_otro.isChecked() else None
         }
 
@@ -383,6 +373,7 @@ class DialogoNuevoNormal(_BaseFormDialog):
 
     def actualizar_en_db(self, data: Dict[str, Any]):
         actualizar_pastel_normal_db(self.pedido_id, data)
+
 # DIÁLOGO PARA PEDIDOS DE CLIENTES
 
 class DialogoNuevoCliente(_BaseFormDialog):
@@ -395,7 +386,7 @@ class DialogoNuevoCliente(_BaseFormDialog):
 
         # Llenar ComboBoxes
         self.cmb_sabor.addItems(SABORES_CLIENTES)
-        self.cmb_tamano.addItems(TAMANOS)
+        self.cmb_tamano.addItems(TAMANOS_CLIENTES)
 
         # Construir formulario
         self.form_layout.addRow("Sabor:", self.cmb_sabor)
@@ -413,11 +404,9 @@ class DialogoNuevoCliente(_BaseFormDialog):
         self.layout_principal.addLayout(self.form_layout)
         self.layout_principal.addWidget(self.botones)
 
-        # Cargar datos si estamos en modo edición
         if self.is_edit_mode:
             self._cargar_datos()
 
-        # Estado inicial del campo "Otro"
         self.toggle_sabor_personalizado()
 
     def _cargar_datos(self):
@@ -435,7 +424,6 @@ class DialogoNuevoCliente(_BaseFormDialog):
             self.check_es_otro.setChecked(True)
             self.line_sabor_personalizado.setText(sabor_otro)
 
-        # El precio se actualiza automáticamente al final
         self.actualizar_precio()
 
     def obtener_datos_formulario(self) -> Dict[str, Any]:
