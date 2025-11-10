@@ -265,7 +265,7 @@ def obtener_cliente_por_id_db(pedido_id: int) -> Optional[Dict[str, Any]]:
 # PARTE 4: DatabaseManager
 
 class DatabaseManager:
-    """Gestor principal de operaciones de base de datos para la API de FastAPI"""
+    """Gestor principal de operaciones de base de datos para la API y la web"""
 
     def _ejecutar_query(self, conn_func, query, params=(), commit=False, fetchone=False, fetchall=False):
         """Método helper para ejecutar consultas de forma segura"""
@@ -289,24 +289,31 @@ class DatabaseManager:
             logger.error(f"Error de DB en query ({query[:50]}...): {e}", exc_info=True)
             raise Exception(f"Error de base de datos: {e}")
 
-    # Métodos de Precios
+    # ===========================
+    #        PRECIOS
+    # ===========================
     def obtener_precios(self) -> List[Dict[str, Any]]:
-        """Obtiene la lista de precios (para API)"""
-        resultados = obtener_precio_db() # Reutiliza la función standalone
+        """Obtiene la lista completa de precios"""
+        resultados = obtener_precio_db()  # Función standalone
         precios = []
         for row in resultados:
             precios.append({
-                'id': row[0], 'sabor': row[1], 'tamano': row[2], 'precio': float(row[3])
+                'id': row[0],
+                'sabor': row[1],
+                'tamano': row[2],
+                'precio': float(row[3])
             })
         return precios
 
     def actualizar_precios(self, lista_precios: List[Dict[str, Any]]) -> bool:
-        """Actualiza masivamente los precios (para API)"""
+        """Actualiza precios masivamente"""
         return actualizar_precios_db(lista_precios)
 
-    # Métodos de Pasteles Normales
+    # ===========================
+    #     PASTELES NORMALES
+    # ===========================
     def registrar_pastel_normal(self, data: Dict[str, Any]) -> bool:
-        """Registra un pastel normal (para API)"""
+        """Registra un pastel normal"""
         return registrar_pastel_normal_db(data)
 
     def obtener_pasteles_normales(self, fecha_inicio: str = None, fecha_fin: str = None, sucursal: str = None) -> List[Dict[str, Any]]:
@@ -334,23 +341,32 @@ class DatabaseManager:
         pasteles = []
         for row in resultados:
             pasteles.append({
-                'id': row[0], 'sabor': row[1], 'tamano': row[2], 'precio': float(row[3]),
-                'cantidad': row[4], 'sucursal': row[5], 'fecha': row[6].isoformat(),
-                'detalles': row[7], 'sabor_personalizado': row[8]
+                'id': row[0],
+                'sabor': row[1],
+                'tamano': row[2],
+                'precio': float(row[3]),
+                'cantidad': row[4],
+                'sucursal': row[5],
+                'fecha': row[6].isoformat(),
+                'detalles': row[7],
+                'sabor_personalizado': row[8]
             })
         return pasteles
 
     def eliminar_pastel_normal(self, pastel_id: int) -> bool:
-        """Elimina un pastel normal (para API)"""
+        """Elimina un pastel normal"""
         return eliminar_normal_db(pastel_id)
 
-    # Métodos de Pedidos Clientes
+    # ===========================
+    #     PEDIDOS CLIENTES
+    # ===========================
     def registrar_pedido_cliente(self, data: Dict[str, Any]) -> bool:
-        """Registra un pedido de cliente (para API)"""
+        """Registra un pedido de cliente"""
         return registrar_pedido_cliente_db(data)
 
     def obtener_pedidos_clientes(self, fecha_inicio: str = None, fecha_fin: str = None, sucursal: str = None) -> List[Dict[str, Any]]:
-        query = "SELECT id, color, sabor, tamano, cantidad, precio, total, sucursal, fecha, foto_path, dedicatoria, detalles, fecha_entrega, sabor_personalizado FROM PastelesClientes WHERE 1=1"
+        query = ("SELECT id, color, sabor, tamano, cantidad, precio, total, sucursal, fecha, "
+                 "foto_path, dedicatoria, detalles, fecha_entrega, sabor_personalizado FROM PastelesClientes WHERE 1=1")
         params = []
 
         if fecha_inicio and not fecha_fin:
@@ -374,22 +390,31 @@ class DatabaseManager:
         pedidos = []
         for row in resultados:
             pedidos.append({
-                'id': row[0], 'color': row[1], 'sabor': row[2], 'tamano': row[3],
-                'cantidad': row[4], 'precio': float(row[5]), 'total': float(row[6]),
-                'sucursal': row[7], 'fecha': row[8].isoformat(), 'foto_path': row[9],
-                'dedicatoria': row[10], 'detalles': row[11],
+                'id': row[0],
+                'color': row[1],
+                'sabor': row[2],
+                'tamano': row[3],
+                'cantidad': row[4],
+                'precio': float(row[5]),
+                'total': float(row[6]),
+                'sucursal': row[7],
+                'fecha': row[8].isoformat(),
+                'foto_path': row[9],
+                'dedicatoria': row[10],
+                'detalles': row[11],
                 'fecha_entrega': row[12].isoformat() if row[12] else None,
                 'sabor_personalizado': row[13]
             })
         return pedidos
 
     def eliminar_pedido_cliente(self, pedido_id: int) -> bool:
-        """Elimina un pedido de cliente (para API)"""
+        """Elimina un pedido de cliente"""
         return eliminar_cliente_db(pedido_id)
 
-    # Método de Estadísticas
+    # ===========================
+    #       ESTADÍSTICAS
+    # ===========================
     def obtener_estadisticas(self, fecha_inicio: str = None, fecha_fin: str = None) -> Dict[str, Any]:
-
         if fecha_inicio and not fecha_fin:
             fecha_fin = fecha_inicio
 

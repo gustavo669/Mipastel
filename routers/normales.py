@@ -12,7 +12,6 @@ router = APIRouter(prefix="/normales", tags=["Pasteles Normales"])
 logger = logging.getLogger(__name__)
 templates = Jinja2Templates(directory="templates")
 
-
 def calcular_precio(sabor: str, tamano: str, cantidad: int) -> float:
     try:
         precio_unitario = obtener_precio_db(sabor, tamano)
@@ -21,14 +20,12 @@ def calcular_precio(sabor: str, tamano: str, cantidad: int) -> float:
         logger.error(f"Error al calcular precio: {e}")
         return 0.0
 
-
 def obtener_precio_unitario(sabor: str, tamano: str) -> float:
     try:
         return obtener_precio_db(sabor, tamano)
     except Exception as e:
         logger.error(f"Error al obtener precio unitario: {e}")
         return 0.0
-
 
 @router.get("/formulario")
 async def mostrar_formulario_normales(request: Request):
@@ -52,44 +49,47 @@ async def registrar_pedido_normal(
         cantidad: int = Form(..., gt=0),
         sucursal: str = Form(...),
         detalles: Optional[str] = Form(None),
-        sabor_otro: Optional[str] = Form(None),
-        tamano_otro: Optional[str] = Form(None),
-        precio_personalizado: Optional[float] = Form(0)
+        es_otro: bool = Form(False),
+        sabor_personalizado: Optional[str] = Form(None)
 ):
     try:
-        sabor_final = sabor_otro if sabor == "Otro" and sabor_otro else sabor
-        tamano_final = tamano_otro if tamano == "Otro" and tamano_otro else tamano
+        if tamano not in TAMANOS_NORMALES:
+            raise HTTPException(status_code=400, detail="Tamaño inválido")
 
-        precio_unitario = obtener_precio_unitario(sabor_final, tamano_final)
-        if precio_unitario == 0 and (not precio_personalizado or precio_personalizado == 0):
+        sabor_real = sabor_personalizado if es_otro and sabor_personalizado else sabor
+        precio_unitario = obtener_precio_unitario(sabor, tamano)
+
+        if precio_unitario == 0 and not es_otro:
             raise HTTPException(
                 status_code=400,
-                detail=f"No se encontró precio para {sabor_final} {tamano_final}. Use la opción 'Otro' para precios personalizados."
+                detail=f"No se encontró precio para {sabor} {tamano}. Use la opción 'Otro' para precios personalizados."
             )
 
-        precio_total = precio_personalizado if precio_personalizado > 0 else precio_unitario * cantidad
-
+        precio_total = precio_unitario * cantidad
         pastel_data = {
-            'sabor': sabor_final,
-            'tamano': tamano_final,
+            'sabor': sabor_real,
+            'tamano': tamano,
             'cantidad': cantidad,
-            'precio': precio_total,
+            'precio': precio_unitario,
             'sucursal': sucursal,
-            'detalles': detalles or ''
+            'detalles': detalles or '',
+            'sabor_personalizado': sabor_personalizado or ''
         }
 
         db = DatabaseManager()
-        db.registrar_pastel_normal(pastel_data)
+        resultado = db.registrar_pastel_normal(pastel_data)
 
-        logger.info(f"Pastel normal registrado: {sabor_final} {tamano_final} x{cantidad} - Q{precio_total:.2f}")
-        return templates.TemplateResponse("exito.html", {
-            "request": request,
-            "mensaje": "Pastel normal registrado correctamente",
-            "detalles": f"{sabor_final} {tamano_final} x{cantidad} - Total: Q{precio_total:.2f}",
-            "tipo": "normal"
-        })
+        if resultado:
+            logger.info(f"Pastel normal registrado: {sabor_real} {tamano} x{cantidad} - Q{precio_total:.2f} - {sucursal}")
+            return templates.TemplateResponse("exito.html", {
+                "request": request,
+                "mensaje": "Pastel normal registrado correctamente",
+                "detalles": f"{sabor_real} {tamano} x{cantidad} - Total: Q{precio_total:.2f}",
+                "tipo": "normal"
+            })
+        else:
+            raise HTTPException(status_code=500, detail="Error al registrar el pastel en la base de datos")
 
     except Exception as e:
         logger.error(f"Error al registrar pastel normal: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Error al registrar el pastel: {str(e)}")
-

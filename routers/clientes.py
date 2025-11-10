@@ -4,21 +4,20 @@ from database import DatabaseManager, obtener_precio_db
 from datetime import datetime
 import os, logging
 from typing import Optional
-from config import (
-    SABORES_CLIENTES, TAMANOS_CLIENTES, SUCURSALES
-)
+from config import SABORES_CLIENTES, TAMANOS_CLIENTES, SUCURSALES
 
 router = APIRouter(prefix="/clientes", tags=["Pedidos de Clientes"])
 logger = logging.getLogger(__name__)
 templates = Jinja2Templates(directory="templates")
 
-# --- Directorio de subida de imágenes ---
+# --------------------------
+# Configuración de uploads
+# --------------------------
 UPLOAD_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "static", "uploads"))
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 ALLOWED_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.gif', '.bmp'}
 MAX_FILE_SIZE = 5 * 1024 * 1024  # 5 MB
-
 
 # --------------------------
 # Funciones auxiliares
@@ -46,9 +45,8 @@ def obtener_precio_unitario(sabor: str, tamano: str) -> float:
         logger.error(f"Error al obtener precio unitario: {e}")
         return 0.0
 
-
 # --------------------------
-# Página del formulario
+# Mostrar formulario web
 # --------------------------
 @router.get("/formulario")
 async def mostrar_formulario_clientes(request: Request):
@@ -63,9 +61,8 @@ async def mostrar_formulario_clientes(request: Request):
         logger.error(f"Error al cargar formulario clientes: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Error al cargar formulario: {str(e)}")
 
-
 # --------------------------
-# Registrar pedido (POST)
+# Registrar pedido de cliente
 # --------------------------
 @router.post("/registrar")
 async def registrar_pedido_cliente(
@@ -74,55 +71,54 @@ async def registrar_pedido_cliente(
         tamano: str = Form(...),
         cantidad: int = Form(..., gt=0),
         sucursal: str = Form(...),
+        fecha_entrega: Optional[str] = Form(None),
+        color: Optional[str] = Form(None),
+        dedicatoria: Optional[str] = Form(None),
         detalles: Optional[str] = Form(None),
-        es_otro: bool = Form(False),
         sabor_personalizado: Optional[str] = Form(None),
-        imagen: Optional[UploadFile] = File(None)
+        foto: Optional[UploadFile] = File(None)
 ):
-    """Registrar un pedido de cliente desde la web"""
     try:
-        # Validación del tamaño
-        if tamano not in TAMANOS_CLIENTES:
-            raise HTTPException(status_code=400, detail="Tamaño inválido")
+        db = DatabaseManager()
 
-        # Si el sabor es personalizado
-        sabor_real = sabor_personalizado if es_otro and sabor_personalizado else sabor
+        # Validar y guardar imagen
+        foto_path = None
+        if foto and foto.filename:
+            if not validar_imagen(foto):
+                raise HTTPException(status_code=400, detail="Formato de imagen no permitido")
+            extension = os.path.splitext(foto.filename)[1]
+            filename = f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{sabor}{extension}"
+            file_location = os.path.join(UPLOAD_DIR, filename)
+            with open(file_location, "wb") as f:
+                f.write(await foto.read())
+            foto_path = file_location
 
-        # Obtener precio
-        precio_unitario = obtener_precio_unitario(sabor, tamano)
-        if precio_unitario == 0 and not es_otro:
-            raise HTTPException(
-                status_code=400,
-                detail=f"No se encontró precio para {sabor} {tamano}. Use la opción 'Otro' para precios personalizados."
-            )
+        # Determinar sabor real
+        sabor_real = sabor_personalizado if sabor_personalizado else sabor
 
+        # Calcular precio
+        precio_unitario = obtener_precio_unitario(sabor_real, tamano)
         precio_total = precio_unitario * cantidad
 
-        # Guardar imagen si existe
-        imagen_path = None
-        if imagen and validar_imagen(imagen):
-            filename = f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_{imagen.filename}"
-            imagen_path = os.path.join(UPLOAD_DIR, filename)
-            with open(imagen_path, "wb") as buffer:
-                buffer.write(await imagen.read())
-
-        # Registrar en la base de datos
+        # Preparar datos para DB
         pedido_data = {
-            'sabor': sabor_real,
-            'tamano': tamano,
-            'cantidad': cantidad,
-            'precio': precio_unitario,
-            'sucursal': sucursal,
-            'detalles': detalles or '',
-            'imagen': imagen_path or '',
-            'sabor_personalizado': sabor_personalizado or ''
+            "sabor": sabor_real,
+            "tamano": tamano,
+            "cantidad": cantidad,
+            "precio": precio_unitario,
+            "sucursal": sucursal,
+            "fecha_entrega": fecha_entrega,
+            "color": color,
+            "dedicatoria": dedicatoria,
+            "detalles": detalles,
+            "sabor_personalizado": sabor_personalizado or '',
+            "foto_path": foto_path
         }
 
-        db = DatabaseManager()
         resultado = db.registrar_pedido_cliente(pedido_data)
 
         if resultado:
-            logger.info(f"Pedido cliente registrado: {sabor_real} {tamano} x{cantidad} - Q{precio_total:.2f}")
+            logger.info(f"Pedido de cliente registrado: {sabor_real} {tamano} x{cantidad} - Q{precio_total:.2f}")
             return templates.TemplateResponse("exito.html", {
                 "request": request,
                 "mensaje": "Pedido de cliente registrado correctamente",
@@ -132,9 +128,7 @@ async def registrar_pedido_cliente(
         else:
             raise HTTPException(status_code=500, detail="Error al registrar el pedido en la base de datos")
 
-    except HTTPException:
-        raise
     except Exception as e:
-        logger.error(f"Error al registrar pedido cliente: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Error al registrar el pedido: {str(e)}")
+        logger.error(f"Error en /clientes/registrar: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Error al registrar pedido de cliente: {str(e)}")
 
