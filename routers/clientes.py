@@ -10,18 +10,14 @@ router = APIRouter(prefix="/clientes", tags=["Pedidos de Clientes"])
 logger = logging.getLogger(__name__)
 templates = Jinja2Templates(directory="templates")
 
-# --------------------------
-# Configuración de uploads
-# --------------------------
+
 UPLOAD_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "static", "uploads"))
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 ALLOWED_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.gif', '.bmp'}
 MAX_FILE_SIZE = 5 * 1024 * 1024  # 5 MB
 
-# --------------------------
-# Funciones auxiliares
-# --------------------------
+
 def validar_imagen(file: UploadFile) -> bool:
     if not file or not file.filename:
         return False
@@ -45,9 +41,7 @@ def obtener_precio_unitario(sabor: str, tamano: str) -> float:
         logger.error(f"Error al obtener precio unitario: {e}")
         return 0.0
 
-# --------------------------
-# Mostrar formulario web
-# --------------------------
+
 @router.get("/formulario")
 async def mostrar_formulario_clientes(request: Request):
     try:
@@ -61,9 +55,7 @@ async def mostrar_formulario_clientes(request: Request):
         logger.error(f"Error al cargar formulario clientes: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Error al cargar formulario: {str(e)}")
 
-# --------------------------
-# Registrar pedido de cliente
-# --------------------------
+
 @router.post("/registrar")
 async def registrar_pedido_cliente(
         request: Request,

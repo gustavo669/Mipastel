@@ -4,7 +4,6 @@ from fastapi.templating import Jinja2Templates
 from datetime import datetime
 import logging
 
-# --- Importar base de datos y configuración ---
 from database import DatabaseManager
 from config import (
     SABORES_NORMALES,
@@ -14,15 +13,11 @@ from config import (
     SUCURSALES
 )
 
-# --- Configuración del router ---
 router = APIRouter(prefix="/admin", tags=["Administración"])
 templates = Jinja2Templates(directory="templates")
 logger = logging.getLogger(__name__)
 
 
-# ==========================
-#   VISTA PRINCIPAL ADMIN
-# ==========================
 @router.get("/", response_class=HTMLResponse)
 async def vista_admin(request: Request):
     """Vista principal del panel de administración."""
@@ -53,9 +48,6 @@ async def vista_admin(request: Request):
         raise HTTPException(status_code=500, detail=f"Error al cargar datos: {str(e)}")
 
 
-# ==========================
-#     ENDPOINTS API
-# ==========================
 @router.get("/normales")
 async def obtener_normales(
         fecha: str = Query(None, description="Fecha en formato YYYY-MM-DD"),
@@ -122,9 +114,6 @@ async def actualizar_precios(precios_data: list):
         raise HTTPException(status_code=500, detail=f"Error al actualizar precios: {str(e)}")
 
 
-# ==========================
-#   REGISTROS / ELIMINAR
-# ==========================
 @router.post("/normales/registrar")
 async def registrar_pastel_normal(pastel_data: dict):
     """Registrar un nuevo pastel normal."""
@@ -189,9 +178,6 @@ async def eliminar_pedido_cliente(pedido_id: int):
         raise HTTPException(status_code=500, detail=f"Error al eliminar pedido de cliente: {str(e)}")
 
 
-# ==========================
-#      ESTADÍSTICAS
-# ==========================
 @router.get("/estadisticas")
 async def obtener_estadisticas(fecha: str = Query(None, description="Fecha en formato YYYY-MM-DD")):
     """Obtener estadísticas generales del sistema."""
@@ -204,9 +190,6 @@ async def obtener_estadisticas(fecha: str = Query(None, description="Fecha en fo
         raise HTTPException(status_code=500, detail=f"Error al obtener estadísticas: {str(e)}")
 
 
-# ==========================
-#        HEALTH CHECK
-# ==========================
 @router.get("/health")
 async def health_check():
     """Verifica la salud del módulo Admin."""

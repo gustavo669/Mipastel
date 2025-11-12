@@ -3,11 +3,9 @@ from datetime import date
 import logging
 from typing import Optional, Dict, Any
 
-# Configurar logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Añadir el directorio padre al path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from PySide6.QtWidgets import (
@@ -19,7 +17,6 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import QDate, Qt, Slot, QPropertyAnimation, QEasingCurve, Property
 from PySide6.QtGui import QFont, QKeyEvent, QColor
 
-# Importar las funciones de base de datos actualizadas
 try:
     from database import (
         get_conn_clientes,
@@ -43,376 +40,389 @@ except ImportError as e:
     sys.exit(f"Error fatal en imports: {e}")
 
 DARK_STYLE = """
-    /* Fondo general */
-    QMainWindow {
-        background-color: #2c3e50;
-    }
-    
-    QWidget {
-        background-color: #ecf0f1;
-        color: #2c3e50;
-        font-family: "Segoe UI", "Lato", sans-serif;
-        font-size: 10pt;
-        border: none;
-    }
-    
-    /* Pestañas */
-    QTabWidget::pane {
-        border: 2px solid #bdc3c7;
-        border-radius: 8px;
-        background-color: #ffffff;
-    }
-    
-    QTabBar::tab {
-        background: #95a5a6;
-        color: #ffffff;
-        padding: 12px 24px;
-        margin: 2px;
-        border-top-left-radius: 6px;
-        border-top-right-radius: 6px;
-        border: 1px solid #7f8c8d;
-        font-weight: bold;
-        min-width: 120px;
-    }
-    
-    QTabBar::tab:selected {
-        background: #3498db;
-        color: #ffffff;
-        border: 1px solid #2980b9;
-    }
-    
-    QTabBar::tab:hover {
-        background: #3498db;
-    }
-    
-    /* Tablas */
-    QTableWidget {
-        background-color: #ffffff;
-        color: #2c3e50;
-        gridline-color: #bdc3c7;
-        border-radius: 6px;
-        border: 1px solid #bdc3c7;
-        alternate-background-color: #f8f9fa;
-    }
-    
-    QHeaderView::section {
-        background-color: #3498db;
-        color: #ffffff;
-        padding: 10px;
-        border: 1px solid #2980b9;
-        font-weight: bold;
-        font-size: 10pt;
-    }
-    
-    QTableWidget::item {
-        padding: 8px;
-        border-bottom: 1px solid #ecf0f1;
-    }
-    
-    QTableWidget::item:selected {
-        background-color: #3498db;
-        color: #ffffff;
-    }
-    
-    /* Botones Mejorados */
-    QPushButton {
-        background-color: #3498db;
-        color: #ffffff;
-        font-weight: 600;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 8px;
-        min-width: 100px;
-        font-size: 10pt;
-    }
-    
-    QPushButton:hover {
-        background-color: #2980b9;
-        padding: 11px 21px;
-    }
-    
-    QPushButton:pressed {
-        background-color: #21618c;
-        padding: 9px 19px;
-    }
-    
-    QPushButton:disabled {
-        background-color: #bdc3c7;
-        color: #7f8c8d;
-    }
-    
-    /* Botón Verde (Nuevo) - Mejorado */
-    QPushButton[cssClass="btnVerde"] {
-        background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                                    stop:0 #27ae60, stop:1 #229954);
-        color: #ffffff;
-        font-size: 10pt;
-        padding: 10px 20px;
-        border: 2px solid #1e8449;
-        min-width: 120px;
-    }
-    
-    QPushButton[cssClass="btnVerde"]:hover {
-        background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                                    stop:0 #229954, stop:1 #1e8449);
-        padding: 11px 21px;
-        border: 2px solid #196f3d;
-    }
-    
-    QPushButton[cssClass="btnVerde"]:pressed {
-        background: #1e8449;
-        padding: 9px 19px;
-    }
-    
-    /* Botón Rosa/Rojo (Eliminar) - Mejorado */
-    QPushButton[cssClass="btnRosa"] {
-        background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                                    stop:0 #e74c3c, stop:1 #c0392b);
-        color: #ffffff;
-        font-size: 10pt;
-        padding: 10px 20px;
-        border: 2px solid #a93226;
-        min-width: 100px;
-    }
-    
-    QPushButton[cssClass="btnRosa"]:hover {
-        background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                                    stop:0 #c0392b, stop:1 #a93226);
-        padding: 11px 21px;
-        border: 2px solid #922b21;
-    }
-    
-    QPushButton[cssClass="btnRosa"]:pressed {
-        background: #a93226;
-        padding: 9px 19px;
-    }
+/* Fondo general */
+QMainWindow {
+    background-color: #fffff; 
+}
 
-    /* Botón Naranja (Editar) - Mejorado */
-    QPushButton[cssClass="btnNaranja"] {
-        background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                                    stop:0 #f39c12, stop:1 #e67e22);
-        color: #ffffff;
-        font-size: 10pt;
-        padding: 10px 20px;
-        border: 2px solid #d68910;
-        min-width: 100px;
-    }
-    
-    QPushButton[cssClass="btnNaranja"]:hover {
-        background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                                    stop:0 #e67e22, stop:1 #d35400);
-        padding: 11px 21px;
-        border: 2px solid #ba4a00;
-    }
-    
-    QPushButton[cssClass="btnNaranja"]:pressed {
-        background: #d35400;
-        padding: 9px 19px;
-    }
-    
-    /* Botón Morado (Precios) - Mejorado */
-    QPushButton[cssClass="btnMorado"] {
-        background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                                    stop:0 #9b59b6, stop:1 #8e44ad);
-        color: #ffffff;
-        font-size: 11pt;
-        font-weight: bold;
-        padding: 12px 28px;
-        border: 2px solid #7d3c98;
-        border-radius: 10px;
-        min-width: 180px;
-    }
-    
-    QPushButton[cssClass="btnMorado"]:hover {
-        background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                                    stop:0 #8e44ad, stop:1 #7d3c98);
-        padding: 13px 29px;
-        border: 2px solid #6c3483;
-    }
-    
-    QPushButton[cssClass="btnMorado"]:pressed {
-        background: #7d3c98;
-        padding: 11px 27px;
-    }
-    
-    /* Botón Azul (Filtrar/Reporte) */
-    QPushButton[cssClass="btnAzul"] {
-        background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                                    stop:0 #3498db, stop:1 #2980b9);
-        color: #ffffff;
-        font-size: 10pt;
-        padding: 10px 20px;
-        border: 2px solid #2471a3;
-        min-width: 120px;
-    }
-    
-    QPushButton[cssClass="btnAzul"]:hover {
-        background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                                    stop:0 #2980b9, stop:1 #2471a3);
-        padding: 11px 21px;
-    }
-    
-    /* ComboBox */
-    QComboBox {
-        background-color: #ffffff;
-        color: #2c3e50;
-        padding: 8px;
-        border: 2px solid #bdc3c7;
-        border-radius: 5px;
-        min-width: 120px;
-    }
-    
-    QComboBox:hover {
-        border-color: #3498db;
-    }
-    
-    QComboBox::drop-down {
-        border: none;
-        width: 20px;
-    }
-    
-    QComboBox QAbstractItemView {
-        background-color: #ffffff;
-        color: #2c3e50;
-        selection-background-color: #3498db;
-        selection-color: #ffffff;
-        border: 1px solid #bdc3c7;
-    }
-    
-    /* Editor de Fechas */
-    QDateEdit {
-        background-color: #ffffff;
-        color: #2c3e50;
-        padding: 8px;
-        border: 2px solid #bdc3c7;
-        border-radius: 5px;
-        min-width: 120px;
-    }
-    
-    QDateEdit:hover {
-        border-color: #3498db;
-    }
-    
-    /* Labels */
-    QLabel {
-        color: #2c3e50;
-        font-weight: bold;
-        font-size: 10pt;
-    }
-    
-    /* Diálogos Mejorados */
-    QDialog {
-        background-color: #ecf0f1;
-        border-radius: 10px;
-    }
-    
-    QDialogButtonBox QPushButton {
-        min-width: 100px;
-        padding: 10px 20px;
-    }
-    
-    /* Barra de Estado */
-    QStatusBar {
-        background-color: #34495e;
-        color: #ecf0f1;
-        padding: 5px;
-    }
-    
-    /* Scrollbars */
-    QScrollBar:vertical {
-        background: #ecf0f1;
-        width: 12px;
-        border-radius: 6px;
-    }
-    
-    QScrollBar::handle:vertical {
-        background: #95a5a6;
-        min-height: 20px;
-        border-radius: 6px;
-    }
-    
-    QScrollBar::handle:vertical:hover {
-        background: #7f8c8d;
-    }
-    
-    /* Group Box Style */
-    QGroupBox {
-        font-weight: bold;
-        border: 2px solid #bdc3c7;
-        border-radius: 8px;
-        margin-top: 10px;
-        padding-top: 10px;
-        background-color: #ffffff;
-    }
-    
-    QGroupBox::title {
-        subcontrol-origin: margin;
-        left: 10px;
-        padding: 0 8px 0 8px;
-        color: #2c3e50;
-    }
-"""
+QWidget {
+    background-color: #fffff;
+    color: #2b1b3a; 
+    font-family: "Open Sans", "Lato", sans-serif;
+    font-size: 10pt;
+    border: none;
+}
 
+/* Pestañas */
+QTabWidget::pane {
+    border: 3px solid #f0d6ec;
+    border-radius: 8px;
+    background-color: #ffffff;
+}
+
+QTabBar::tab {
+    background: #00000; 
+    color: #2b1b3a;
+    padding: 12px 24px;
+    margin: 2px;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    border: 3px solid #e8b8d6;
+    font-weight: bold;
+    min-width: 120px;
+}
+
+QTabBar::tab:selected {
+    background: #8e44ad;
+    color: #ffffff;
+    border: 1px solid #6f2f86;
+}
+
+QTabBar::tab:hover {
+    background: #b65fae;
+    color: #ffffff;
+}
+
+/* Tablas */
+QTableWidget {
+    background-color: #ffffff;
+    color: #2b1b3a;
+    gridline-color: #f0d6ec;
+    border-radius: 6px;
+    border: 2px solid #f0d6ec;
+    alternate-background-color: #fff5fb;
+}
+
+QHeaderView::section {
+    background-color: #8e44ad; 
+    color: #ffffff;
+    padding: 4px;
+    border: 1px solid #6f2f86;
+    font-weight: bold;
+    font-size: 10pt;
+}
+
+QTableWidget::item {
+    padding: 8px;
+    border-bottom: 1px solid #fff0f6;
+}
+
+QTableWidget::item:selected {
+    background-color: #b65fae;
+    color: #ffffff;
+}
+
+/* Botones */
+QPushButton {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                stop:0 #9b59b6, stop:1 #7d3c98);
+    color: #ffffff;
+    font-weight: 600;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    min-width: 100px;
+    font-size: 12pt; 
+}
+
+QPushButton:hover {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                stop:0 #a66bbf, stop:1 #6e3288);
+    padding: 11px 21px;
+}
+
+QPushButton:pressed {
+    background-color: #5e2a74;
+    padding: 9px 19px;
+}
+
+QPushButton:disabled {
+    background-color: #e9d9ea;
+    color: #a78aa8;
+}
+
+/* Botón (Nuevo) */
+QPushButton[cssClass="btnVerde"] {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                stop:0 #48c774, stop:1 #2e8b57);
+    color: #ffffff;
+    font-size: 12pt;
+    padding: 8px 10px;
+    border: 2px solid #2b7f4f;
+    min-width: 120px;
+}
+
+QPushButton[cssClass="btnVerde"]:hover {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                stop:0 #3fb868, stop:1 #256b46);
+    padding: 11px 21px;
+    border: 2px solid #215c3a;
+}
+
+QPushButton[cssClass="btnVerde"]:pressed {
+    background: #215c3a;
+    padding: 9px 19px;
+}
+
+/* Botón (Eliminar) */
+QPushButton[cssClass="btnRosa"] {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                stop:0 #ff88b8, stop:1 #ff6fa3);
+    color: #ffffff;
+    font-size: 12pt;
+    padding: 8px 10px;
+    border: 2px solid #ff5f97;
+    min-width: 100px;
+}
+
+QPushButton[cssClass="btnRosa"]:hover {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                stop:0 #ff6fa3, stop:1 #ff4f87);
+    padding: 11px 21px;
+    border: 2px solid #e0446f;
+}
+
+QPushButton[cssClass="btnRosa"]:pressed {
+    background: #e0446f;
+    padding: 9px 19px;
+}
+ 
+/* Botón Editar */
+QPushButton[cssClass="btnNaranja"] {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                stop:0 #7feaf0, stop:1 #2ccadf);
+    color: #000000;
+    font-size: 12pt;
+    padding: 8px 10px;
+    border: 2px solid #16a6a6;
+    min-width: 100px;
+}
+
+QPushButton[cssClass="btnNaranja"]:hover {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                stop:0 #66e6ea, stop:1 #20bfcf);
+    padding: 11px 21px;
+    border: 2px solid #118f8f;
+}
+
+QPushButton[cssClass="btnNaranja"]:pressed {
+    background: #118f8f;
+    padding: 9px 19px;
+}
+
+/* Botón (Precios) */
+QPushButton[cssClass="btnMorado"] {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                stop:0 #48c774, stop:1 #2e8b57);
+    color: #ffffff;
+    font-size: 12pt;
+    font-weight: bold;
+    padding: 12px 28px;
+    border: 2px solid #2b7f4f;
+    border-radius: 10px;
+    min-width: 180px;
+}
+
+QPushButton[cssClass="btnMorado"]:hover {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                stop:0 #3fb868, stop:1 #256b46);
+    padding: 13px 29px;
+    border: 2px solid #215c3a;
+}
+
+QPushButton[cssClass="btnMorado"]:pressed {
+    background: #215c3a;
+    padding: 11px 27px;
+}
+
+/* Botón (Filtrar/Reporte) */
+QPushButton[cssClass="btnAzul"] {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                stop:0 #6f2f86, stop:1 #4b1257);
+    color: #ffffff;
+    font-size: 12pt;
+    padding: 8px 10px;
+    border: 2px solid #5a236f;
+    min-width: 120px;
+}
+
+QPushButton[cssClass="btnAzul"]:hover {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                stop:0 #5a236f, stop:1 #3d0e4a);
+    padding: 11px 21px;
+}
+
+/* ComboBox */
+QComboBox {
+    background-color: #ffffff;
+    color: #2b1b3a;
+    padding: 8px;
+    border: 2px solid #f0d6ec;
+    border-radius: 5px;
+    min-width: 120px;
+}
+
+QComboBox:hover {
+    border-color: #b65fae;
+}
+
+QComboBox::drop-down {
+    border: none;
+    width: 20px;
+}
+
+QComboBox QAbstractItemView {
+    background-color: #ffffff;
+    color: #2b1b3a;
+    selection-background-color: #b65fae;
+    selection-color: #ffffff;
+    border: 1px solid #f0d6ec;
+}
+
+/* Editor de Fechas */
+QDateEdit {
+    background-color: #ffffff;
+    color: #2b1b3a;
+    padding: 8px;
+    border: 2px solid #f0d6ec;
+    border-radius: 5px;
+    min-width: 120px;
+}
+
+QDateEdit:hover {
+    border-color: #b65fae;
+}
+
+/* Labels */
+QLabel {
+    color: #2b1b3a;
+    font-weight: bold;
+    font-size: 10pt;
+}
+
+/* Diálogos Mejorados */
+QDialog {
+    background-color: #fffafc;
+    border-radius: 10px;
+}
+
+QDialogButtonBox QPushButton {
+    min-width: 100px;
+    padding: 10px 20px;
+    font-size: 12pt;
+}
+
+/* Barra de Estado */
+QStatusBar {
+    background-color: #6f2f86;
+    color: #fff0f6;
+    padding: 5px;
+}
+
+/* Scrollbars */
+QScrollBar:vertical {
+    background: #fff5fb;
+    width: 12px;
+    border-radius: 6px;
+}
+
+QScrollBar::handle:vertical {
+    background: #b65fae;
+    min-height: 20px;
+    border-radius: 6px;
+}
+
+QScrollBar::handle:vertical:hover {
+    background: #8e44ad;
+}
+
+/* Group Box Style */
+QGroupBox {
+    font-weight: bold;
+    border: 2px solid #f0d6ec;
+    border-radius: 8px;
+    margin-top: 10px;
+    padding-top: 10px;
+    background-color: #ffffff;
+}
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    left: 10px;
+    padding: 0 8px 0 8px;
+    color: #2b1b3a;
+} """
 
 class DialogoConfirmacionMejorado(QDialog):
-    """Diálogo de confirmación mejorado con mejor diseño"""
+    """Diálogo de confirmación """
 
     def __init__(self, parent, titulo, mensaje, tipo="warning"):
         super().__init__(parent)
         self.setWindowTitle(titulo)
         self.setModal(True)
-        self.setMinimumWidth(400)
+        self.setMinimumWidth(420)
 
         layout = QVBoxLayout(self)
-        layout.setSpacing(20)
-        layout.setContentsMargins(30, 30, 30, 30)
+        layout.setSpacing(18)
+        layout.setContentsMargins(24, 24, 24, 24)
 
-        # Botones
+        lbl_mensaje = QLabel(mensaje)
+        lbl_mensaje.setWordWrap(True)
+        lbl_mensaje.setStyleSheet("QLabel { color: #fffff; font-size: 11pt; }")
+        layout.addWidget(lbl_mensaje)
+
         botones = QDialogButtonBox()
 
         if tipo == "warning":
             btn_si = botones.addButton("Sí, eliminar", QDialogButtonBox.AcceptRole)
             btn_si.setStyleSheet("""
                 QPushButton {
-                    background: #e74c3c;
-                    color: white;
-                    padding: 10px 24px;
+                    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                                stop:0 #ff88b8, stop:1 #ff4f87);
+                    color: #00000;
+                    padding: 10px 22px;
                     font-weight: bold;
                     font-size: 10pt;
                     border-radius: 6px;
+                    border: 1px solid #ff5f97;
                 }
                 QPushButton:hover {
-                    background: #c0392b;
+                    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                                stop:0 #ff6fa3, stop:1 #ff4f87);
                 }
             """)
 
             btn_no = botones.addButton("Cancelar", QDialogButtonBox.RejectRole)
             btn_no.setStyleSheet("""
                 QPushButton {
-                    background: #95a5a6;
-                    color: white;
-                    padding: 10px 24px;
+                    background: transparent;
+                    color: #800080;
+                    padding: 10px 22px;
                     font-weight: bold;
                     font-size: 10pt;
                     border-radius: 6px;
+                    border: 1px solid #3a2a36;
                 }
                 QPushButton:hover {
-                    background: #7f8c8d;
+                    background: rgba(255,86,150,0.06);
                 }
             """)
         else:
             btn_ok = botones.addButton("Entendido", QDialogButtonBox.AcceptRole)
             btn_ok.setStyleSheet("""
                 QPushButton {
-                    background: #3498db;
-                    color: white;
-                    padding: 10px 24px;
+                    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                                stop:0 #ff88b8, stop:1 #ff4f87);
+                    color: #0b0b0b;
+                    padding: 10px 22px;
                     font-weight: bold;
                     font-size: 10pt;
                     border-radius: 6px;
+                    border: 1px solid #ff5f97;
                 }
                 QPushButton:hover {
-                    background: #2980b9;
+                    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                                stop:0 #ff6fa3, stop:1 #ff4f87);
                 }
             """)
 
@@ -421,24 +431,28 @@ class DialogoConfirmacionMejorado(QDialog):
 
         layout.addWidget(botones)
 
-        # Estilo del diálogo
         self.setStyleSheet("""
-            QDialog {
-                background-color: #ffffff;
-                border-radius: 10px;
-            }
-        """)
-
+    QDialog {
+        background-color: #fffff;
+        border-radius: 10px;
+    }
+    QDialog QLabel {
+        color: #00000;
+        font-size: 11pt;
+    }
+    QDialogButtonBox QPushButton {
+        min-width: 100px;
+    }
+""")
 
 class AdminApp(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Mi Pastel — Sistema de Administración")
-        self.resize(1400, 850)
+        self.resize(1350, 690)
         self.setStyleSheet(DARK_STYLE)
 
-        # Configurar fuente general
-        self.setFont(QFont("Segoe UI", 11))
+        self.setFont(QFont("Segoe UI", 12))
 
         self.central_widget = QWidget()
         self.setCentralWidget(self.central_widget)
@@ -447,7 +461,6 @@ class AdminApp(QMainWindow):
         self.layout_principal.setSpacing(15)
         self.layout_principal.setContentsMargins(15, 15, 15, 15)
 
-        # Header con título y botón de precios
         header_layout = QHBoxLayout()
 
         # Título
@@ -464,15 +477,13 @@ class AdminApp(QMainWindow):
         header_layout.addWidget(title_label)
         header_layout.addStretch()
 
-        # Botón de administrar precios
-        self.btn_admin_precios = QPushButton("Administrar Precios")
+        self.btn_admin_precios = QPushButton("ADMINISTRAR PRECIOS")
         self.btn_admin_precios.setProperty("cssClass", "btnMorado")
         self.btn_admin_precios.setToolTip("Configurar precios de pasteles")
         header_layout.addWidget(self.btn_admin_precios)
 
         self.layout_principal.addLayout(header_layout)
 
-        # Tabs principal
         self.tabs = QTabWidget()
         self.tabs.setStyleSheet("""
             QTabWidget::pane {
@@ -481,17 +492,14 @@ class AdminApp(QMainWindow):
         """)
         self.layout_principal.addWidget(self.tabs)
 
-        # Pestaña Clientes
         self.tab_clientes = QWidget()
         self.layout_clientes = QVBoxLayout(self.tab_clientes)
         self.layout_clientes.setSpacing(10)
         self.layout_clientes.setContentsMargins(10, 10, 10, 10)
 
-        # Layout de filtros para clientes
         filtros_layout_clientes = QGridLayout()
         filtros_layout_clientes.setSpacing(10)
 
-        # Fila 1: Filtros
         filtros_layout_clientes.addWidget(QLabel("Fecha:"), 0, 0)
         self.date_clientes = QDateEdit(calendarPopup=True)
         self.date_clientes.setDate(QDate.currentDate())
@@ -504,30 +512,16 @@ class AdminApp(QMainWindow):
         self.cmb_sucursal_clientes.setMaximumWidth(150)
         filtros_layout_clientes.addWidget(self.cmb_sucursal_clientes, 0, 3)
 
-        self.btn_filtrar_clientes = QPushButton("Filtrar")
+        self.btn_filtrar_clientes = QPushButton("VER PEDIDOS")
         self.btn_filtrar_clientes.setProperty("cssClass", "btnAzul")
         filtros_layout_clientes.addWidget(self.btn_filtrar_clientes, 0, 4)
 
-        self.btn_reporte_clientes = QPushButton("Generar Reporte")
+        self.btn_reporte_clientes = QPushButton("GENERAR REPORTE")
         self.btn_reporte_clientes.setProperty("cssClass", "btnAzul")
         filtros_layout_clientes.addWidget(self.btn_reporte_clientes, 0, 5)
 
-        # Fila 2: Botones CRUD
-        self.btn_nuevo_cliente = QPushButton("Nuevo Cliente")
-        self.btn_nuevo_cliente.setProperty("cssClass", "btnVerde")
-        filtros_layout_clientes.addWidget(self.btn_nuevo_cliente, 1, 0, 1, 2)
-
-        self.btn_editar_cliente = QPushButton("Editar")
-        self.btn_editar_cliente.setProperty("cssClass", "btnNaranja")
-        filtros_layout_clientes.addWidget(self.btn_editar_cliente, 1, 2, 1, 2)
-
-        self.btn_eliminar_cliente = QPushButton("Eliminar")
-        self.btn_eliminar_cliente.setProperty("cssClass", "btnRosa")
-        filtros_layout_clientes.addWidget(self.btn_eliminar_cliente, 1, 4, 1, 2)
-
         self.layout_clientes.addLayout(filtros_layout_clientes)
 
-        # Tabla de clientes
         self.table_clientes = QTableWidget()
         self.table_clientes.setColumnCount(13)
         self.table_clientes.setHorizontalHeaderLabels([
@@ -539,26 +533,45 @@ class AdminApp(QMainWindow):
         self.table_clientes.setSelectionMode(QAbstractItemView.SingleSelection)
         self.table_clientes.setAlternatingRowColors(True)
 
-        # Configurar header
         header_clientes = self.table_clientes.horizontalHeader()
         header_clientes.setSectionResizeMode(QHeaderView.ResizeToContents)
         header_clientes.setSectionResizeMode(7, QHeaderView.Stretch)
         header_clientes.setSectionResizeMode(8, QHeaderView.Stretch)
 
         self.layout_clientes.addWidget(self.table_clientes)
+
+        btns_clientes_layout = QHBoxLayout()
+        btns_clientes_layout.setSpacing(5)
+        btns_clientes_layout.addStretch()
+
+        self.btn_nuevo_cliente = QPushButton("NUEVO")
+        self.btn_nuevo_cliente.setProperty("cssClass", "btnVerde")
+        self.btn_nuevo_cliente.setFixedWidth(110)
+        btns_clientes_layout.addWidget(self.btn_nuevo_cliente)
+
+        self.btn_editar_cliente = QPushButton("EDITAR")
+        self.btn_editar_cliente.setProperty("cssClass", "btnNaranja")
+        self.btn_editar_cliente.setFixedWidth(110)
+        btns_clientes_layout.addWidget(self.btn_editar_cliente)
+
+        self.btn_eliminar_cliente = QPushButton("ELIMINAR")
+        self.btn_eliminar_cliente.setProperty("cssClass", "btnRosa")
+        self.btn_eliminar_cliente.setFixedWidth(110)
+        btns_clientes_layout.addWidget(self.btn_eliminar_cliente)
+
+        btns_clientes_layout.addStretch()
+        self.layout_clientes.addLayout(btns_clientes_layout)
+
         self.tabs.addTab(self.tab_clientes, "Pedidos de Clientes")
 
-        # Pestaña Pedidos Normales
         self.tab_normales = QWidget()
         self.layout_normales = QVBoxLayout(self.tab_normales)
         self.layout_normales.setSpacing(10)
         self.layout_normales.setContentsMargins(10, 10, 10, 10)
 
-        # Layout de filtros para normales
         filtros_layout_normales = QGridLayout()
         filtros_layout_normales.setSpacing(10)
 
-        # Fila 1: Filtros
         filtros_layout_normales.addWidget(QLabel("Fecha:"), 0, 0)
         self.date_normales = QDateEdit(calendarPopup=True)
         self.date_normales.setDate(QDate.currentDate())
@@ -571,30 +584,16 @@ class AdminApp(QMainWindow):
         self.cmb_sucursal_normales.setMaximumWidth(150)
         filtros_layout_normales.addWidget(self.cmb_sucursal_normales, 0, 3)
 
-        self.btn_filtrar_normales = QPushButton("Filtrar")
+        self.btn_filtrar_normales = QPushButton("VER PEDIDOS")
         self.btn_filtrar_normales.setProperty("cssClass", "btnAzul")
         filtros_layout_normales.addWidget(self.btn_filtrar_normales, 0, 4)
 
-        self.btn_reporte_normales = QPushButton("Generar Reporte")
+        self.btn_reporte_normales = QPushButton("GENERAR REPORTE")
         self.btn_reporte_normales.setProperty("cssClass", "btnAzul")
         filtros_layout_normales.addWidget(self.btn_reporte_normales, 0, 5)
 
-        # Fila 2: Botones CRUD
-        self.btn_nuevo_normal = QPushButton("Nuevo Pedido")
-        self.btn_nuevo_normal.setProperty("cssClass", "btnVerde")
-        filtros_layout_normales.addWidget(self.btn_nuevo_normal, 1, 0, 1, 2)
-
-        self.btn_editar_normal = QPushButton("Editar")
-        self.btn_editar_normal.setProperty("cssClass", "btnNaranja")
-        filtros_layout_normales.addWidget(self.btn_editar_normal, 1, 2, 1, 2)
-
-        self.btn_eliminar_normal = QPushButton("Eliminar")
-        self.btn_eliminar_normal.setProperty("cssClass", "btnRosa")
-        filtros_layout_normales.addWidget(self.btn_eliminar_normal, 1, 4, 1, 2)
-
         self.layout_normales.addLayout(filtros_layout_normales)
 
-        # Tabla de normales
         self.table_normales = QTableWidget()
         self.table_normales.setColumnCount(8)
         self.table_normales.setHorizontalHeaderLabels([
@@ -605,32 +604,48 @@ class AdminApp(QMainWindow):
         self.table_normales.setSelectionMode(QAbstractItemView.SingleSelection)
         self.table_normales.setAlternatingRowColors(True)
 
-        # Configurar header
         header_normales = self.table_normales.horizontalHeader()
         header_normales.setSectionResizeMode(QHeaderView.Stretch)
 
         self.layout_normales.addWidget(self.table_normales)
+
+        btns_normales_layout = QHBoxLayout()
+        btns_normales_layout.setSpacing(5)
+        btns_normales_layout.addStretch()
+
+        self.btn_nuevo_normal = QPushButton("NUEVO")
+        self.btn_nuevo_normal.setProperty("cssClass", "btnVerde")
+        self.btn_nuevo_normal.setFixedWidth(110)
+        btns_normales_layout.addWidget(self.btn_nuevo_normal)
+
+        self.btn_editar_normal = QPushButton("EDITAR")
+        self.btn_editar_normal.setProperty("cssClass", "btnNaranja")
+        self.btn_editar_normal.setFixedWidth(110)
+        btns_normales_layout.addWidget(self.btn_editar_normal)
+
+        self.btn_eliminar_normal = QPushButton("ELIMINAR")
+        self.btn_eliminar_normal.setProperty("cssClass", "btnRosa")
+        self.btn_eliminar_normal.setFixedWidth(110)
+        btns_normales_layout.addWidget(self.btn_eliminar_normal)
+
+        btns_normales_layout.addStretch()
+        self.layout_normales.addLayout(btns_normales_layout)
+
         self.tabs.addTab(self.tab_normales, "Pedidos Normales")
 
-        # Conectar Señales y Cargar Datos
         self.conectar_senales()
         self.configurar_tablas_copia()
         self.cargar_datos_iniciales()
 
-        # Estado inicial
         self.statusBar().showMessage("Sistema cargado exitosamente. Mostrando pedidos de hoy.")
 
-        # Deshabilitar botones CRUD al inicio
         self.actualizar_botones_crud_clientes()
         self.actualizar_botones_crud_normales()
 
     def conectar_senales(self):
         """Conecta todos los botones a sus funciones"""
-
-        # Admin Precios
         self.btn_admin_precios.clicked.connect(self.abrir_dialogo_precios)
 
-        # Clientes
         self.btn_filtrar_clientes.clicked.connect(self.cargar_clientes)
         self.btn_reporte_clientes.clicked.connect(self.generar_reporte_avanzado)
         self.btn_nuevo_cliente.clicked.connect(self.abrir_dialogo_cliente_nuevo)
@@ -638,7 +653,6 @@ class AdminApp(QMainWindow):
         self.btn_eliminar_cliente.clicked.connect(self.eliminar_cliente)
         self.table_clientes.itemSelectionChanged.connect(self.actualizar_botones_crud_clientes)
 
-        # Normales
         self.btn_filtrar_normales.clicked.connect(self.cargar_normales)
         self.btn_reporte_normales.clicked.connect(self.generar_reporte_avanzado)
         self.btn_nuevo_normal.clicked.connect(self.abrir_dialogo_normal_nuevo)
@@ -648,19 +662,15 @@ class AdminApp(QMainWindow):
 
     def configurar_tablas_copia(self):
         """Configura las tablas para permitir copiar información"""
-        # Habilitar selección de celdas
         self.table_clientes.setSelectionBehavior(QAbstractItemView.SelectItems)
         self.table_normales.setSelectionBehavior(QAbstractItemView.SelectItems)
 
-        # Habilitar selección múltiple
         self.table_clientes.setSelectionMode(QAbstractItemView.ExtendedSelection)
         self.table_normales.setSelectionMode(QAbstractItemView.ExtendedSelection)
 
-        # Conectar el evento de teclado
         self.table_clientes.keyPressEvent = self._key_press_event_clientes
         self.table_normales.keyPressEvent = self._key_press_event_normales
 
-        # Agregar menú contextual
         self.table_clientes.setContextMenuPolicy(Qt.CustomContextMenu)
         self.table_normales.setContextMenuPolicy(Qt.CustomContextMenu)
         self.table_clientes.customContextMenuRequested.connect(self._mostrar_menu_contextual_clientes)
@@ -687,13 +697,11 @@ class AdminApp(QMainWindow):
         if not selected_items:
             return
 
-        # Encontrar los límites de la selección
         min_row = min(item.row() for item in selected_items)
         max_row = max(item.row() for item in selected_items)
         min_col = min(item.column() for item in selected_items)
         max_col = max(item.column() for item in selected_items)
 
-        # Construir el texto para copiar
         copied_text = ""
 
         for row in range(min_row, max_row + 1):
@@ -706,10 +714,8 @@ class AdminApp(QMainWindow):
                     row_data.append("")
             copied_text += "\t".join(row_data) + "\n"
 
-        # Copiar al portapapeles
         QApplication.clipboard().setText(copied_text.strip())
 
-        # Mostrar mensaje temporal
         self.statusBar().showMessage("Copiado al portapapeles", 3000)
 
     def _mostrar_menu_contextual_clientes(self, pos):
@@ -739,7 +745,6 @@ class AdminApp(QMainWindow):
         if table.rowCount() == 0:
             return
 
-        # Construir el texto con headers
         headers = []
         for col in range(table.columnCount()):
             header = table.horizontalHeaderItem(col)
@@ -750,7 +755,6 @@ class AdminApp(QMainWindow):
 
         copied_text = "\t".join(headers) + "\n"
 
-        # Agregar los datos
         for row in range(table.rowCount()):
             row_data = []
             for col in range(table.columnCount()):
@@ -761,10 +765,8 @@ class AdminApp(QMainWindow):
                     row_data.append("")
             copied_text += "\t".join(row_data) + "\n"
 
-        # Copiar al portapapeles
         QApplication.clipboard().setText(copied_text.strip())
 
-        # Mostrar mensaje temporal
         self.statusBar().showMessage("Tabla completa copiada al portapapeles", 3000)
 
     def cargar_datos_iniciales(self):
@@ -813,7 +815,6 @@ class AdminApp(QMainWindow):
                 item = table.item(row, col)
                 data[header] = item.text() if item else ""
 
-            # Para tabla de clientes
             if table == self.table_clientes:
                 data_db = {
                     'id': data.get('ID'),
@@ -830,7 +831,6 @@ class AdminApp(QMainWindow):
                     'total': data.get('Total'),
                     'foto_path': data.get('Foto')
                 }
-            # Para tabla de normales
             elif table == self.table_normales:
                 data_db = {
                     'id': data.get('ID'),
@@ -894,7 +894,6 @@ class AdminApp(QMainWindow):
                     valor = datos[col]
                     valor_str = ""
 
-                    # Fecha Pedido (columna 5)
                     if col == 5:
                         if valor:
                             valor_str = valor.strftime('%Y-%m-%d %H:%M')
@@ -903,7 +902,6 @@ class AdminApp(QMainWindow):
                         item = self._crear_item_centrado(valor_str)
                         self.table_clientes.setItem(fila, col, item)
 
-                    # Fecha Entrega (columna 6)
                     elif col == 6:
                         if valor:
                             valor_str = valor.strftime('%Y-%m-%d')
@@ -912,7 +910,6 @@ class AdminApp(QMainWindow):
                         item = self._crear_item_centrado(valor_str)
                         self.table_clientes.setItem(fila, col, item)
 
-                    # Precio y Total (columnas 10, 11)
                     elif col in (10, 11):
                         if valor is not None:
                             try:
@@ -927,10 +924,8 @@ class AdminApp(QMainWindow):
                             item = self._crear_item_centrado('')
                             self.table_clientes.setItem(fila, col, item)
 
-                    # Foto Path (columna 12)
                     elif col == 12:
                         if valor:
-                            # Extraer solo el nombre del archivo
                             nombre_foto = os.path.basename(valor) if valor else ""
                             item = self._crear_item_centrado(f"{nombre_foto}")
                         else:
@@ -1035,15 +1030,12 @@ class AdminApp(QMainWindow):
         finally:
             self.actualizar_botones_crud_normales()
 
-    # Funciones de Diálogos y CRUD
 
     @Slot()
     def abrir_dialogo_precios(self):
         """Abre el diálogo de administración de precios."""
         dialog = DialogoPrecios(self)
         dialog.exec()
-
-    # CRUD Clientes
 
     @Slot()
     def actualizar_botones_crud_clientes(self):

@@ -1,6 +1,3 @@
-"""
-Lanzador del sistema Mi Pastel
-"""
 import sys
 import os
 import subprocess
@@ -8,11 +5,10 @@ import time
 import threading
 from pathlib import Path
 
-# Configurar paths ABSOLUTOS
 BASE_DIR = Path(__file__).parent.absolute()
 print(f"Directorio base: {BASE_DIR}")
 
-# Rutas principales
+
 BACKEND_APP = BASE_DIR / "app.py"
 ADMIN_APP = BASE_DIR / "admin" / "admin_app.py"
 
@@ -49,11 +45,9 @@ class MiPastelLauncher:
         try:
             print(f"\nIniciando servidor web...")
 
-            # Cambiar al directorio base
             os.chdir(BASE_DIR)
             print(f"Directorio de trabajo: {os.getcwd()}")
 
-            # Ejecutar el servidor
             proceso = subprocess.Popen(
                 [sys.executable, "app.py"],
                 stdout=subprocess.PIPE,
@@ -66,7 +60,6 @@ class MiPastelLauncher:
             self.servidor_proceso = proceso
             self.servidor_activo = True
 
-            # Hilo para leer la salida
             def leer_salida():
                 while True:
                     output = proceso.stdout.readline()
@@ -78,7 +71,6 @@ class MiPastelLauncher:
             thread = threading.Thread(target=leer_salida, daemon=True)
             thread.start()
 
-            # Esperar a que el servidor esté listo
             for i in range(25):
                 try:
                     import requests
@@ -88,7 +80,6 @@ class MiPastelLauncher:
                 except:
                     pass
 
-                # Verificar si el proceso sigue vivo
                 if proceso.poll() is not None:
                     error_output = proceso.stderr.read()
                     return False
@@ -109,7 +100,6 @@ class MiPastelLauncher:
         try:
             print("\nIniciando aplicación de administración...")
 
-            # Agregar paths al sistema
             sys.path.insert(0, str(BASE_DIR))
 
             from PySide6.QtWidgets import QApplication
@@ -120,13 +110,12 @@ class MiPastelLauncher:
             if app is None:
                 app = QApplication(sys.argv)
 
-            # Configurar fuente de la aplicación
+
             font = QFont("Segoe UI Variable", 10)
             if not font.exactMatch():
                 font = QFont("Lato", 10)
             app.setFont(font)
 
-            # Aplicar el tema oscuro
             app.setStyleSheet(DARK_STYLE)
 
             ventana = AdminApp()
@@ -146,21 +135,17 @@ class MiPastelLauncher:
         print("Mi Pastel - Sistema de Gestión")
         print("=" * 60)
 
-        # Verificar estructura
         if not self.verificar_estructura():
             return
 
-        # Iniciar servidor web
         if not self.start_fastapi():
             return
 
-        # Iniciar aplicación de administración
         app, ventana = self.start_admin_app()
         if app is None or ventana is None:
             self.stop_fastapi()
             return
 
-        # Mostrar información
         print("\n" + "=" * 60)
         print("SISTEMA INICIADO CORRECTAMENTE")
         print("Servidor web: http://127.0.0.1:5000")
@@ -169,7 +154,6 @@ class MiPastelLauncher:
         print("Para cerrar: Cierra la ventana de administración")
         print("=" * 60)
 
-        # Ejecutar loop
         try:
             exit_code = app.exec()
         except KeyboardInterrupt:

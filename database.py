@@ -7,13 +7,11 @@ from datetime import datetime
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# CONFIGURACIÓN
 SERVER = '(localdb)\\MSSQLLocalDB'
 DRIVER = '{ODBC Driver 17 for SQL Server}'
 DB_NORMALES = 'MiPastel'
 DB_CLIENTES = 'MiPastel_Clientes'
 
-# PARTE 1: Funciones de Conexión Básica
 
 def get_db_connection(database_name):
     """Función genérica para obtener una conexión"""
@@ -32,22 +30,18 @@ def get_conn_clientes():
     return get_db_connection(DB_CLIENTES)
 
 
-# PARTE 2: Funciones de Datos (Standalone)
-
 def obtener_precio_db(sabor: str = None, tamano: str = None) -> Any:
     try:
         conn = get_conn_normales()
         cursor = conn.cursor()
 
         if sabor and tamano:
-            # Modo 1: Obtener precio unitario
             query = "SELECT precio FROM PastelesPrecios WHERE sabor = ? AND tamano = ?"
             cursor.execute(query, (sabor, tamano))
             resultado = cursor.fetchone()
             conn.close()
             return float(resultado[0]) if resultado else 0.0
         else:
-            # Modo 2: Obtener toda la lista
             query = "SELECT id, sabor, tamano, precio FROM PastelesPrecios ORDER BY sabor, id"
             cursor.execute(query)
             resultados = cursor.fetchall()
@@ -77,11 +71,6 @@ def actualizar_precios_db(lista_precios: List[Dict[str, Any]]) -> bool:
     except Exception as e:
         logger.error(f"Error al actualizar precios (PySide): {e}", exc_info=True)
         raise Exception(f"Error al actualizar precios: {e}")
-
-# PARTE 3: Funciones CRUD (Standalone)
-# (Usadas por admin_app.py y dialogos.py)
-
-# CRUD PASTELES NORMALES
 
 def registrar_pastel_normal_db(data: Dict[str, Any]) -> bool:
     """Registra un nuevo pastel normal."""
@@ -166,7 +155,6 @@ def obtener_normal_por_id_db(pedido_id: int) -> Optional[Dict[str, Any]]:
         logger.error(f"Error al obtener normal por ID {pedido_id}: {e}", exc_info=True)
         raise Exception(f"Error de base de datos: {e}")
 
-# CRUD PEDIDOS CLIENTES
 
 def registrar_pedido_cliente_db(data: Dict[str, Any]) -> bool:
     """Registra un nuevo pedido de cliente."""
@@ -262,7 +250,6 @@ def obtener_cliente_por_id_db(pedido_id: int) -> Optional[Dict[str, Any]]:
         logger.error(f"Error al obtener cliente por ID {pedido_id}: {e}", exc_info=True)
         raise Exception(f"Error de base de datos: {e}")
 
-# PARTE 4: DatabaseManager
 
 class DatabaseManager:
     """Gestor principal de operaciones de base de datos para la API y la web"""
@@ -289,9 +276,7 @@ class DatabaseManager:
             logger.error(f"Error de DB en query ({query[:50]}...): {e}", exc_info=True)
             raise Exception(f"Error de base de datos: {e}")
 
-    # ===========================
-    #        PRECIOS
-    # ===========================
+
     def obtener_precios(self) -> List[Dict[str, Any]]:
         """Obtiene la lista completa de precios"""
         resultados = obtener_precio_db()  # Función standalone
@@ -309,9 +294,6 @@ class DatabaseManager:
         """Actualiza precios masivamente"""
         return actualizar_precios_db(lista_precios)
 
-    # ===========================
-    #     PASTELES NORMALES
-    # ===========================
     def registrar_pastel_normal(self, data: Dict[str, Any]) -> bool:
         """Registra un pastel normal"""
         return registrar_pastel_normal_db(data)
@@ -357,9 +339,7 @@ class DatabaseManager:
         """Elimina un pastel normal"""
         return eliminar_normal_db(pastel_id)
 
-    # ===========================
-    #     PEDIDOS CLIENTES
-    # ===========================
+
     def registrar_pedido_cliente(self, data: Dict[str, Any]) -> bool:
         """Registra un pedido de cliente"""
         return registrar_pedido_cliente_db(data)
@@ -411,9 +391,7 @@ class DatabaseManager:
         """Elimina un pedido de cliente"""
         return eliminar_cliente_db(pedido_id)
 
-    # ===========================
-    #       ESTADÍSTICAS
-    # ===========================
+
     def obtener_estadisticas(self, fecha_inicio: str = None, fecha_fin: str = None) -> Dict[str, Any]:
         if fecha_inicio and not fecha_fin:
             fecha_fin = fecha_inicio

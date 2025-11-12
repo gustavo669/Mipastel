@@ -10,7 +10,6 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-# Importa la lista maestra de sucursales
 try:
     from config import SUCURSALES
     print("Reportes.py: Configuración de sucursales cargada.")
@@ -18,8 +17,6 @@ except ImportError:
     logger.warning("WARNING (Reportes): No se encontró config.py, usando lista de emergencia")
     SUCURSALES = ["Jutiapa 1", "Jutiapa 2", "Jutiapa 3", "Progreso", "Quesada"]
 
-
-# Estilo para celdas con texto largo
 cell_style = ParagraphStyle(
     'Cell',
     fontSize=9,
@@ -53,7 +50,6 @@ def generar_reporte_completo(target_date, sucursal=None, output_path=None):
     inicio = datetime.combine(hoy, datetime.min.time())
     fin = datetime.combine(hoy, datetime.max.time())
 
-    # OBTENER DATOS DE NORMALES
     conn1 = get_conn_normales()
     cur1 = conn1.cursor()
 
@@ -72,7 +68,6 @@ def generar_reporte_completo(target_date, sucursal=None, output_path=None):
     normales = cur1.fetchall()
     conn1.close()
 
-    # OBTENER DATOS DE CLIENTES
     conn2 = get_conn_clientes()
     cur2 = conn2.cursor()
 
@@ -91,11 +86,9 @@ def generar_reporte_completo(target_date, sucursal=None, output_path=None):
     clientes = cur2.fetchall()
     conn2.close()
 
-    # Nombre de archivo
     file_date = hoy.strftime("%Y-%m-%d")
     filename = output_path or f"Reporte_MiPastel_{file_date}" + (f"_{sucursal}" if sucursal else "") + ".pdf"
 
-    # Crear documento PDF
     doc = SimpleDocTemplate(filename, pagesize=landscape(letter))
     styles = getSampleStyleSheet()
     titulo_style = ParagraphStyle('Title', parent=styles['Heading1'], fontSize=20, alignment=TA_CENTER)
@@ -107,7 +100,6 @@ def generar_reporte_completo(target_date, sucursal=None, output_path=None):
         elements.append(Paragraph(f"Sucursal: {sucursal}", styles['Normal']))
     elements.append(Spacer(1, 12))
 
-    # SECCIÓN DE PASTELES NORMALES
 
     elements.append(Paragraph("Resumen - Pasteles Normales (por Tamaño)", styles['Heading2']))
     pivot_table_tamano, pivot_note = generar_pdf_normales_pivot_por_tamano(normales, SUCURSALES)
@@ -121,7 +113,6 @@ def generar_reporte_completo(target_date, sucursal=None, output_path=None):
     elements.append(pivot_table_sabor)
     elements.append(Spacer(1, 18))
 
-    # SECCIÓN DE PEDIDOS DE CLIENTES
 
     elements.append(Paragraph("Detalle - Pedidos de Clientes", styles['Heading2']))
     clientes_table = generar_pdf_clientes_detalle(clientes)
@@ -147,18 +138,15 @@ def generar_pdf_normales_pivot_por_tamano(normales_rows, sucursales_maestra):
     """Genera tabla pivot de pasteles normales por tamaño y sabor."""
     sucursales = sorted(list(set(sucursales_maestra)))
 
-    # Filtrar y crear keys únicas (sabor - tamaño)
     filas_keys = sorted({
         f"{r[0]} - {r[1]}" for r in normales_rows
         if r[0] and r[1] and r[1].lower() != "media plancha"
     })
 
-    # Inicializar tabla
     tabla = {k: {s: 0 for s in sucursales} for k in filas_keys}
     totales_columna = {s: 0 for s in sucursales}
     total_general = 0
 
-    # Procesar datos
     for r in normales_rows:
         sabor, tamano, precio, cantidad, sucursal_row, fecha = r
         if not sabor or not tamano or tamano.lower() == "media plancha":
@@ -168,7 +156,6 @@ def generar_pdf_normales_pivot_por_tamano(normales_rows, sucursales_maestra):
         if key in tabla and sucursal_row in tabla[key]:
             tabla[key][sucursal_row] += (cantidad or 0)
 
-    # Construir tabla de datos
     encabezado = ["Sabor - Tamaño"] + sucursales + ["Total"]
     data = [encabezado]
 
@@ -184,16 +171,13 @@ def generar_pdf_normales_pivot_por_tamano(normales_rows, sucursales_maestra):
         fila.append(Paragraph(str(total_fila), cell_style))
         data.append(fila)
 
-    # Fila de totales
     fila_totales = ["TOTAL GENERAL"] + [str(totales_columna[s]) for s in sucursales] + [str(total_general)]
     data.append(fila_totales)
 
-    # Configurar ancho de columnas
     ancho_total = 10.5 * inch
     ancho_col = ancho_total / (len(sucursales) + 2)
     col_widths = [ancho_col] * (len(sucursales) + 2)
 
-    # Crear y estilizar tabla
     t = Table(data, repeatRows=1, colWidths=col_widths)
     t.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#764ba2')),
@@ -214,15 +198,12 @@ def generar_pdf_normales_pivot_por_sabor(normales_rows, sucursales_maestra):
     """Genera tabla pivot de pasteles normales por sabor (totales)."""
     sucursales = sorted(list(set(sucursales_maestra)))
 
-    # Filtrar sabores válidos
     filas_keys = sorted({r[0] for r in normales_rows if r[0]})
 
-    # Inicializar tabla
     tabla = {k: {s: 0 for s in sucursales} for k in filas_keys}
     totales_columna = {s: 0 for s in sucursales}
     total_general = 0
 
-    # Procesar datos
     for r in normales_rows:
         sabor, tamano, precio, cantidad, sucursal_row, fecha = r
         if not sabor:
@@ -231,7 +212,6 @@ def generar_pdf_normales_pivot_por_sabor(normales_rows, sucursales_maestra):
         if sabor in tabla and sucursal_row in tabla[sabor]:
             tabla[sabor][sucursal_row] += (cantidad or 0)
 
-    # Construir tabla de datos
     encabezado = ["Sabor (Total)"] + sucursales + ["Total"]
     data = [encabezado]
 
@@ -247,16 +227,13 @@ def generar_pdf_normales_pivot_por_sabor(normales_rows, sucursales_maestra):
         fila.append(Paragraph(str(total_fila), cell_style))
         data.append(fila)
 
-    # Fila de totales
     fila_totales = ["TOTAL GENERAL"] + [str(totales_columna[s]) for s in sucursales] + [str(total_general)]
     data.append(fila_totales)
 
-    # Configurar ancho de columnas
     ancho_total = 10.5 * inch
     ancho_col = ancho_total / (len(sucursales) + 2)
     col_widths = [ancho_col] * (len(sucursales) + 2)
 
-    # Crear y estilizar tabla
     t = Table(data, repeatRows=1, colWidths=col_widths)
     t.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#ff79c6')),
@@ -269,7 +246,6 @@ def generar_pdf_normales_pivot_por_sabor(normales_rows, sucursales_maestra):
         ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold')
     ]))
     return t
-
 
 def generar_pdf_clientes_detalle(clientes_rows):
     """Genera tabla detallada de pedidos de clientes."""
@@ -292,11 +268,9 @@ def generar_pdf_clientes_detalle(clientes_rows):
         ]
         data.append(fila)
 
-    # Configurar ancho de columnas
     ancho_total = 10.5 * inch
     col_widths = [ancho_total / len(encabezado)] * len(encabezado)
 
-    # Crear y estilizar tabla
     t = Table(data, repeatRows=1, colWidths=col_widths)
     t.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#667eea')),
