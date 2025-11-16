@@ -4,8 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel Admin Mi Pastel</title>
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
 
     <style>
@@ -14,83 +17,107 @@
             color: #d63384 !important;
             font-size: 2rem;
         }
-        .table-responsive { border-radius: 10px; }
-        .table thead { background-color: #fff0f6; }
-        .stats-card {
-            background: linear-gradient(135deg, #fff0f6, #fffaf6);
-            border-left: 4px solid #d63384;
-            border-radius: 20px;
-            box-shadow: 0 4px 15px rgba(214, 51, 132, 0.1);
-            transition: transform 0.2s;
-        }
-        .stats-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(214, 51, 132, 0.2);
+
+        .table-responsive { border-radius: 12px; }
+
+        .table thead {
+            background-color: #fff0f6;
         }
 
+        /* Tarjetas */
+        .stats-card {
+            background: linear-gradient(135deg, #fff0f6, #fffaf6);
+            border-left: 5px solid #d63384;
+            border-radius: 18px;
+            box-shadow: 0 4px 14px rgba(214, 51, 132, 0.15);
+            transition: transform .25s ease, box-shadow .25s ease;
+        }
+
+        .stats-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 10px 25px rgba(214, 51, 132, .25);
+        }
+
+        /* Tabs */
         .nav-tabs .nav-link.active {
-            background: linear-gradient(135deg, #fff0f6, #ffe6f1);
-            border-color: #dee2e6 #dee2e6 #fff;
-            color: #d63384 !important;
-            font-weight: 700;
-            border-radius: 12px 12px 0 0;
-            box-shadow: 0 -2px 10px rgba(214, 51, 132, 0.12);
-            transition: all .25s ease;
+            background: linear-gradient(135deg, #ff66b2, #d63384);
+            color: #fff !important;
+            border-radius: 18px;
+            font-weight: 600;
+            border: none;
+            box-shadow: 0 4px 14px rgba(214, 51, 132, .35);
+            transform: translateY(-2px);
         }
 
         .nav-tabs .nav-link {
-            border-radius: 12px 12px 0 0;
+            border-radius: 14px;
             color: #860bb8;
             font-weight: 500;
-            transition: all .25s ease;
+            transition: all .25s;
         }
 
-        .nav-tabs .nav-link:not(.active):hover {
-            background-color: rgba(255, 102, 178, 0.12);
+        .nav-tabs .nav-link:hover:not(.active) {
+            background: rgba(255, 102, 178, 0.12);
             color: #d63384;
-            transform: translateY(-2px);
+            border-radius: 20px;
+            box-shadow: 0 4px 12px rgba(214, 51, 132, 0.2);
+            transform: translateY(-1px);
         }
+
+        /* Badge de color */
+        .badge-color {
+            padding: 5px 10px;
+            border-radius: 8px;
+            color: #fff;
+            font-weight: 600;
+        }
+
     </style>
 </head>
 <body>
 
+<!-- Navbar -->
 <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #fff0f6;">
     <div class="container">
-        <a class="navbar-brand" href="/">
-            Mi Pastel
-        </a>
+        <a class="navbar-brand" href="/">Mi Pastel</a>
     </div>
 </nav>
 
+<!-- Contenido principal -->
 <div class="container mt-4">
+
     <h1 class="text-center mb-4" style="color: #d63384;">
         <i class="fas fa-chart-bar"></i> Panel de Visualización
     </h1>
+
     <p class="text-center text-muted mb-5">
         Vista de todos los pedidos - Solo lectura
     </p>
 
-    <!-- Estadísticas rápidas -->
+    <!-- 4 Tarjetas -->
     <div class="row mb-4">
+
         <div class="col-md-3">
             <div class="card stats-card">
-                <div class="card-body">
+                <div class="card-body text-center">
                     <h5 class="card-title">De Tiendas Hoy</h5>
                     <h2 class="text-primary">{{ normales|length }}</h2>
                 </div>
             </div>
         </div>
+
         <div class="col-md-3">
             <div class="card stats-card">
-                <div class="card-body">
+                <div class="card-body text-center">
                     <h5 class="card-title">De Clientes Hoy</h5>
                     <h2 class="text-primary">{{ clientes|length }}</h2>
                 </div>
             </div>
         </div>
+
         <div class="col-md-3">
             <div class="card stats-card">
-                <div class="card-body">
+                <div class="card-body text-center">
                     <h5 class="card-title">Ingresos de Tiendas</h5>
                     <h2 class="text-success">
                         Q{% set total_normales = namespace(value=0) %}
@@ -102,9 +129,10 @@
                 </div>
             </div>
         </div>
+
         <div class="col-md-3">
             <div class="card stats-card">
-                <div class="card-body">
+                <div class="card-body text-center">
                     <h5 class="card-title">Ingresos de Clientes</h5>
                     <h2 class="text-success">
                         Q{% set total_clientes = namespace(value=0) %}
@@ -116,24 +144,30 @@
                 </div>
             </div>
         </div>
+
     </div>
 
-    <!-- Tabs para las tablas -->
-    <ul class="nav nav-tabs mb-4" id="adminTab" role="tablist">
-        <li class="nav-item" role="presentation">
-            <button class="nav-link active" id="normales-tab" data-bs-toggle="tab" data-bs-target="#normales" type="button"></i> Pedidos de Tiendas ({{ normales|length }})
+    <!-- Tabs -->
+    <ul class="nav nav-tabs mb-4" id="adminTab">
+        <li class="nav-item">
+            <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#normales">
+                Pedidos de Tiendas ({{ normales|length }})
             </button>
         </li>
-        <li class="nav-item" role="presentation">
-            <button class="nav-link" id="clientes-tab" data-bs-toggle="tab" data-bs-target="#clientes" type="button"></i> Pedidos de Clientes ({{ clientes|length }})
+
+        <li class="nav-item">
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#clientes">
+                Pedidos de Clientes ({{ clientes|length }})
             </button>
         </li>
     </ul>
 
-    <div class="tab-content" id="adminTabContent">
+    <!-- Contenido Tabs -->
+    <div class="tab-content">
 
-        <!-- Tabla Pasteles Normales -->
-        <div class="tab-pane fade show active" id="normales" role="tabpanel">
+        <!-- TAB: Normales -->
+        <div class="tab-pane fade show active" id="normales">
+
             {% if normales %}
             <div class="table-responsive">
                 <table class="table table-hover">
@@ -149,6 +183,7 @@
                         <th>Fecha</th>
                     </tr>
                     </thead>
+
                     <tbody>
                     {% for pedido in normales %}
                     <tr>
@@ -158,28 +193,27 @@
                         <td>Q{{ "%.2f"|format(pedido.precio) }}</td>
                         <td>{{ pedido.cantidad }}</td>
                         <td><strong>Q{{ "%.2f"|format(pedido.precio * pedido.cantidad) }}</strong></td>
-                        <td>
-                            <span class="badge bg-primary">{{ pedido.sucursal }}</span>
-                        </td>
+                        <td><span class="badge bg-primary">{{ pedido.sucursal }}</span></td>
                         <td>{{ pedido.fecha }}</td>
                     </tr>
                     {% endfor %}
                     </tbody>
                 </table>
             </div>
+
             {% else %}
             <div class="text-center py-5">
                 <i class="fas fa-cake fa-3x text-muted mb-3"></i>
-                <h4 class="text-muted">No hay pasteles normales registrados hoy</h4>
-                <a href="/backend/static" class="btn btn-primary mt-3">
-                    <i class="fas fa-plus"></i> Registrar Primer Pastel
+                <h4 class="text-muted">No hay pasteles de tienda registrados hoy</h4>
                 </a>
             </div>
             {% endif %}
+
         </div>
 
-        <!-- Tabla Pedidos de Clientes -->
-        <div class="tab-pane fade" id="clientes" role="tabpanel">
+        <!-- TAB: Clientes -->
+        <div class="tab-pane fade" id="clientes">
+
             {% if clientes %}
             <div class="table-responsive">
                 <table class="table table-hover">
@@ -197,43 +231,57 @@
                         <th>Detalles</th>
                     </tr>
                     </thead>
+
                     <tbody>
                     {% for pedido in clientes %}
                     <tr>
                         <td>{{ pedido.id }}</td>
+
                         <td>
                             {% if pedido.color %}
-                            <span class="badge" style="background-color {{ pedido.color }}; color: white;">
-                                        {{ pedido.color }}
-                                    </span>
+                            <span class="badge-color" style="background-color
+                              {{ pedido.color }};">
+                                    {{ pedido.color }}
+                                </span>
                             {% else %}
                             <span class="text-muted">-</span>
                             {% endif %}
                         </td>
+
                         <td>{{ pedido.sabor }}</td>
                         <td>{{ pedido.tamano }}</td>
                         <td>{{ pedido.cantidad }}</td>
                         <td>Q{{ "%.2f"|format(pedido.precio) }}</td>
                         <td><strong>Q{{ "%.2f"|format(pedido.total) }}</strong></td>
-                        <td>
-                            <span class="badge bg-primary">{{ pedido.sucursal }}</span>
-                        </td>
+                        <td><span class="badge bg-primary">{{ pedido.sucursal }}</span></td>
                         <td>{{ pedido.fecha }}</td>
+
                         <td>
                             {% if pedido.dedicatoria or pedido.detalles %}
-                            <button class="btn btn-sm btn-outline-info" data-bs-toggle="tooltip"
-                                    title="{% if pedido.dedicatoria %}Dedicatoria: {{ pedido.dedicatoria }}{% endif %}{% if pedido.detalles %}{% if pedido.dedicatoria %} | {% endif %}Detalles: {{ pedido.detalles }}{% endif %}">
+                            <button class="btn btn-sm btn-outline-info"
+                                    data-bs-toggle="tooltip"
+                                    title="
+                                        {% if pedido.dedicatoria %}
+                                            Dedicatoria: {{ pedido.dedicatoria }}
+                                        {% endif %}
+                                        {% if pedido.detalles %}
+                                            {% if pedido.dedicatoria %} | {% endif %}
+                                            Detalles: {{ pedido.detalles }}
+                                        {% endif %}
+                                    ">
                                 <i class="fas fa-info-circle"></i>
                             </button>
                             {% else %}
                             <span class="text-muted">-</span>
                             {% endif %}
                         </td>
+
                     </tr>
                     {% endfor %}
                     </tbody>
                 </table>
             </div>
+
             {% else %}
             <div class="text-center py-5">
                 <i class="fas fa-star fa-3x text-muted mb-3"></i>
@@ -241,14 +289,16 @@
             </div>
             {% endif %}
         </div>
+
     </div>
 
-    <!-- Botones de acción -->
+    <!-- Botón PDF -->
     <div class="text-center mt-5">
         <a href="/reportes/dia/pdf" class="btn btn-success btn-lg" target="_blank">
             <i class="fas fa-file-pdf"></i> Generar PDF del Día
         </a>
     </div>
+
 </div>
 
 <!-- Footer -->
@@ -260,13 +310,14 @@
     </div>
 </footer>
 
+<!-- JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
 <script>
     // Activar tooltips
-    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-        return new bootstrap.Tooltip(tooltipTriggerEl)
-    });
+    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+    tooltipTriggerList.forEach(el => new bootstrap.Tooltip(el));
 </script>
+
 </body>
 </html>

@@ -102,6 +102,7 @@ async def health_check():
         "mensaje": "Conexión exitosa con el servidor de pedidos"
     })
 
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=5000)
