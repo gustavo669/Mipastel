@@ -437,7 +437,6 @@ class DialogoNuevoCliente(_BaseFormDialog):
             else self.cmb_sabor.currentText()
         )
 
-        # Validar precio manual o automático
         if not self.line_precio_unitario.isReadOnly():
             try:
                 precio_unitario = float(self.line_precio_unitario.text())

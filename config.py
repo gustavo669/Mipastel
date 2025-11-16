@@ -1,5 +1,3 @@
-print("Cargando configuración maestra (config.py)...")
-
 
 SABORES_NORMALES = [
     "Fresas", "Frutas", "Chocolate", "Selva negra", "Oreo", "Chocofresa",

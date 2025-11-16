@@ -6,23 +6,102 @@
     <title>Mi Pastel - Sistema de Pedidos</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
     <style>
-        .navbar-brand { font-weight: bold; color: #d63384 !important; }
-        .hero-section { background: linear-gradient(135deg,#fff0f6 0%,#fffaf6 100%); border-radius:15px; padding:3rem 2rem; margin:2rem 0; }
-        .card { border:none; border-radius:15px; box-shadow:0 4px 15px rgba(214,51,132,0.1); transition:transform 0.3s ease; }
-        .card:hover { transform: translateY(-5px); }
-        .btn-primary { background: linear-gradient(135deg,#ff66b2,#d63384); border:none; border-radius:25px; padding:12px 30px; font-weight:bold; }
-        .btn-primary:hover { background:linear-gradient(135deg,#e60073,#c2185b); transform:scale(1.05); }
-        .form-section { background:white; border-radius:15px; padding:2rem; margin:1rem 0; box-shadow:0 2px 10px rgba(0,0,0,0.1); }
-        .price-display { background:#fff0f6; border-radius:10px; padding:15px; margin:10px 0; border-left:4px solid #d63384; }
-        .nav-pills .nav-link.active { background:linear-gradient(135deg,#ff66b2,#d63384)!important; }
-        .form-label { font-weight:600; color:#495057; margin-bottom:0.5rem; }
-        .form-control:focus, .form-select:focus { border-color:#d63384; box-shadow:0 0 0 0.2rem rgba(214,51,132,0.25); }
+        .navbar-brand {
+            font-family: 'Hughs', cursive;
+            color: #d63384 !important;
+            font-size: 2rem;
+        }
+        .hero-section {
+            background: linear-gradient(135deg,#fff0f6 0%,#fffaf6 100%);
+            border-radius:15px;
+            padding:3rem 2rem;
+            margin:2rem 0;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg,#ff66b2,#d63384);
+            border:none;
+            border-radius:25px;
+            padding:12px 30px;
+            font-weight:bold;
+        }
+        .btn-primary:hover {
+            background:linear-gradient(135deg,#e60073,#c2185b);
+            transform:scale(1.05);
+        }
+        .form-section {
+            background:white;
+            border-radius:15px;
+            padding:2rem;
+            margin:1rem 0;
+            box-shadow:0 2px 10px rgba(0,0,0,0.1);
+        }
+        .price-display {
+            background:#fff0f6;
+            border-radius:10px;
+            padding:15px;
+            margin:10px 0;
+            border-left:4px solid #d63384;
+        }
+
+        .nav-pills .nav-link.active {
+            background: linear-gradient(135deg, #ff66b2, #d63384) !important;
+            border-color: #dee2e6 #dee2e6 #fff;
+            border-radius: 20px;
+            color: #fff !important;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(214, 51, 132, 0.35);
+            transform: translateY(-2px);
+            transition: all 0.25s ease-in-out;
+        }
+
+        .nav-pills .nav-link {
+            border-radius: 12px;
+            color: #860bb8;
+            font-weight: 500;
+            transition: all 0.25s ease-in-out;
+        }
+
+        .nav-pills .nav-link:not(.active):hover {
+            background: rgba(255, 102, 178, 0.12);
+            color: #d63384;
+            transform: translateY(-1px);
+        }
+
+        .form-label {
+            font-weight:600;
+            color:#495057;
+            margin-bottom:0.5rem;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color:#d63384;
+            box-shadow:0 0 0 0.2rem rgba(214,51,132,0.25);
+        }
+
+        .banner-container {
+            width: 100%;
+            height: 300px;
+            overflow: hidden;
+            border-radius: 15px;
+            margin: 1rem 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .banner-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            background-position: center;
+            background-size: contain;
+        }
     </style>
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-light" style="background-color:#fff0f6;">
     <div class="container">
+        <a class="navbar-brand" href="/">
+            Mi Pastel
+        </a>
         <div class="navbar-nav ms-auto">
             <a class="nav-link" href="/admin" style="color:#d63384;">
                 <i class="fas fa-chart-bar"></i> Panel Administración
@@ -32,24 +111,29 @@
 </nav>
 
 <div class="container">
+    <div class="banner-container">
+        <img src="/static/uploads/logo.jpg" alt="Banner Mi Pastel" class="banner-img">
+    </div>
+</div>
+
+<div class="container">
     <div class="hero-section text-center">
-        <h1 class="display-4" style="color:#d63384;"><i class="fas fa-birthday-cake"></i> Mi Pastel</h1>
-        <p class="lead" style="color:#666;">Sistema de ingreso de pedidos</p>
+        <p class="lead" style="color:#690f73; font-size:30px;font-family: 'Hughs', cursive;" >Sistema de Registro para pasteles de tienda y pedidos de clientes</p>
     </div>
 
     <ul class="nav nav-pills nav-justified mb-4" id="myTab" role="tablist">
-        <li class="nav-item"><button class="nav-link active" id="normales-tab" data-bs-toggle="tab" data-bs-target="#normales" type="button">Pasteles Normales</button></li>
-        <li class="nav-item"><button class="nav-link" id="clientes-tab" data-bs-toggle="tab" data-bs-target="#clientes" type="button">Pedidos de Clientes</button></li>
+        <li class="nav-item"><button class="nav-link active" id="normales-tab" data-bs-toggle="tab" data-bs-target="#normales" type="button">Pasteles de Tienda</button></li>
+        <li class="nav-item"><button class="nav-link" id="clientes-tab" data-bs-toggle="tab" data-bs-target="#clientes" type="button">Pasteles de Clientes</button></li>
     </ul>
 
     <div class="tab-content" id="myTabContent">
 
         <!-- ===================== -->
-        <!-- PASTELES NORMALES -->
+        <!-- PEDIDOS DE TIENDAS -->
         <!-- ===================== -->
         <div class="tab-pane fade show active" id="normales" role="tabpanel">
             <div class="form-section">
-                <h4 class="mb-4" style="color:#d63384;">Ingresar Pastel Normal</h4>
+                <h4 class="mb-4" style="color:#d63384;">Ingresar Pedido de Tienda</h4>
                 <form id="formNormal" action="/normales/registrar" method="post">
                     <div class="row g-3">
                         <!-- Sabor -->
@@ -103,7 +187,7 @@
                         <input type="number" class="form-control mt-2 d-none" name="precio_personalizado" id="precioOtroNormal" placeholder="Ingrese precio manual">
                     </div>
 
-                    <div class="mt-4"><button type="submit" class="btn btn-primary btn-lg w-100"><i class="fas fa-save"></i> Registrar Pastel Normal</button></div>
+                    <div class="mt-4"><button type="submit" class="btn btn-primary btn-lg w-100"><i class="fas fa-save"></i> Registrar Pedido de Tienda</button></div>
                 </form>
             </div>
         </div>
@@ -298,16 +382,13 @@
         }
     }
 
-    // --- Event Listeners cuando carga la página ---
     document.addEventListener("DOMContentLoaded", () => {
-        // Configurar fecha mínima (hoy)
         const hoy = new Date().toISOString().split("T")[0];
         const fechaEntrega = document.getElementById("fechaEntrega");
         if (fechaEntrega) {
             fechaEntrega.setAttribute("min", hoy);
         }
 
-        // Event listeners para NORMALES
         const saborNormal = document.getElementById("saborNormal");
         const tamanoNormal = document.getElementById("tamanoNormal");
         const cantidadNormal = document.getElementById("cantidadNormal");
@@ -330,7 +411,6 @@
             cantidadNormal.addEventListener("input", actualizarPrecioNormal);
         }
 
-        // Event listeners para CLIENTES
         const saborCliente = document.getElementById("saborCliente");
         const tamanoCliente = document.getElementById("tamanoCliente");
         const cantidadCliente = document.getElementById("cantidadCliente");
@@ -353,7 +433,6 @@
             cantidadCliente.addEventListener("input", actualizarPrecioCliente);
         }
 
-        // Validación del formulario de CLIENTES antes de enviar
         const formCliente = document.getElementById("formCliente");
         if (formCliente) {
             formCliente.addEventListener("submit", (e) => {

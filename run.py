@@ -6,47 +6,27 @@ import threading
 from pathlib import Path
 
 BASE_DIR = Path(__file__).parent.absolute()
-print(f"Directorio base: {BASE_DIR}")
+
+try:
+    from pyngrok import ngrok
+    NGROK_AVAILABLE = True
+except ImportError:
+    NGROK_AVAILABLE = False
+    print("pyngrok no está instalado. Instala con: pip install pyngrok")
 
 
-BACKEND_APP = BASE_DIR / "app.py"
-ADMIN_APP = BASE_DIR / "admin" / "admin_app.py"
-
-print(f"Backend: {BACKEND_APP}")
-print(f"Admin: {ADMIN_APP}")
-
-class MiPastelLauncher:
-    def __init__(self):
+class MiPastelLauncherNgrok:
+    def __init__(self, usar_ngrok=True):
         self.servidor_proceso = None
         self.servidor_activo = False
-
-    def verificar_estructura(self):
-        """Verifica que todos los archivos necesarios existan"""
-        print("\nVerificando estructura...")
-
-        archivos_necesarios = {
-            "Backend (app.py)": BACKEND_APP,
-            "Admin App": ADMIN_APP,
-            "Database": BASE_DIR / "database.py",
-            "Templates": BASE_DIR / "templates",
-        }
-
-        todos_ok = True
-        for nombre, archivo in archivos_necesarios.items():
-            if archivo.exists():
-                print(f"✓ {nombre}")
-            else:
-                print(f"✗ {nombre} - NO ENCONTRADO")
-                todos_ok = False
-        return todos_ok
+        self.ngrok_tunnel = None
+        self.usar_ngrok = usar_ngrok and NGROK_AVAILABLE
 
     def start_fastapi(self):
         """Inicia el servidor FastAPI"""
         try:
             print(f"\nIniciando servidor web...")
-
             os.chdir(BASE_DIR)
-            print(f"Directorio de trabajo: {os.getcwd()}")
 
             proceso = subprocess.Popen(
                 [sys.executable, "app.py"],
@@ -71,7 +51,7 @@ class MiPastelLauncher:
             thread = threading.Thread(target=leer_salida, daemon=True)
             thread.start()
 
-            for i in range(25):
+            for _ in range(25):
                 try:
                     import requests
                     response = requests.get("http://127.0.0.1:5000/health", timeout=2)
@@ -81,19 +61,39 @@ class MiPastelLauncher:
                     pass
 
                 if proceso.poll() is not None:
-                    error_output = proceso.stderr.read()
                     return False
 
                 time.sleep(1)
-                if i % 5 == 0:
-                    print(f"  Esperando... ({i+1}/25s)")
 
             return False
 
         except Exception as e:
+            print(f"Error al iniciar servidor: {e}")
             import traceback
             traceback.print_exc()
             return False
+
+    def start_ngrok(self):
+        """Inicia el túnel de ngrok usando el ngrok.yml configurado en el sistema"""
+        try:
+            try:
+                activos = ngrok.get_tunnels()
+                for t in activos:
+                    ngrok.disconnect(t.public_url)
+            except:
+                pass
+
+            self.ngrok_tunnel = ngrok.connect(5000, bind_tls=True)
+            url_publica = self.ngrok_tunnel.public_url
+
+            print(f"URL Pública: {url_publica}")
+            print(f"URL Local:   http://127.0.0.1:5000")
+
+            return url_publica
+
+        except Exception as e:
+            print(f"Error al iniciar ngrok: {e}")
+            return None
 
     def start_admin_app(self):
         """Inicia la aplicación de administración"""
@@ -109,7 +109,6 @@ class MiPastelLauncher:
             app = QApplication.instance()
             if app is None:
                 app = QApplication(sys.argv)
-
 
             font = QFont("Segoe UI Variable", 10)
             if not font.exactMatch():
@@ -135,24 +134,18 @@ class MiPastelLauncher:
         print("Mi Pastel - Sistema de Gestión")
         print("=" * 60)
 
-        if not self.verificar_estructura():
+        if not self.start_fastapi():
+            print("No se pudo iniciar el servidor web")
             return
 
-        if not self.start_fastapi():
-            return
+        url_publica = None
+        if self.usar_ngrok:
+            url_publica = self.start_ngrok()
 
         app, ventana = self.start_admin_app()
         if app is None or ventana is None:
-            self.stop_fastapi()
+            self.cleanup()
             return
-
-        print("\n" + "=" * 60)
-        print("SISTEMA INICIADO CORRECTAMENTE")
-        print("Servidor web: http://127.0.0.1:5000")
-        print("App admin: Abierta")
-        print("Health check: http://127.0.0.1:5000/health")
-        print("Para cerrar: Cierra la ventana de administración")
-        print("=" * 60)
 
         try:
             exit_code = app.exec()
@@ -181,15 +174,43 @@ class MiPastelLauncher:
                 print("Servidor forzado a cerrar")
             self.servidor_activo = False
 
+    def stop_ngrok(self):
+        """Detiene el túnel ngrok"""
+        try:
+            activos = ngrok.get_tunnels()
+            for t in activos:
+                ngrok.disconnect(t.public_url)
+        except:
+            pass
+
+        self.ngrok_tunnel = None
+
     def cleanup(self):
         """Limpia recursos"""
         print("\nLimpiando recursos...")
+        self.stop_ngrok()
         self.stop_fastapi()
 
-
 def main():
-    launcher = MiPastelLauncher()
+
+    if not NGROK_AVAILABLE:
+        print("\nngrok no está disponible")
+        print("Para instalar: pip install pyngrok")
+        print("\n¿Deseas continuar sin ngrok? (solo acceso local)")
+        respuesta = input("Continuar [s/N]: ").strip().lower()
+
+        if respuesta not in ['s', 'si', 'y', 'yes']:
+            print("\nInstalación cancelada")
+            print("Ejecuta: pip install pyngrok")
+            return
+
+        usar_ngrok = False
+    else:
+        usar_ngrok = True
+
+    launcher = MiPastelLauncherNgrok(usar_ngrok=usar_ngrok)
     launcher.run()
 
 if __name__ == "__main__":
     main()
+

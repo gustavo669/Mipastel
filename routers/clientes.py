@@ -41,7 +41,6 @@ def obtener_precio_unitario(sabor: str, tamano: str) -> float:
         logger.error(f"Error al obtener precio unitario: {e}")
         return 0.0
 
-
 @router.get("/formulario")
 async def mostrar_formulario_clientes(request: Request):
     try:
@@ -72,8 +71,6 @@ async def registrar_pedido_cliente(
 ):
     try:
         db = DatabaseManager()
-
-        # Validar y guardar imagen
         foto_path = None
         if foto and foto.filename:
             if not validar_imagen(foto):
@@ -84,15 +81,11 @@ async def registrar_pedido_cliente(
             with open(file_location, "wb") as f:
                 f.write(await foto.read())
             foto_path = file_location
-
-        # Determinar sabor real
         sabor_real = sabor_personalizado if sabor_personalizado else sabor
 
-        # Calcular precio
         precio_unitario = obtener_precio_unitario(sabor_real, tamano)
         precio_total = precio_unitario * cantidad
 
-        # Preparar datos para DB
         pedido_data = {
             "sabor": sabor_real,
             "tamano": tamano,

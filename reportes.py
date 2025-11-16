@@ -279,7 +279,7 @@ def generar_pdf_clientes_detalle(clientes_rows):
         ('GRID', (0, 0), (-1, -1), 0.4, colors.grey),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
         ('FONTSIZE', (0, 1), (-1, -1), 9),
-        ('ALIGN', (1, 1), (2, -1), 'CENTER'),  # Centrar ID Pedido y Cantidad
+        ('ALIGN', (1, 1), (2, -1), 'CENTER'),
     ]))
     return t
 
@@ -289,5 +289,4 @@ def generar_reporte_consolidado(fecha_inicio, fecha_fin, sucursal=None):
     Genera un reporte consolidado para un rango de fechas.
     Similar a generar_reporte_completo pero para múltiples días.
     """
-    # Esta función puede expandirse para reportes por rango de fechas
     pass

@@ -3,7 +3,6 @@ import logging
 from typing import List, Dict, Any, Optional
 from datetime import datetime
 
-# Configurar logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -279,7 +278,7 @@ class DatabaseManager:
 
     def obtener_precios(self) -> List[Dict[str, Any]]:
         """Obtiene la lista completa de precios"""
-        resultados = obtener_precio_db()  # Función standalone
+        resultados = obtener_precio_db()
         precios = []
         for row in resultados:
             precios.append({

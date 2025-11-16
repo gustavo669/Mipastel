@@ -463,13 +463,12 @@ class AdminApp(QMainWindow):
 
         header_layout = QHBoxLayout()
 
-        # Título
-        title_label = QLabel("ADMINISTRACIÓN DE PEDIDOS MI PASTEL")
+        title_label = QLabel("Panel de Administración de Pedidos")
         title_label.setStyleSheet("""
             QLabel {
-                color: #2c3e50;
-                font-size: 20pt;
-                font-weight: bold;
+                color: #690F73;
+                font-family: "Hughs", "Lato", sans-serif; 
+                font-size: 40pt;
                 padding: 10px;
             }
         """)
@@ -477,7 +476,7 @@ class AdminApp(QMainWindow):
         header_layout.addWidget(title_label)
         header_layout.addStretch()
 
-        self.btn_admin_precios = QPushButton("ADMINISTRAR PRECIOS")
+        self.btn_admin_precios = QPushButton("Administrar Precios")
         self.btn_admin_precios.setProperty("cssClass", "btnMorado")
         self.btn_admin_precios.setToolTip("Configurar precios de pasteles")
         header_layout.addWidget(self.btn_admin_precios)
@@ -544,17 +543,17 @@ class AdminApp(QMainWindow):
         btns_clientes_layout.setSpacing(5)
         btns_clientes_layout.addStretch()
 
-        self.btn_nuevo_cliente = QPushButton("NUEVO")
+        self.btn_nuevo_cliente = QPushButton("Nuevo")
         self.btn_nuevo_cliente.setProperty("cssClass", "btnVerde")
         self.btn_nuevo_cliente.setFixedWidth(110)
         btns_clientes_layout.addWidget(self.btn_nuevo_cliente)
 
-        self.btn_editar_cliente = QPushButton("EDITAR")
+        self.btn_editar_cliente = QPushButton("Editar")
         self.btn_editar_cliente.setProperty("cssClass", "btnNaranja")
         self.btn_editar_cliente.setFixedWidth(110)
         btns_clientes_layout.addWidget(self.btn_editar_cliente)
 
-        self.btn_eliminar_cliente = QPushButton("ELIMINAR")
+        self.btn_eliminar_cliente = QPushButton("Eliminar")
         self.btn_eliminar_cliente.setProperty("cssClass", "btnRosa")
         self.btn_eliminar_cliente.setFixedWidth(110)
         btns_clientes_layout.addWidget(self.btn_eliminar_cliente)
@@ -631,7 +630,7 @@ class AdminApp(QMainWindow):
         btns_normales_layout.addStretch()
         self.layout_normales.addLayout(btns_normales_layout)
 
-        self.tabs.addTab(self.tab_normales, "Pedidos Normales")
+        self.tabs.addTab(self.tab_normales, "Pedidos de Tiendas")
 
         self.conectar_senales()
         self.configurar_tablas_copia()
@@ -976,7 +975,7 @@ class AdminApp(QMainWindow):
             self.table_normales.setRowCount(len(resultados))
 
             for fila, datos in enumerate(resultados):
-                # Calcular el total (cantidad * precio)
+
                 cantidad = datos[1] if datos[1] is not None else 0
                 precio = datos[6] if datos[6] is not None else 0
                 total = cantidad * precio
@@ -1129,8 +1128,6 @@ class AdminApp(QMainWindow):
                 )
                 dialogo_error.exec()
 
-    # CRUD Normales
-
     @Slot()
     def actualizar_botones_crud_normales(self):
         """Habilita/deshabilita botones CRUD si hay una fila seleccionada."""
@@ -1222,8 +1219,6 @@ class AdminApp(QMainWindow):
                     "error"
                 )
                 dialogo_error.exec()
-
-    # Reportes
 
     def generar_reporte_avanzado(self):
         tab_actual = self.tabs.currentIndex()
