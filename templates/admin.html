@@ -9,11 +9,11 @@
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
-    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
 
     <style>
         .navbar-brand {
-            font-family: 'Hughs', cursive;
+            font-family: 'Great Vibes', cursive;
             color: #d63384 !important;
             font-size: 2rem;
         }
@@ -72,14 +72,34 @@
             font-weight: 600;
         }
 
+        /* Estilo del modal */
+        .modal-header {
+            background: linear-gradient(135deg, #ff66b2, #d63384);
+            color: white;
+        }
+
+        .modal-header .btn-close {
+            filter: brightness(0) invert(1);
+        }
+
     </style>
 </head>
 <body>
 
-<!-- Navbar -->
 <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #fff0f6;">
     <div class="container">
         <a class="navbar-brand" href="/">Mi Pastel</a>
+        <div class="navbar-nav ms-auto">
+            <div class="user-info">
+                <span class="navbar-text">
+                    <i class="fas fa-user-circle" style="color: #d63384; font-size: 1.2rem;"></i>
+                    Hola, <strong style="color: #690f73;">{{ username }}</strong>
+                </span>
+                <a class="btn btn-sm btn-outline-danger btn-logout" href="/logout">
+                    <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                </a>
+            </div>
+        </div>
     </div>
 </nav>
 
@@ -194,7 +214,7 @@
                         <td>{{ pedido.cantidad }}</td>
                         <td><strong>Q{{ "%.2f"|format(pedido.precio * pedido.cantidad) }}</strong></td>
                         <td><span class="badge bg-primary">{{ pedido.sucursal }}</span></td>
-                        <td>{{ pedido.fecha }}</td>
+                        <td>{{ pedido.fecha[8:10] }}/{{ pedido.fecha[5:7] }}/{{ pedido.fecha[:4] }} {{ pedido.fecha[11:16] if pedido.fecha|length > 10 else '' }}</td>
                     </tr>
                     {% endfor %}
                     </tbody>
@@ -208,7 +228,6 @@
                 </a>
             </div>
             {% endif %}
-
         </div>
 
         <!-- TAB: Clientes -->
@@ -227,7 +246,9 @@
                         <th>Precio</th>
                         <th>Total</th>
                         <th>Sucursal</th>
-                        <th>Fecha</th>
+                        <th>Fecha Registro</th>
+                        <th>Fecha Entrega</th>
+                        <th>Dedicatoria</th>
                         <th>Detalles</th>
                     </tr>
                     </thead>
@@ -240,9 +261,9 @@
                         <td>
                             {% if pedido.color %}
                             <span class="badge-color" style="background-color
-                              {{ pedido.color }};">
-                                    {{ pedido.color }}
-                                </span>
+                             {{ pedido.color }}; color: #000000;">
+                        {{ pedido.color }}
+                    </span>
                             {% else %}
                             <span class="text-muted">-</span>
                             {% endif %}
@@ -254,26 +275,30 @@
                         <td>Q{{ "%.2f"|format(pedido.precio) }}</td>
                         <td><strong>Q{{ "%.2f"|format(pedido.total) }}</strong></td>
                         <td><span class="badge bg-primary">{{ pedido.sucursal }}</span></td>
-                        <td>{{ pedido.fecha }}</td>
 
+                        <!-- Fecha Registro -->
                         <td>
-                            {% if pedido.dedicatoria or pedido.detalles %}
-                            <button class="btn btn-sm btn-outline-info"
-                                    data-bs-toggle="tooltip"
-                                    title="
-                                        {% if pedido.dedicatoria %}
-                                            Dedicatoria: {{ pedido.dedicatoria }}
-                                        {% endif %}
-                                        {% if pedido.detalles %}
-                                            {% if pedido.dedicatoria %} | {% endif %}
-                                            Detalles: {{ pedido.detalles }}
-                                        {% endif %}
-                                    ">
-                                <i class="fas fa-info-circle"></i>
-                            </button>
+                            {{ pedido.fecha[8:10] }}/{{ pedido.fecha[5:7] }}/{{ pedido.fecha[:4] }}
+                            {{ pedido.fecha[11:16] if pedido.fecha|length > 10 else '' }}
+                        </td>
+
+                        <!-- Fecha Entrega (YA ALINEADA Y FUNCIONANDO) -->
+                        <td>
+                            {% if pedido.fecha_entrega %}
+                            {{ pedido.fecha_entrega[8:10] }}/{{ pedido.fecha_entrega[5:7] }}/{{ pedido.fecha_entrega[:4] }}
                             {% else %}
-                            <span class="text-muted">-</span>
+                            -
                             {% endif %}
+                        </td>
+
+                        <!-- Dedicatoria -->
+                        <td style="color: #000;">
+                            {{ pedido.dedicatoria if pedido.dedicatoria else '-' }}
+                        </td>
+
+                        <!-- Detalles -->
+                        <td style="color: #000;">
+                            {{ pedido.detalles if pedido.detalles else '-' }}
                         </td>
 
                     </tr>
@@ -290,15 +315,58 @@
             {% endif %}
         </div>
 
+
     </div>
 
     <!-- Botón PDF -->
     <div class="text-center mt-5">
-        <a href="/reportes/dia/pdf" class="btn btn-success btn-lg" target="_blank">
-            <i class="fas fa-file-pdf"></i> Generar PDF del Día
-        </a>
+        <button class="btn btn-success btn-lg" data-bs-toggle="modal" data-bs-target="#modalReporte">
+            <i class="fas fa-file-pdf"></i> Generar Reporte PDF
+        </button>
     </div>
 
+</div>
+
+<!-- Modal para configurar reporte -->
+<div class="modal fade" id="modalReporte" tabindex="-1" aria-labelledby="modalReporteLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalReporteLabel">
+                    <i class="fas fa-file-pdf"></i> Configurar Reporte PDF
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formReporte">
+                    <div class="mb-3">
+                        <label for="fechaReporte" class="form-label">Fecha del Reporte</label>
+                        <input type="date" class="form-control" id="fechaReporte" required>
+                        <small class="text-muted">Selecciona la fecha de los pedidos a incluir en el reporte</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="sucursalReporte" class="form-label">Sucursal</label>
+                        <select class="form-select" id="sucursalReporte">
+                            <option value="">Todas las Sucursales</option>
+                            {% for sucursal in sucursales %}
+                            <option value="{{ sucursal }}">{{ sucursal }}</option>
+                            {% endfor %}
+                        </select>
+                        <small class="text-muted">Opcional - Deja en "Todas" para incluir todas las sucursales</small>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+                <button type="button" class="btn btn-success" onclick="generarReportePDF()">
+                    <i class="fas fa-download"></i> Generar PDF
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- Footer -->
@@ -317,6 +385,41 @@
     // Activar tooltips
     const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
     tooltipTriggerList.forEach(el => new bootstrap.Tooltip(el));
+
+    // Establecer fecha de hoy por defecto
+    document.addEventListener('DOMContentLoaded', function() {
+        const hoy = new Date().toISOString().split('T')[0];
+        document.getElementById('fechaReporte').value = hoy;
+    });
+
+    // Función para generar el reporte PDF
+    function generarReportePDF() {
+        const fecha = document.getElementById('fechaReporte').value;
+        const sucursal = document.getElementById('sucursalReporte').value;
+
+        if (!fecha) {
+            alert('Por favor selecciona una fecha');
+            return;
+        }
+
+        // Construir la URL con los parámetros
+        let url = `/reportes/pdf?fecha=${fecha}`;
+        if (sucursal) {
+            url += `&sucursal=${encodeURIComponent(sucursal)}`;
+        }
+
+        // Cerrar el modal
+        const modal = bootstrap.Modal.getInstance(document.getElementById('modalReporte'));
+        modal.hide();
+
+        // Abrir el PDF en una nueva pestaña
+        window.open(url, '_blank');
+
+        // Mostrar mensaje de éxito
+        setTimeout(() => {
+            alert('El reporte se está generando. Se abrirá en una nueva pestaña.');
+        }, 300);
+    }
 </script>
 
 </body>

@@ -644,14 +644,12 @@ class AdminApp(QMainWindow):
     def conectar_senales(self):
         """Conecta todos los botones a sus funciones"""
         self.btn_admin_precios.clicked.connect(self.abrir_dialogo_precios)
-
         self.btn_filtrar_clientes.clicked.connect(self.cargar_clientes)
         self.btn_reporte_clientes.clicked.connect(self.generar_reporte_avanzado)
         self.btn_nuevo_cliente.clicked.connect(self.abrir_dialogo_cliente_nuevo)
         self.btn_editar_cliente.clicked.connect(self.abrir_dialogo_cliente_editar)
         self.btn_eliminar_cliente.clicked.connect(self.eliminar_cliente)
         self.table_clientes.itemSelectionChanged.connect(self.actualizar_botones_crud_clientes)
-
         self.btn_filtrar_normales.clicked.connect(self.cargar_normales)
         self.btn_reporte_normales.clicked.connect(self.generar_reporte_avanzado)
         self.btn_nuevo_normal.clicked.connect(self.abrir_dialogo_normal_nuevo)
@@ -1016,13 +1014,13 @@ class AdminApp(QMainWindow):
                             item = self._crear_item_centrado(valor_str)
                             self.table_normales.setItem(fila, col, item)
 
-            self.statusBar().showMessage(f"Normales: {len(resultados)} pedidos cargados para {fecha}")
+            self.statusBar().showMessage(f"Tiendas: {len(resultados)} pedidos cargados para {fecha}")
         except Exception as e:
             logger.error(f"ERROR DETALLADO (cargar_normales): {e}", exc_info=True)
             dialogo = DialogoConfirmacionMejorado(
                 self,
                 "Error al Cargar",
-                f"No se pudieron cargar los pedidos normales:\n\n{str(e)}",
+                f"No se pudieron cargar los pedidos de tienda:\n\n{str(e)}",
                 "error"
             )
             dialogo.exec()
@@ -1141,7 +1139,7 @@ class AdminApp(QMainWindow):
         dialog = DialogoNuevoNormal(self)
         if dialog.exec():
             self.cargar_normales()
-            self.statusBar().showMessage("Nuevo pedido normal agregado exitosamente", 5000)
+            self.statusBar().showMessage("Nuevo pedido agregado exitosamente", 5000)
 
     @Slot()
     def abrir_dialogo_normal_editar(self):

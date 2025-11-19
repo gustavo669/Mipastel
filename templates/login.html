@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Mi Pastel</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">    <style>
+        body {
+            background: linear-gradient(135deg, #ffffff 0%, #fffaf6 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .login-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(214, 51, 132, 0.2);
+            padding: 3rem 2.5rem;
+            max-width: 450px;
+            width: 100%;
+            animation: fadeIn 0.5s ease-in-out;
+            border: 3px solid #f0d6ec;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo {
+            font-family: 'Great Vibes', cursive;
+            color: #d63384;
+            font-size: 3.5rem;
+            text-align: center;
+            margin-bottom: 0.5rem;
+            animation: bounce 1s ease-in-out;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .logo i {
+            font-size: 4rem;
+            display: block;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #ff66b2, #d63384);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            color: #690f73;
+            font-size: 1.3rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            font-weight: 222;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ff66b2, #d63384);
+            border: none;
+            border-radius: 25px;
+            padding: 14px 30px;
+            font-weight: bold;
+            width: 100%;
+            transition: all 0.3s ease;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 14px rgba(214, 51, 132, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #e60073, #c2185b);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(214, 51, 132, 0.4);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .form-control {
+            border-radius: 12px;
+            padding: 14px 15px;
+            border: 2px solid #f0d6ec;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .form-control:focus {
+            border-color: #d63384;
+            box-shadow: 0 0 0 0.25rem rgba(214, 51, 132, 0.15);
+            background-color: rgba(255, 255, 255, 0.82);
+        }
+
+        .form-label {
+            font-weight: 700;
+            color: #690f73;
+            margin-bottom: 0.6rem;
+            font-size: 0.95rem;
+        }
+
+        .icon-input {
+            position: relative;
+        }
+
+        .icon-input i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #d63384;
+            font-size: 1.2rem;
+        }
+
+        .icon-input input {
+            padding-left: 48px;
+        }
+
+        .alert-error {
+            background: linear-gradient(135deg, #ffe0e0, #ffeded);
+            border: 2px solid #51085a;
+            color: #040506;
+            border-radius: 12px;
+            padding: 14px 18px;
+            margin-bottom: 1.5rem;
+            animation: shake 0.5s;
+            font-weight: 600;
+        }
+
+        .alert-error i {
+            margin-right: 8px;
+            font-size: 1.1rem;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            50% { transform: translateX(10px); }
+            75% { transform: translateX(-5px); }
+        }
+
+        .back-link {
+            color: #d63384;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+
+        .back-link:hover {
+            color: #c2185b;
+            transform: translateX(-5px);
+        }
+
+        .back-link i {
+            margin-right: 5px;
+        }
+
+        .security-note {
+            background: linear-gradient(135deg, #fff0f6, #fffaf6);
+            border-left: 4px solid #d63384;
+            padding: 12px 18px;
+            margin-top: 1.5rem;
+            border-radius: 20px;
+            font-size: 0.88rem;
+            color: #690f73;
+            font-weight: 500;
+        }
+
+        .security-note i {
+            color: #d63384;
+            margin-right: 8px;
+        }
+
+        .divider {
+            height: 2px;
+            background: linear-gradient(to right, transparent, #f0d6ec, transparent);
+            margin: 1.5rem 0;
+        }
+
+        .form-control:not(:placeholder-shown) {
+            background-color: #fffaf6;
+        }
+
+        .btn-loading {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+<div class="login-container">
+
+    <div class="logo">
+        Mi Pastel
+    </div>
+
+
+    <div class="subtitle">
+        <i class="fas fa-shield-alt"></i> Panel de Administración
+    </div>
+
+    <div class="divider"></div>
+
+
+    {% if error %}
+    <div class="alert-error">
+        <i class="fas fa-exclamation-triangle"></i> {{ error }}
+    </div>
+    {% endif %}
+
+    <form method="post" action="/login" id="loginForm">
+        <div class="mb-3">
+            <label class="form-label">
+            </label>
+            <div class="icon-input">
+                <i class="fas fa-user"></i>
+                <input type="text"
+                       class="form-control"
+                       name="username"
+                       required
+                       placeholder="Ingresa tu usuario"
+                       autofocus
+                       autocomplete="username">
+            </div>
+        </div>
+
+        <div class="mb-4">
+            <label class="form-label">
+            </label>
+            <div class="icon-input">
+                <i class="fas fa-lock"></i>
+                <input type="password"
+                       class="form-control"
+                       name="password"
+                       required
+                       placeholder="Ingresa tu contraseña"
+                       autocomplete="current-password">
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary" id="btnSubmit">
+            <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
+        </button>
+    </form>
+
+    <div class="security-note">
+        <i class="fas fa-shield-alt"></i>
+        <strong>Acceso restringido:</strong> Solo personal autorizado puede acceder al panel de administración.
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="text-center">
+        <a href="/" class="back-link">
+            <i class="fas fa-arrow-left"></i> Volver al inicio
+        </a>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const usernameInput = document.querySelector('input[name="username"]');
+        if (usernameInput) {
+            usernameInput.focus();
+        }
+    });
+
+    const loginForm = document.getElementById('loginForm');
+    const btnSubmit = document.getElementById('btnSubmit');
+
+    loginForm.addEventListener('submit', function(e) {
+        btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verificando...';
+        btnSubmit.classList.add('btn-loading');
+    });
+
+    const inputs = document.querySelectorAll('.form-control');
+    inputs.forEach(input => {
+        input.addEventListener('focus', function() {
+            this.parentElement.parentElement.style.transform = 'scale(1.02)';
+            this.parentElement.parentElement.style.transition = 'transform 0.2s';
+        });
+
+        input.addEventListener('blur', function() {
+            this.parentElement.parentElement.style.transform = 'scale(1)';
+        });
+    });
+
+    loginForm.addEventListener('submit', function() {
+        btnSubmit.disabled = true;
+        setTimeout(() => {
+            btnSubmit.disabled = false;
+            btnSubmit.innerHTML = '<i class="fas fa-sign-in-alt"></i> Iniciar Sesión';
+            btnSubmit.classList.remove('btn-loading');
+        }, 3000);
+    });
+</script>
+</body>
+</html>

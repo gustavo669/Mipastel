@@ -1,5 +1,5 @@
-from fastapi import APIRouter, Request, HTTPException, Query
-from fastapi.responses import HTMLResponse
+from fastapi import APIRouter, Request, HTTPException, Query, Depends
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from datetime import datetime
 import logging
@@ -13,15 +13,24 @@ from config import (
     SUCURSALES
 )
 
+from auth import requiere_autenticacion, verificar_sesion
+
 router = APIRouter(prefix="/admin", tags=["Administración"])
 templates = Jinja2Templates(directory="templates")
 logger = logging.getLogger(__name__)
 
 
 @router.get("/", response_class=HTMLResponse)
-async def vista_admin(request: Request):
-    """Vista principal del panel de administración."""
+async def vista_admin(
+        request: Request,
+        username: str = Depends(requiere_autenticacion)
+):
+    """Vista principal del panel de administración - REQUIERE LOGIN"""
     try:
+        # Verificar sesión
+        if not username:
+            return RedirectResponse(url="/login", status_code=302)
+
         db = DatabaseManager()
         hoy = datetime.now().date()
         fecha_str = hoy.isoformat()
@@ -40,9 +49,12 @@ async def vista_admin(request: Request):
             "tamanos_normales": TAMANOS_NORMALES,
             "tamanos_clientes": TAMANOS_CLIENTES,
             "sucursales": SUCURSALES,
-            "fecha_actual": fecha_str
+            "fecha_actual": fecha_str,
+            "username": username
         })
 
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Error al cargar vista admin: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Error al cargar datos: {str(e)}")
@@ -50,10 +62,12 @@ async def vista_admin(request: Request):
 
 @router.get("/normales")
 async def obtener_normales(
+        request: Request,
         fecha: str = Query(None, description="Fecha en formato YYYY-MM-DD"),
-        sucursal: str = Query(None, description="Nombre de la sucursal")
+        sucursal: str = Query(None, description="Nombre de la sucursal"),
+        username: str = Depends(requiere_autenticacion)
 ):
-    """Obtener pasteles normales con filtros opcionales."""
+    """Obtener pasteles normales con filtros opcionales - REQUIERE LOGIN"""
     try:
         db = DatabaseManager()
         normales = db.obtener_pasteles_normales(fecha_inicio=fecha, sucursal=sucursal)
@@ -65,10 +79,12 @@ async def obtener_normales(
 
 @router.get("/clientes")
 async def obtener_clientes(
+        request: Request,
         fecha: str = Query(None, description="Fecha en formato YYYY-MM-DD"),
-        sucursal: str = Query(None, description="Nombre de la sucursal")
+        sucursal: str = Query(None, description="Nombre de la sucursal"),
+        username: str = Depends(requiere_autenticacion)
 ):
-    """Obtener pedidos de clientes filtrados."""
+    """Obtener pedidos de clientes filtrados - REQUIERE LOGIN"""
     try:
         db = DatabaseManager()
         clientes = db.obtener_pedidos_clientes(fecha_inicio=fecha, sucursal=sucursal)
@@ -79,8 +95,11 @@ async def obtener_clientes(
 
 
 @router.get("/precios")
-async def obtener_precios():
-    """Obtener configuración completa de precios."""
+async def obtener_precios(
+        request: Request,
+        username: str = Depends(requiere_autenticacion)
+):
+    """Obtener configuración completa de precios - REQUIERE LOGIN"""
     try:
         db = DatabaseManager()
         precios = db.obtener_precios()
@@ -91,8 +110,11 @@ async def obtener_precios():
 
 
 @router.post("/precios/actualizar")
-async def actualizar_precios(precios_data: list):
-    """Actualizar los precios en la base de datos."""
+async def actualizar_precios(
+        precios_data: list,
+        username: str = Depends(requiere_autenticacion)
+):
+    """Actualizar los precios en la base de datos - REQUIERE LOGIN"""
     try:
         db = DatabaseManager()
 
@@ -115,8 +137,11 @@ async def actualizar_precios(precios_data: list):
 
 
 @router.post("/normales/registrar")
-async def registrar_pastel_normal(pastel_data: dict):
-    """Registrar un nuevo pastel normal."""
+async def registrar_pastel_normal(
+        pastel_data: dict,
+        username: str = Depends(requiere_autenticacion)
+):
+    """Registrar un nuevo pastel normal - REQUIERE LOGIN"""
     try:
         db = DatabaseManager()
 
@@ -136,8 +161,11 @@ async def registrar_pastel_normal(pastel_data: dict):
 
 
 @router.post("/clientes/registrar")
-async def registrar_pedido_cliente(pedido_data: dict):
-    """Registrar un nuevo pedido de cliente."""
+async def registrar_pedido_cliente(
+        pedido_data: dict,
+        username: str = Depends(requiere_autenticacion)
+):
+    """Registrar un nuevo pedido de cliente - REQUIERE LOGIN"""
     try:
         db = DatabaseManager()
 
@@ -157,8 +185,11 @@ async def registrar_pedido_cliente(pedido_data: dict):
 
 
 @router.delete("/normales/{pastel_id}")
-async def eliminar_pastel_normal(pastel_id: int):
-    """Eliminar pastel normal."""
+async def eliminar_pastel_normal(
+        pastel_id: int,
+        username: str = Depends(requiere_autenticacion)
+):
+    """Eliminar pastel normal - REQUIERE LOGIN"""
     try:
         db = DatabaseManager()
 
@@ -173,8 +204,11 @@ async def eliminar_pastel_normal(pastel_id: int):
 
 
 @router.delete("/clientes/{pedido_id}")
-async def eliminar_pedido_cliente(pedido_id: int):
-    """Eliminar pedido cliente."""
+async def eliminar_pedido_cliente(
+        pedido_id: int,
+        username: str = Depends(requiere_autenticacion)
+):
+    """Eliminar pedido cliente - REQUIERE LOGIN"""
     try:
         db = DatabaseManager()
 
@@ -189,8 +223,11 @@ async def eliminar_pedido_cliente(pedido_id: int):
 
 
 @router.get("/estadisticas")
-async def obtener_estadisticas(fecha: str = Query(None, description="YYYY-MM-DD")):
-    """Obtener estadísticas globales."""
+async def obtener_estadisticas(
+        fecha: str = Query(None, description="YYYY-MM-DD"),
+        username: str = Depends(requiere_autenticacion)
+):
+    """Obtener estadísticas globales - REQUIERE LOGIN"""
     try:
         db = DatabaseManager()
         estadisticas = db.obtener_estadisticas(fecha_inicio=fecha)
@@ -202,7 +239,7 @@ async def obtener_estadisticas(fecha: str = Query(None, description="YYYY-MM-DD"
 
 @router.get("/health")
 async def health_check():
-    """Comprueba salud del módulo admin."""
+    """Comprueba salud del módulo admin - PÚBLICO"""
     try:
         db = DatabaseManager()
         precios = db.obtener_precios()
