@@ -1,9 +1,7 @@
-from fastapi import Depends, HTTPException, status, Request
-from fastapi.security import HTTPBasic, HTTPBasicCredentials
-from fastapi.responses import RedirectResponse
+from fastapi import HTTPException, status, Request
 from typing import Optional
-import secrets
 import hashlib
+import os
 
 USERS = {
     "Marvin": {
@@ -16,24 +14,20 @@ USERS = {
     }
 }
 
-
-SECRET_KEY = "123456789"
+SECRET_KEY = os.getenv("SECRET_KEY", "mipastel_secret_key_2024_cambiar_en_produccion")
 
 
 def verificar_credenciales(username: str, password: str) -> bool:
-    """Verifica si las credenciales son correctas"""
     if username not in USERS:
         return False
     return USERS[username]["password"] == password
 
 
 def hash_session(username: str) -> str:
-    """Crea un hash de sesión único"""
     return hashlib.sha256(f"{username}{SECRET_KEY}".encode()).hexdigest()
 
 
 def verificar_sesion(request: Request) -> Optional[str]:
-    """Verifica si existe una sesión válida en las cookies"""
     session_token = request.cookies.get("session_token")
     username = request.cookies.get("username")
 
@@ -48,10 +42,6 @@ def verificar_sesion(request: Request) -> Optional[str]:
 
 
 def requiere_autenticacion(request: Request) -> str:
-    """
-    Dependency que requiere que el usuario esté autenticado.
-    Úsalo en las rutas que quieras proteger.
-    """
     username = verificar_sesion(request)
     if not username:
         raise HTTPException(
@@ -63,7 +53,6 @@ def requiere_autenticacion(request: Request) -> str:
 
 
 def crear_respuesta_con_sesion(response, username: str):
-    """Agrega las cookies de sesión a una respuesta"""
     session_token = hash_session(username)
     response.set_cookie(
         key="session_token",
@@ -83,7 +72,6 @@ def crear_respuesta_con_sesion(response, username: str):
 
 
 def cerrar_sesion(response):
-    """Elimina las cookies de sesión"""
     response.delete_cookie("session_token")
     response.delete_cookie("username")
     return response

@@ -1,7 +1,6 @@
 import pyodbc
 import logging
 from typing import List, Dict, Any, Optional
-from datetime import datetime
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -13,7 +12,6 @@ DB_CLIENTES = 'MiPastel_Clientes'
 
 
 def get_db_connection(database_name):
-    """Función genérica para obtener una conexión"""
     try:
         conn_str = f'DRIVER={DRIVER};SERVER={SERVER};DATABASE={database_name};Trusted_Connection=yes;'
         conn = pyodbc.connect(conn_str)
@@ -22,8 +20,10 @@ def get_db_connection(database_name):
         logger.error(f"Error al conectar a {database_name}: {e}")
         raise Exception(f"Error de conexión: {e}")
 
+
 def get_conn_normales():
     return get_db_connection(DB_NORMALES)
+
 
 def get_conn_clientes():
     return get_db_connection(DB_CLIENTES)
@@ -54,8 +54,8 @@ def obtener_precio_db(sabor: str = None, tamano: str = None) -> Any:
             return [] if not sabor else 0.0
         raise e
 
+
 def actualizar_precios_db(lista_precios: List[Dict[str, Any]]) -> bool:
-    """Actualiza masivamente los precios (para app PySide)"""
     try:
         conn = get_conn_normales()
         cursor = conn.cursor()
@@ -71,18 +71,25 @@ def actualizar_precios_db(lista_precios: List[Dict[str, Any]]) -> bool:
         logger.error(f"Error al actualizar precios (PySide): {e}", exc_info=True)
         raise Exception(f"Error al actualizar precios: {e}")
 
+
 def registrar_pastel_normal_db(data: Dict[str, Any]) -> bool:
-    """Registra un nuevo pastel normal."""
     query = """
         INSERT INTO PastelesNormales 
-        (sabor, tamano, cantidad, precio, sucursal, detalles, sabor_personalizado, fecha)
-        VALUES (?, ?, ?, ?, ?, ?, ?, GETDATE())
+        (sabor, tamano, cantidad, precio, sucursal, fecha_entrega, detalles, sabor_personalizado, fecha)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, GETDATE())
     """
+
     params = (
-        data.get('sabor'), data.get('tamano'), data.get('cantidad'),
-        data.get('precio'), data.get('sucursal'), data.get('detalles'),
-        data.get('sabor_personalizado')
+        data.get('sabor'),
+        data.get('tamano'),
+        data.get('cantidad'),
+        data.get('precio'),
+        data.get('sucursal'),
+        data.get('fecha_entrega'),
+        data.get('detalles'),
+        data.get('sabor_personalizado'),
     )
+
     try:
         conn = get_conn_normales()
         cursor = conn.cursor()
@@ -94,18 +101,18 @@ def registrar_pastel_normal_db(data: Dict[str, Any]) -> bool:
         logger.error(f"Error al registrar pastel normal: {e}", exc_info=True)
         raise Exception(f"Error de base de datos: {e}")
 
+
 def actualizar_pastel_normal_db(pedido_id: int, data: Dict[str, Any]) -> bool:
-    """Actualiza un pastel normal existente."""
     query = """
         UPDATE PastelesNormales SET
             sabor = ?, tamano = ?, cantidad = ?, precio = ?, sucursal = ?, 
-            detalles = ?, sabor_personalizado = ?
+            fecha_entrega = ?, detalles = ?, sabor_personalizado = ?
         WHERE id = ?
     """
     params = (
         data.get('sabor'), data.get('tamano'), data.get('cantidad'),
-        data.get('precio'), data.get('sucursal'), data.get('detalles'),
-        data.get('sabor_personalizado'),
+        data.get('precio'), data.get('sucursal'), data.get('fecha_entrega'),
+        data.get('detalles'), data.get('sabor_personalizado'),
         pedido_id
     )
     try:
@@ -119,8 +126,8 @@ def actualizar_pastel_normal_db(pedido_id: int, data: Dict[str, Any]) -> bool:
         logger.error(f"Error al actualizar pastel normal ID {pedido_id}: {e}", exc_info=True)
         raise Exception(f"Error de base de datos: {e}")
 
+
 def eliminar_normal_db(pedido_id: int) -> bool:
-    """Elimina un pastel normal por ID."""
     try:
         conn = get_conn_normales()
         cursor = conn.cursor()
@@ -132,12 +139,12 @@ def eliminar_normal_db(pedido_id: int) -> bool:
         logger.error(f"Error al eliminar pastel normal ID {pedido_id}: {e}", exc_info=True)
         raise Exception(f"Error de base de datos: {e}")
 
+
 def obtener_normal_por_id_db(pedido_id: int) -> Optional[Dict[str, Any]]:
-    """Obtiene los datos de un pastel normal para editar."""
     try:
         conn = get_conn_normales()
         cursor = conn.cursor()
-        query = "SELECT id, sabor, tamano, cantidad, precio, sucursal, fecha, detalles, sabor_personalizado FROM PastelesNormales WHERE id = ?"
+        query = "SELECT id, sabor, tamano, cantidad, precio, sucursal, fecha, fecha_entrega, detalles, sabor_personalizado FROM PastelesNormales WHERE id = ?"
         cursor.execute(query, (pedido_id,))
         row = cursor.fetchone()
         conn.close()
@@ -148,7 +155,8 @@ def obtener_normal_por_id_db(pedido_id: int) -> Optional[Dict[str, Any]]:
         return {
             'id': row[0], 'sabor': row[1], 'tamano': row[2], 'cantidad': row[3],
             'precio': float(row[4]), 'sucursal': row[5], 'fecha': row[6].isoformat(),
-            'detalles': row[7], 'sabor_personalizado': row[8]
+            'fecha_entrega': row[7].isoformat() if row[7] else None,
+            'detalles': row[8], 'sabor_personalizado': row[9]
         }
     except Exception as e:
         logger.error(f"Error al obtener normal por ID {pedido_id}: {e}", exc_info=True)
@@ -156,7 +164,10 @@ def obtener_normal_por_id_db(pedido_id: int) -> Optional[Dict[str, Any]]:
 
 
 def registrar_pedido_cliente_db(data: Dict[str, Any]) -> bool:
-    """Registra un nuevo pedido de cliente."""
+    precio = data.get('precio')
+    if not precio or precio <= 0:
+        raise ValueError("El precio debe ser mayor a 0")
+
     query = """
         INSERT INTO PastelesClientes 
         (color, sabor, tamano, cantidad, precio, sucursal, fecha, 
@@ -165,7 +176,7 @@ def registrar_pedido_cliente_db(data: Dict[str, Any]) -> bool:
     """
     params = (
         data.get('color'), data.get('sabor'), data.get('tamano'), data.get('cantidad'),
-        data.get('precio'), data.get('sucursal'),
+        precio, data.get('sucursal'),
         data.get('dedicatoria'), data.get('detalles'), data.get('sabor_personalizado'),
         data.get('foto_path'), data.get('fecha_entrega')
     )
@@ -180,8 +191,12 @@ def registrar_pedido_cliente_db(data: Dict[str, Any]) -> bool:
         logger.error(f"Error al registrar pedido cliente: {e}", exc_info=True)
         raise Exception(f"Error de base de datos: {e}")
 
+
 def actualizar_pedido_cliente_db(pedido_id: int, data: Dict[str, Any]) -> bool:
-    """Actualiza un pedido de cliente existente."""
+    precio = data.get('precio')
+    if not precio or precio <= 0:
+        raise ValueError("El precio debe ser mayor a 0")
+
     query = """
         UPDATE PastelesClientes SET
             color = ?, sabor = ?, tamano = ?, cantidad = ?, precio = ?, sucursal = ?,
@@ -191,7 +206,7 @@ def actualizar_pedido_cliente_db(pedido_id: int, data: Dict[str, Any]) -> bool:
     """
     params = (
         data.get('color'), data.get('sabor'), data.get('tamano'), data.get('cantidad'),
-        data.get('precio'), data.get('sucursal'),
+        precio, data.get('sucursal'),
         data.get('dedicatoria'), data.get('detalles'), data.get('sabor_personalizado'),
         data.get('foto_path'), data.get('fecha_entrega'),
         pedido_id
@@ -207,8 +222,8 @@ def actualizar_pedido_cliente_db(pedido_id: int, data: Dict[str, Any]) -> bool:
         logger.error(f"Error al actualizar pedido cliente ID {pedido_id}: {e}", exc_info=True)
         raise Exception(f"Error de base de datos: {e}")
 
+
 def eliminar_cliente_db(pedido_id: int) -> bool:
-    """Elimina un pedido de cliente por ID."""
     try:
         conn = get_conn_clientes()
         cursor = conn.cursor()
@@ -220,8 +235,8 @@ def eliminar_cliente_db(pedido_id: int) -> bool:
         logger.error(f"Error al eliminar cliente ID {pedido_id}: {e}", exc_info=True)
         raise Exception(f"Error de base de datos: {e}")
 
+
 def obtener_cliente_por_id_db(pedido_id: int) -> Optional[Dict[str, Any]]:
-    """Obtiene los datos de un pedido de cliente para editar."""
     try:
         conn = get_conn_clientes()
         cursor = conn.cursor()
@@ -251,10 +266,8 @@ def obtener_cliente_por_id_db(pedido_id: int) -> Optional[Dict[str, Any]]:
 
 
 class DatabaseManager:
-    """Gestor principal de operaciones de base de datos para la API y la web"""
-
     def _ejecutar_query(self, conn_func, query, params=(), commit=False, fetchone=False, fetchall=False):
-        """Método helper para ejecutar consultas de forma segura"""
+        conn = None
         try:
             conn = conn_func()
             cursor = conn.cursor()
@@ -269,15 +282,15 @@ class DatabaseManager:
             if commit:
                 conn.commit()
 
-            conn.close()
             return resultado
         except Exception as e:
             logger.error(f"Error de DB en query ({query[:50]}...): {e}", exc_info=True)
-            raise Exception(f"Error de base de datos: {e}")
-
+            raise
+        finally:
+            if conn:
+                conn.close()
 
     def obtener_precios(self) -> List[Dict[str, Any]]:
-        """Obtiene la lista completa de precios"""
         resultados = obtener_precio_db()
         precios = []
         for row in resultados:
@@ -290,15 +303,13 @@ class DatabaseManager:
         return precios
 
     def actualizar_precios(self, lista_precios: List[Dict[str, Any]]) -> bool:
-        """Actualiza precios masivamente"""
         return actualizar_precios_db(lista_precios)
 
     def registrar_pastel_normal(self, data: Dict[str, Any]) -> bool:
-        """Registra un pastel normal"""
         return registrar_pastel_normal_db(data)
 
     def obtener_pasteles_normales(self, fecha_inicio: str = None, fecha_fin: str = None, sucursal: str = None) -> List[Dict[str, Any]]:
-        query = "SELECT id, sabor, tamano, precio, cantidad, sucursal, fecha, detalles, sabor_personalizado FROM PastelesNormales WHERE 1=1"
+        query = "SELECT id, sabor, tamano, precio, cantidad, sucursal, fecha, fecha_entrega, detalles, sabor_personalizado FROM PastelesNormales WHERE 1=1"
         params = []
 
         if fecha_inicio and not fecha_fin:
@@ -311,9 +322,11 @@ class DatabaseManager:
         if not fecha_inicio:
             query += " AND CAST(fecha AS DATE) = CAST(GETDATE() AS DATE)"
 
-        if sucursal and sucursal.lower() != "todas":
-            query += " AND sucursal = ?"
-            params.append(sucursal)
+        if sucursal:
+            sucursal_lower = sucursal.lower()
+            if sucursal_lower != "todas":
+                query += " AND sucursal = ?"
+                params.append(sucursal)
 
         query += " ORDER BY fecha DESC"
 
@@ -329,18 +342,17 @@ class DatabaseManager:
                 'cantidad': row[4],
                 'sucursal': row[5],
                 'fecha': row[6].isoformat(),
-                'detalles': row[7],
-                'sabor_personalizado': row[8]
+                'fecha_entrega': row[7].isoformat() if row[7] else None,
+                'detalles': row[8],
+                'sabor_personalizado': row[9]
             })
         return pasteles
 
     def eliminar_pastel_normal(self, pastel_id: int) -> bool:
-        """Elimina un pastel normal"""
         return eliminar_normal_db(pastel_id)
 
 
     def registrar_pedido_cliente(self, data: Dict[str, Any]) -> bool:
-        """Registra un pedido de cliente"""
         return registrar_pedido_cliente_db(data)
 
     def obtener_pedidos_clientes(self, fecha_inicio: str = None, fecha_fin: str = None, sucursal: str = None) -> List[Dict[str, Any]]:
@@ -358,9 +370,11 @@ class DatabaseManager:
         if not fecha_inicio:
             query += " AND CAST(fecha AS DATE) = CAST(GETDATE() AS DATE)"
 
-        if sucursal and sucursal.lower() != "todas":
-            query += " AND sucursal = ?"
-            params.append(sucursal)
+        if sucursal:
+            sucursal_lower = sucursal.lower()
+            if sucursal_lower != "todas":
+                query += " AND sucursal = ?"
+                params.append(sucursal)
 
         query += " ORDER BY fecha DESC"
 
@@ -387,9 +401,7 @@ class DatabaseManager:
         return pedidos
 
     def eliminar_pedido_cliente(self, pedido_id: int) -> bool:
-        """Elimina un pedido de cliente"""
         return eliminar_cliente_db(pedido_id)
-
 
     def obtener_estadisticas(self, fecha_inicio: str = None, fecha_fin: str = None) -> Dict[str, Any]:
         if fecha_inicio and not fecha_fin:

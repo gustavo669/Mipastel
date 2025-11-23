@@ -191,6 +191,7 @@ class MiPastelLauncherNgrok:
         self.stop_ngrok()
         self.stop_fastapi()
 
+
 def main():
 
     if not NGROK_AVAILABLE:
@@ -210,6 +211,7 @@ def main():
 
     launcher = MiPastelLauncherNgrok(usar_ngrok=usar_ngrok)
     launcher.run()
+
 
 if __name__ == "__main__":
     main()

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Form, HTTPException, UploadFile, File, Request
 from fastapi.templating import Jinja2Templates
 from database import DatabaseManager, obtener_precio_db
-from datetime import datetime
+from datetime import datetime, date
 import os, logging
 from typing import Optional
 from config import SABORES_CLIENTES, TAMANOS_CLIENTES, SUCURSALES
@@ -15,7 +15,7 @@ UPLOAD_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "stat
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 ALLOWED_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.gif', '.bmp'}
-MAX_FILE_SIZE = 5 * 1024 * 1024  # 5 MB
+MAX_FILE_SIZE = 5 * 1024 * 1024
 
 
 def validar_imagen(file: UploadFile) -> bool:
@@ -24,22 +24,6 @@ def validar_imagen(file: UploadFile) -> bool:
     ext = os.path.splitext(file.filename)[1].lower()
     return ext in ALLOWED_EXTENSIONS
 
-def calcular_precio(sabor: str, tamano: str, cantidad: int) -> float:
-    """Calcula el total (precio * cantidad)"""
-    try:
-        precio_unitario = obtener_precio_db(sabor, tamano)
-        return precio_unitario * cantidad
-    except Exception as e:
-        logger.error(f"Error al calcular precio: {e}")
-        return 0.0
-
-def obtener_precio_unitario(sabor: str, tamano: str) -> float:
-    """Obtiene el precio unitario directo"""
-    try:
-        return obtener_precio_db(sabor, tamano)
-    except Exception as e:
-        logger.error(f"Error al obtener precio unitario: {e}")
-        return 0.0
 
 @router.get("/formulario")
 async def mostrar_formulario_clientes(request: Request):
@@ -70,6 +54,14 @@ async def registrar_pedido_cliente(
         foto: Optional[UploadFile] = File(None)
 ):
     try:
+        if fecha_entrega:
+            try:
+                fecha_entrega_obj = datetime.strptime(fecha_entrega, "%Y-%m-%d").date()
+                if fecha_entrega_obj < date.today():
+                    raise HTTPException(status_code=400, detail="La fecha de entrega no puede ser anterior a hoy")
+            except ValueError:
+                raise HTTPException(status_code=400, detail="Formato de fecha inválido")
+
         db = DatabaseManager()
         foto_path = None
         if foto and foto.filename:
@@ -81,9 +73,14 @@ async def registrar_pedido_cliente(
             with open(file_location, "wb") as f:
                 f.write(await foto.read())
             foto_path = file_location
+
         sabor_real = sabor_personalizado if sabor_personalizado else sabor
 
-        precio_unitario = obtener_precio_unitario(sabor_real, tamano)
+        precio_unitario = obtener_precio_db(sabor_real, tamano)
+
+        if precio_unitario <= 0:
+            raise HTTPException(status_code=400, detail="No se encontró precio válido para esta combinación")
+
         precio_total = precio_unitario * cantidad
 
         pedido_data = {
@@ -113,7 +110,8 @@ async def registrar_pedido_cliente(
         else:
             raise HTTPException(status_code=500, detail="Error al registrar el pedido en la base de datos")
 
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Error en /clientes/registrar: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Error al registrar pedido de cliente: {str(e)}")
-

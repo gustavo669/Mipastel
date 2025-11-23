@@ -1,6 +1,6 @@
 import sys
 import logging
-from typing import Optional, Dict, Any, List
+from typing import Optional, Dict, Any
 
 from PySide6.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout, QFormLayout, QLabel, QLineEdit,
@@ -26,6 +26,107 @@ except ImportError as e:
 
 logger = logging.getLogger(__name__)
 
+
+class DialogoConfirmacionMejorado(QDialog):
+    """Diálogo de confirmación """
+
+    def __init__(self, parent, titulo, mensaje, tipo="warning"):
+        super().__init__(parent)
+        self.setWindowTitle(titulo)
+        self.setModal(True)
+        self.setMinimumWidth(420)
+
+        layout = QVBoxLayout(self)
+        layout.setSpacing(18)
+        layout.setContentsMargins(24, 24, 24, 24)
+
+        lbl_mensaje = QLabel(mensaje)
+        lbl_mensaje.setWordWrap(True)
+        lbl_mensaje.setStyleSheet("QLabel { color: #fffff; font-size: 15pt; }")
+        layout.addWidget(lbl_mensaje)
+
+        botones_layout = QHBoxLayout()
+        botones_layout.addStretch()
+
+        botones = QDialogButtonBox()
+
+        if tipo == "warning":
+            btn_si = botones.addButton("Sí, eliminar", QDialogButtonBox.AcceptRole)
+            btn_si.setStyleSheet("""
+                QPushButton {
+                    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                                stop:0 #ff88b8, stop:1 #ff4f87);
+                    color: #00000;
+                    padding: 10px 22px;
+                    font-weight: bold;
+                    font-size: 10pt;
+                    border-radius: 6px;
+                    border: 1px solid #ff5f97;
+                    text-align: center;
+                    alignment: center; 
+                }
+                QPushButton:hover {
+                    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                                stop:0 #ff6fa3, stop:1 #ff4f87);
+                }
+            """)
+
+            btn_no = botones.addButton("Cancelar", QDialogButtonBox.RejectRole)
+            btn_no.setStyleSheet("""
+                QPushButton {
+                    background: transparent;
+                    color: #800080;
+                    padding: 10px 22px;
+                    font-weight: bold;
+                    font-size: 10pt;
+                    border-radius: 6px;
+                    border: 1px solid #3a2a36;
+                }
+                QPushButton:hover {
+                    background: rgba(255,86,150,0.06);
+                }
+            """)
+        else:
+            btn_ok = botones.addButton("OK", QDialogButtonBox.AcceptRole)
+            btn_ok.setStyleSheet("""
+                QPushButton {
+                    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                                stop:0 #ff88b8, stop:1 #ff4f87);
+                    color: #0b0b0b;
+                    padding: 10px 22px;
+                    font-weight: bold;
+                    font-size: 10pt;
+                    border-radius: 6px;
+                    border: 1px solid #ff5f97;
+                }
+                QPushButton:hover {
+                    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                                stop:0 #ff6fa3, stop:1 #ff4f87);
+                }
+            """)
+
+        botones.accepted.connect(self.accept)
+        botones.rejected.connect(self.reject)
+
+        botones_layout.addWidget(botones)
+        botones_layout.addStretch()
+        layout.addLayout(botones_layout)
+
+        self.setStyleSheet("""
+    QDialog {
+        background-color: #fffff;
+        border-radius: 10px;
+    }
+    QDialog QLabel {
+        color: #00000;
+        font-size: 11pt;
+    }
+    QDialogButtonBox QPushButton {
+        min-width: 100px;
+    }
+""")
+
+
 class DialogoPrecios(QDialog):
     """Diálogo para ver y editar la lista de precios."""
     def __init__(self, parent=None):
@@ -48,7 +149,7 @@ class DialogoPrecios(QDialog):
 
         self.table_precios = QTableWidget()
         self.table_precios.setColumnCount(4)
-        self.table_precios.setHorizontalHeaderLabels(["ID", "Sabor", "Tamaño", "Precio (Q)"])
+        self.table_precios.setHorizontalHeaderLabels(["ID", "Sabor", "Tamaño", "Precio"])
         self.table_precios.setColumnHidden(0, True)
         self.table_precios.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.table_precios.setSelectionBehavior(QAbstractItemView.SelectRows)
@@ -60,7 +161,6 @@ class DialogoPrecios(QDialog):
         self.btn_cargar.clicked.connect(self.cargar_precios)
         self.btn_guardar.clicked.connect(self.guardar_precios)
         self.table_precios.itemChanged.connect(self.marcar_cambio)
-
         self.cargar_precios()
 
     @Slot()
@@ -240,7 +340,7 @@ class _BaseFormDialog(QDialog):
         elif es_otro and self.is_edit_mode:
             precio_unitario = float(self.data_dict.get('precio', 0.0))
             self.line_precio_unitario.setText(f"{precio_unitario:.2f} (Manual)")
-            self.line_precio_unitario.setReadOnly(False)  # Permitir editar
+            self.line_precio_unitario.setReadOnly(False)
 
         else:
             try:
@@ -301,8 +401,8 @@ class DialogoNuevoNormal(_BaseFormDialog):
         self.form_layout.addRow(self.check_es_otro)
         self.form_layout.addRow("Sabor (Otro):", self.line_sabor_personalizado)
         self.form_layout.addRow("Cantidad:", self.spin_cantidad)
-        self.form_layout.addRow("Precio Unitario (Q):", self.line_precio_unitario)
-        self.form_layout.addRow("Precio Total (Q):", self.line_precio_total)
+        self.form_layout.addRow("Precio Unitario:", self.line_precio_unitario)
+        self.form_layout.addRow("Precio Total:", self.line_precio_total)
         self.form_layout.addRow("Sucursal:", self.cmb_sucursal)
         self.form_layout.addRow("Fecha de Entrega:", self.date_entrega)
 
@@ -371,6 +471,8 @@ class DialogoNuevoNormal(_BaseFormDialog):
 
 
 from PySide6.QtWidgets import QLineEdit as _QLineEdit
+
+
 class DialogoNuevoCliente(_BaseFormDialog):
     def __init__(self, parent=None, data_dict: Optional[Dict[str, Any]] = None, pedido_id: Optional[int] = None):
         super().__init__(parent, data_dict, pedido_id)
@@ -386,8 +488,8 @@ class DialogoNuevoCliente(_BaseFormDialog):
         self.form_layout.addRow("Sabor (Otro):", self.line_sabor_personalizado)
         self.form_layout.addRow("Tamaño:", self.cmb_tamano)
         self.form_layout.addRow("Cantidad:", self.spin_cantidad)
-        self.form_layout.addRow("Precio Unitario (Q):", self.line_precio_unitario)
-        self.form_layout.addRow("Precio Total (Q):", self.line_precio_total)
+        self.form_layout.addRow("Precio Unitario:", self.line_precio_unitario)
+        self.form_layout.addRow("Precio Total:", self.line_precio_total)
         self.form_layout.addRow("Sucursal:", self.cmb_sucursal)
         self.form_layout.addRow("Color:", self.line_color)
         self.form_layout.addRow("Dedicatoria:", self.line_dedicatoria)

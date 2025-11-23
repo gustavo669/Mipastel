@@ -27,7 +27,7 @@ async def vista_admin(
 ):
     """Vista principal del panel de administración - REQUIERE LOGIN"""
     try:
-        # Verificar sesión
+
         if not username:
             return RedirectResponse(url="/login", status_code=302)
 

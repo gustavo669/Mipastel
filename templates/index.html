@@ -131,15 +131,12 @@
 
     <div class="tab-content" id="myTabContent">
 
-        <!-- ===================== -->
-        <!-- PEDIDOS DE TIENDAS -->
-        <!-- ===================== -->
         <div class="tab-pane fade show active" id="normales" role="tabpanel">
             <div class="form-section">
                 <h4 class="mb-4" style="color:#d63384;">Ingresar Pedido de Tienda</h4>
                 <form id="formNormal" action="/normales/registrar" method="post">
                     <div class="row g-3">
-                        <!-- Sabor -->
+
                         <div class="col-md-6">
                             <label class="form-label">Sabor</label>
                             <select class="form-select" name="sabor" id="saborNormal" required>
@@ -151,7 +148,6 @@
                             <input type="text" class="form-control mt-2 d-none" name="sabor_personalizado" id="saborOtroNormal" placeholder="Escriba el sabor personalizado">
                         </div>
 
-                        <!-- Tamaño -->
                         <div class="col-md-6">
                             <label class="form-label">Tamaño</label>
                             <select class="form-select" name="tamano" id="tamanoNormal" required>
@@ -163,14 +159,17 @@
                             <input type="text" class="form-control mt-2 d-none" name="tamano_otro" id="tamanoOtroNormal" placeholder="Ingrese tamaño personalizado">
                         </div>
 
-                        <!-- Cantidad -->
                         <div class="col-md-4">
                             <label class="form-label">Cantidad</label>
                             <input type="number" class="form-control" name="cantidad" id="cantidadNormal" value="1" min="1" required>
                         </div>
 
-                        <!-- Sucursal -->
-                        <div class="col-md-8">
+                        <div class="col-md-4">
+                            <label class="form-label">Fecha de Entrega</label>
+                            <input type="date" class="form-control" name="fecha_entrega" id="fechaEntregaNormal" required>
+                        </div>
+
+                        <div class="col-md-4">
                             <label class="form-label">Sucursal</label>
                             <select class="form-select" name="sucursal" required>
                                 <option value="">Seleccionar sucursal...</option>
@@ -181,7 +180,6 @@
                         </div>
                     </div>
 
-                    <!-- Precio -->
                     <div class="price-display mt-3">
                         <div class="row">
                             <div class="col-md-6"><strong>Precio unitario:</strong> <span id="precioUnitarioNormal">Q0.00</span></div>
@@ -195,15 +193,25 @@
             </div>
         </div>
 
-        <!-- ===================== -->
-        <!-- PEDIDOS CLIENTES -->
-        <!-- ===================== -->
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const tomorrow = new Date();
+                tomorrow.setDate(tomorrow.getDate() + 1);
+
+                const year = tomorrow.getFullYear();
+                const month = String(tomorrow.getMonth() + 1).padStart(2, '0');
+                const day = String(tomorrow.getDate()).padStart(2, '0');
+
+                document.getElementById('fechaEntregaNormal').value = `${year}-${month}-${day}`;
+            });
+        </script>
+
         <div class="tab-pane fade" id="clientes" role="tabpanel">
             <div class="form-section">
                 <h4 class="mb-4" style="color:#d63384;">Ingresar Pedido de Cliente</h4>
                 <form id="formCliente" action="/clientes/registrar" method="post" enctype="multipart/form-data">
                     <div class="row g-3">
-                        <!-- Sabor -->
+
                         <div class="col-md-6">
                             <label class="form-label">Sabor</label>
                             <select class="form-select" name="sabor" id="saborCliente" required>
@@ -215,7 +223,6 @@
                             <input type="text" class="form-control mt-2 d-none" name="sabor_personalizado" id="saborOtroCliente" placeholder="Escriba el sabor personalizado">
                         </div>
 
-                        <!-- Tamaño -->
                         <div class="col-md-6">
                             <label class="form-label">Tamaño</label>
                             <select class="form-select" name="tamano" id="tamanoCliente" required>
@@ -227,13 +234,11 @@
                             <input type="text" class="form-control mt-2 d-none" name="tamano_otro" id="tamanoOtroCliente" placeholder="Ingrese tamaño personalizado">
                         </div>
 
-                        <!-- Cantidad -->
                         <div class="col-md-4">
                             <label class="form-label">Cantidad</label>
                             <input type="number" class="form-control" name="cantidad" id="cantidadCliente" value="1" min="1" required>
                         </div>
 
-                        <!-- Sucursal -->
                         <div class="col-md-8">
                             <label class="form-label">Sucursal</label>
                             <select class="form-select" name="sucursal" required>
@@ -244,40 +249,34 @@
                             </select>
                         </div>
 
-                        <!-- Fecha de entrega -->
                         <div class="col-md-6">
                             <label class="form-label">Fecha de entrega</label>
                             <input type="date" class="form-control" name="fecha_entrega" id="fechaEntrega">
-                            <small class="text-muted">Opcional - Deja vacío si no aplica</small>
+                            <small class="text-muted">Fecha de entrega del pedido</small>
                         </div>
 
-                        <!-- Color -->
                         <div class="col-md-6">
                             <label class="form-label">Color (opcional)</label>
                             <input type="text" class="form-control" name="color" placeholder="Ej: Rosado, Azul...">
                         </div>
 
-                        <!-- Foto -->
                         <div class="col-md-12">
                             <label class="form-label">Foto (opcional)</label>
                             <input type="file" class="form-control" name="foto" accept="image/jpeg,image/png,image/gif">
                             <small class="text-muted">Formatos aceptados: JPG, PNG, GIF (máximo 5MB)</small>
                         </div>
 
-                        <!-- Dedicatoria -->
                         <div class="col-md-12">
                             <label class="form-label">Dedicatoria (opcional)</label>
-                            <textarea class="form-control" name="dedicatoria" rows="2" placeholder="Dedicatoria especial del pedido..."></textarea>
+                            <textarea class="form-control" name="dedicatoria" rows="2" placeholder="Dedicatoria del pedido..."></textarea>
                         </div>
 
-                        <!-- Detalles -->
                         <div class="col-md-12">
                             <label class="form-label">Detalles (opcional)</label>
                             <textarea class="form-control" name="detalles" rows="2" placeholder="Detalles adicionales del pedido..."></textarea>
                         </div>
                     </div>
 
-                    <!-- Precio -->
                     <div class="price-display mt-3">
                         <div class="row">
                             <div class="col-md-6"><strong>Precio unitario:</strong> <span id="precioUnitarioCliente">Q0.00</span></div>
@@ -452,7 +451,6 @@
             });
         }
 
-        // Validación del formulario de NORMALES antes de enviar
         const formNormal = document.getElementById("formNormal");
         if (formNormal) {
             formNormal.addEventListener("submit", (e) => {

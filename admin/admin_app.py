@@ -1,7 +1,6 @@
 import sys, os
-from datetime import date
 import logging
-from typing import Optional, Dict, Any
+from typing import Optional
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -11,11 +10,11 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from PySide6.QtWidgets import (
     QMainWindow, QWidget, QTabWidget, QVBoxLayout, QTableWidget,
     QTableWidgetItem, QPushButton, QLabel, QHBoxLayout, QComboBox, QDateEdit,
-    QMessageBox, QFileDialog, QAbstractItemView, QHeaderView, QGridLayout, QMenu,
+    QFileDialog, QAbstractItemView, QHeaderView, QGridLayout, QMenu,
     QApplication, QDialog, QDialogButtonBox
 )
-from PySide6.QtCore import QDate, Qt, Slot, QPropertyAnimation, QEasingCurve, Property
-from PySide6.QtGui import QFont, QKeyEvent, QColor
+from PySide6.QtCore import QDate, Qt, Slot
+from PySide6.QtGui import QFont, QKeyEvent, QPixmap
 
 try:
     from database import (
@@ -26,12 +25,13 @@ try:
         obtener_cliente_por_id_db,
         obtener_normal_por_id_db
     )
-    import reportes
+    import pdf_reportes
     from config import SUCURSALES_FILTRO
     from admin.dialogos import (
         DialogoNuevoNormal,
         DialogoNuevoCliente,
-        DialogoPrecios
+        DialogoPrecios,
+        DialogoConfirmacionMejorado
     )
 
     print("Módulos de Admin (database, reportes, config, dialogos) importados.")
@@ -40,20 +40,18 @@ except ImportError as e:
     sys.exit(f"Error fatal en imports: {e}")
 
 DARK_STYLE = """
-/* Fondo general */
 QMainWindow {
-    background-color: #fffff; 
+    background-color: #ffffff; 
 }
 
 QWidget {
-    background-color: #fffff;
+    background-color: #ffffff;
     color: #2b1b3a; 
     font-family: "Open Sans", "Lato", sans-serif;
     font-size: 10pt;
     border: none;
 }
 
-/* Pestañas */
 QTabWidget::pane {
     border: 3px solid #f0d6ec;
     border-radius: 8px;
@@ -61,7 +59,7 @@ QTabWidget::pane {
 }
 
 QTabBar::tab {
-    background: #00000; 
+    background: #ffffff; 
     color: #2b1b3a;
     padding: 12px 24px;
     margin: 2px;
@@ -83,7 +81,6 @@ QTabBar::tab:hover {
     color: #ffffff;
 }
 
-/* Tablas */
 QTableWidget {
     background-color: #ffffff;
     color: #2b1b3a;
@@ -112,7 +109,6 @@ QTableWidget::item:selected {
     color: #ffffff;
 }
 
-/* Botones */
 QPushButton {
     background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
                                 stop:0 #9b59b6, stop:1 #7d3c98);
@@ -141,7 +137,6 @@ QPushButton:disabled {
     color: #a78aa8;
 }
 
-/* Botón (Nuevo) */
 QPushButton[cssClass="btnVerde"] {
     background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
                                 stop:0 #48c774, stop:1 #2e8b57);
@@ -164,7 +159,6 @@ QPushButton[cssClass="btnVerde"]:pressed {
     padding: 9px 19px;
 }
 
-/* Botón (Eliminar) */
 QPushButton[cssClass="btnRosa"] {
     background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
                                 stop:0 #ff88b8, stop:1 #ff6fa3);
@@ -187,7 +181,6 @@ QPushButton[cssClass="btnRosa"]:pressed {
     padding: 9px 19px;
 }
  
-/* Botón Editar */
 QPushButton[cssClass="btnNaranja"] {
     background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
                                 stop:0 #7feaf0, stop:1 #2ccadf);
@@ -210,14 +203,13 @@ QPushButton[cssClass="btnNaranja"]:pressed {
     padding: 9px 19px;
 }
 
-/* Botón (Precios) */
 QPushButton[cssClass="btnMorado"] {
     background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
                                 stop:0 #48c774, stop:1 #2e8b57);
     color: #ffffff;
     font-size: 12pt;
     font-weight: bold;
-    padding: 12px 28px;
+    padding: 8px 10px;
     border: 2px solid #2b7f4f;
     border-radius: 10px;
     min-width: 180px;
@@ -235,7 +227,6 @@ QPushButton[cssClass="btnMorado"]:pressed {
     padding: 11px 27px;
 }
 
-/* Botón (Filtrar/Reporte) */
 QPushButton[cssClass="btnAzul"] {
     background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
                                 stop:0 #6f2f86, stop:1 #4b1257);
@@ -252,7 +243,6 @@ QPushButton[cssClass="btnAzul"]:hover {
     padding: 11px 21px;
 }
 
-/* ComboBox */
 QComboBox {
     background-color: #ffffff;
     color: #2b1b3a;
@@ -279,7 +269,6 @@ QComboBox QAbstractItemView {
     border: 1px solid #f0d6ec;
 }
 
-/* Editor de Fechas */
 QDateEdit {
     background-color: #ffffff;
     color: #2b1b3a;
@@ -293,16 +282,17 @@ QDateEdit:hover {
     border-color: #b65fae;
 }
 
-/* Labels */
 QLabel {
     color: #2b1b3a;
-    font-weight: bold;
-    font-size: 10pt;
+    font-size: 15pt;
+    font-family: "Hughs", "Lato", sans-serif;
+    text-align: center;
+    alignment: center;
+    margin: 0 auto;
 }
 
-/* Diálogos Mejorados */
 QDialog {
-    background-color: #fffafc;
+    background-color: #fffff;
     border-radius: 10px;
 }
 
@@ -312,14 +302,12 @@ QDialogButtonBox QPushButton {
     font-size: 12pt;
 }
 
-/* Barra de Estado */
 QStatusBar {
     background-color: #6f2f86;
     color: #fff0f6;
     padding: 5px;
 }
 
-/* Scrollbars */
 QScrollBar:vertical {
     background: #fff5fb;
     width: 12px;
@@ -336,7 +324,6 @@ QScrollBar::handle:vertical:hover {
     background: #8e44ad;
 }
 
-/* Group Box Style */
 QGroupBox {
     font-weight: bold;
     border: 2px solid #f0d6ec;
@@ -351,99 +338,9 @@ QGroupBox::title {
     left: 10px;
     padding: 0 8px 0 8px;
     color: #2b1b3a;
-} """
+}
+"""
 
-class DialogoConfirmacionMejorado(QDialog):
-    """Diálogo de confirmación """
-
-    def __init__(self, parent, titulo, mensaje, tipo="warning"):
-        super().__init__(parent)
-        self.setWindowTitle(titulo)
-        self.setModal(True)
-        self.setMinimumWidth(420)
-
-        layout = QVBoxLayout(self)
-        layout.setSpacing(18)
-        layout.setContentsMargins(24, 24, 24, 24)
-
-        lbl_mensaje = QLabel(mensaje)
-        lbl_mensaje.setWordWrap(True)
-        lbl_mensaje.setStyleSheet("QLabel { color: #fffff; font-size: 11pt; }")
-        layout.addWidget(lbl_mensaje)
-
-        botones = QDialogButtonBox()
-
-        if tipo == "warning":
-            btn_si = botones.addButton("Sí, eliminar", QDialogButtonBox.AcceptRole)
-            btn_si.setStyleSheet("""
-                QPushButton {
-                    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                                                stop:0 #ff88b8, stop:1 #ff4f87);
-                    color: #00000;
-                    padding: 10px 22px;
-                    font-weight: bold;
-                    font-size: 10pt;
-                    border-radius: 6px;
-                    border: 1px solid #ff5f97;
-                }
-                QPushButton:hover {
-                    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                                                stop:0 #ff6fa3, stop:1 #ff4f87);
-                }
-            """)
-
-            btn_no = botones.addButton("Cancelar", QDialogButtonBox.RejectRole)
-            btn_no.setStyleSheet("""
-                QPushButton {
-                    background: transparent;
-                    color: #800080;
-                    padding: 10px 22px;
-                    font-weight: bold;
-                    font-size: 10pt;
-                    border-radius: 6px;
-                    border: 1px solid #3a2a36;
-                }
-                QPushButton:hover {
-                    background: rgba(255,86,150,0.06);
-                }
-            """)
-        else:
-            btn_ok = botones.addButton("Entendido", QDialogButtonBox.AcceptRole)
-            btn_ok.setStyleSheet("""
-                QPushButton {
-                    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                                                stop:0 #ff88b8, stop:1 #ff4f87);
-                    color: #0b0b0b;
-                    padding: 10px 22px;
-                    font-weight: bold;
-                    font-size: 10pt;
-                    border-radius: 6px;
-                    border: 1px solid #ff5f97;
-                }
-                QPushButton:hover {
-                    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                                                stop:0 #ff6fa3, stop:1 #ff4f87);
-                }
-            """)
-
-        botones.accepted.connect(self.accept)
-        botones.rejected.connect(self.reject)
-
-        layout.addWidget(botones)
-
-        self.setStyleSheet("""
-    QDialog {
-        background-color: #fffff;
-        border-radius: 10px;
-    }
-    QDialog QLabel {
-        color: #00000;
-        font-size: 11pt;
-    }
-    QDialogButtonBox QPushButton {
-        min-width: 100px;
-    }
-""")
 
 class AdminApp(QMainWindow):
     def __init__(self):
@@ -458,21 +355,28 @@ class AdminApp(QMainWindow):
         self.setCentralWidget(self.central_widget)
 
         self.layout_principal = QVBoxLayout(self.central_widget)
-        self.layout_principal.setSpacing(15)
+        self.layout_principal.setSpacing(5)
         self.layout_principal.setContentsMargins(15, 15, 15, 15)
 
         header_layout = QHBoxLayout()
+
+        img_label = QLabel()
+        img = QPixmap("static/uploads/logo1.jpg")
+        img = img.scaledToHeight(80)
+        img_label.setPixmap(img)
 
         title_label = QLabel("Panel de Administración de Pedidos")
         title_label.setStyleSheet("""
             QLabel {
                 color: #690F73;
                 font-family: "Hughs", "Lato", sans-serif; 
-                font-size: 40pt;
-                padding: 10px;
+                font-size: 38pt;
+                padding: 0px;
+                margin-left: 5px;      
             }
         """)
 
+        header_layout.addWidget(img_label)
         header_layout.addWidget(title_label)
         header_layout.addStretch()
 
@@ -480,6 +384,11 @@ class AdminApp(QMainWindow):
         self.btn_admin_precios.setProperty("cssClass", "btnMorado")
         self.btn_admin_precios.setToolTip("Configurar precios de pasteles")
         header_layout.addWidget(self.btn_admin_precios)
+
+        self.btn_reporte_ventas = QPushButton("Reportes")
+        self.btn_reporte_ventas.setProperty("cssClass", "btnVerde")
+        self.btn_reporte_ventas.setToolTip("Generar reporte de ventas")
+        header_layout.addWidget(self.btn_reporte_ventas)
 
         self.layout_principal.addLayout(header_layout)
 
@@ -515,7 +424,7 @@ class AdminApp(QMainWindow):
         self.btn_filtrar_clientes.setProperty("cssClass", "btnAzul")
         filtros_layout_clientes.addWidget(self.btn_filtrar_clientes, 0, 4)
 
-        self.btn_reporte_clientes = QPushButton("GENERAR REPORTE")
+        self.btn_reporte_clientes = QPushButton("GENERAR LISTAS")
         self.btn_reporte_clientes.setProperty("cssClass", "btnAzul")
         filtros_layout_clientes.addWidget(self.btn_reporte_clientes, 0, 5)
 
@@ -524,7 +433,7 @@ class AdminApp(QMainWindow):
         self.table_clientes = QTableWidget()
         self.table_clientes.setColumnCount(13)
         self.table_clientes.setHorizontalHeaderLabels([
-            "ID", "Cant.", "Tamaño", "Sabor", "Sucursal", "Fecha Pedido",
+            "ID", "Cant.", "Tamaño", "Sabor", "Sucursal", "Fecha",
             "Fecha Entrega", "Detalles", "Dedicatoria", "Color", "Precio U.", "Total", "Foto"
         ])
         self.table_clientes.setEditTriggers(QAbstractItemView.NoEditTriggers)
@@ -587,16 +496,16 @@ class AdminApp(QMainWindow):
         self.btn_filtrar_normales.setProperty("cssClass", "btnAzul")
         filtros_layout_normales.addWidget(self.btn_filtrar_normales, 0, 4)
 
-        self.btn_reporte_normales = QPushButton("GENERAR REPORTE")
+        self.btn_reporte_normales = QPushButton("GENERAR LISTAS")
         self.btn_reporte_normales.setProperty("cssClass", "btnAzul")
         filtros_layout_normales.addWidget(self.btn_reporte_normales, 0, 5)
 
         self.layout_normales.addLayout(filtros_layout_normales)
 
         self.table_normales = QTableWidget()
-        self.table_normales.setColumnCount(8)
+        self.table_normales.setColumnCount(9)
         self.table_normales.setHorizontalHeaderLabels([
-            "ID", "Cant.", "Tamaño", "Sabor", "Sucursal", "Fecha", "Precio U.", "Total"
+            "ID", "Cant.", "Tamaño", "Sabor", "Sucursal", "Fecha", "Fecha Entrega", "Precio U.", "Total"
         ])
         self.table_normales.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.table_normales.setSelectionBehavior(QAbstractItemView.SelectRows)
@@ -612,17 +521,17 @@ class AdminApp(QMainWindow):
         btns_normales_layout.setSpacing(5)
         btns_normales_layout.addStretch()
 
-        self.btn_nuevo_normal = QPushButton("NUEVO")
+        self.btn_nuevo_normal = QPushButton("Nuevo")
         self.btn_nuevo_normal.setProperty("cssClass", "btnVerde")
         self.btn_nuevo_normal.setFixedWidth(110)
         btns_normales_layout.addWidget(self.btn_nuevo_normal)
 
-        self.btn_editar_normal = QPushButton("EDITAR")
+        self.btn_editar_normal = QPushButton("Editar")
         self.btn_editar_normal.setProperty("cssClass", "btnNaranja")
         self.btn_editar_normal.setFixedWidth(110)
         btns_normales_layout.addWidget(self.btn_editar_normal)
 
-        self.btn_eliminar_normal = QPushButton("ELIMINAR")
+        self.btn_eliminar_normal = QPushButton("Eliminar")
         self.btn_eliminar_normal.setProperty("cssClass", "btnRosa")
         self.btn_eliminar_normal.setFixedWidth(110)
         btns_normales_layout.addWidget(self.btn_eliminar_normal)
@@ -642,23 +551,22 @@ class AdminApp(QMainWindow):
         self.actualizar_botones_crud_normales()
 
     def conectar_senales(self):
-        """Conecta todos los botones a sus funciones"""
         self.btn_admin_precios.clicked.connect(self.abrir_dialogo_precios)
+        self.btn_reporte_ventas.clicked.connect(self.generar_reporte_ventas)
         self.btn_filtrar_clientes.clicked.connect(self.cargar_clientes)
-        self.btn_reporte_clientes.clicked.connect(self.generar_reporte_avanzado)
+        self.btn_reporte_clientes.clicked.connect(self.generar_reporte_listas)
         self.btn_nuevo_cliente.clicked.connect(self.abrir_dialogo_cliente_nuevo)
         self.btn_editar_cliente.clicked.connect(self.abrir_dialogo_cliente_editar)
         self.btn_eliminar_cliente.clicked.connect(self.eliminar_cliente)
         self.table_clientes.itemSelectionChanged.connect(self.actualizar_botones_crud_clientes)
         self.btn_filtrar_normales.clicked.connect(self.cargar_normales)
-        self.btn_reporte_normales.clicked.connect(self.generar_reporte_avanzado)
+        self.btn_reporte_normales.clicked.connect(self.generar_reporte_listas)
         self.btn_nuevo_normal.clicked.connect(self.abrir_dialogo_normal_nuevo)
         self.btn_editar_normal.clicked.connect(self.abrir_dialogo_normal_editar)
         self.btn_eliminar_normal.clicked.connect(self.eliminar_normal)
         self.table_normales.itemSelectionChanged.connect(self.actualizar_botones_crud_normales)
 
     def configurar_tablas_copia(self):
-        """Configura las tablas para permitir copiar información"""
         self.table_clientes.setSelectionBehavior(QAbstractItemView.SelectItems)
         self.table_normales.setSelectionBehavior(QAbstractItemView.SelectItems)
 
@@ -674,21 +582,18 @@ class AdminApp(QMainWindow):
         self.table_normales.customContextMenuRequested.connect(self._mostrar_menu_contextual_normales)
 
     def _key_press_event_clientes(self, event: QKeyEvent):
-        """Maneja eventos de teclado para la tabla de clientes"""
         if event.key() == Qt.Key_C and (event.modifiers() & Qt.ControlModifier):
             self._copiar_seleccion(self.table_clientes)
         else:
             QTableWidget.keyPressEvent(self.table_clientes, event)
 
     def _key_press_event_normales(self, event: QKeyEvent):
-        """Maneja eventos de teclado para la tabla de normales"""
         if event.key() == Qt.Key_C and (event.modifiers() & Qt.ControlModifier):
             self._copiar_seleccion(self.table_normales)
         else:
             QTableWidget.keyPressEvent(self.table_normales, event)
 
     def _copiar_seleccion(self, table: QTableWidget):
-        """Copia la selección actual al portapapeles"""
         selected_items = table.selectedItems()
 
         if not selected_items:
@@ -716,15 +621,12 @@ class AdminApp(QMainWindow):
         self.statusBar().showMessage("Copiado al portapapeles", 3000)
 
     def _mostrar_menu_contextual_clientes(self, pos):
-        """Muestra el menú contextual para la tabla de clientes"""
         self._mostrar_menu_contextual(self.table_clientes, pos)
 
     def _mostrar_menu_contextual_normales(self, pos):
-        """Muestra el menú contextual para la tabla de normales"""
         self._mostrar_menu_contextual(self.table_normales, pos)
 
     def _mostrar_menu_contextual(self, table: QTableWidget, pos):
-        """Muestra el menú contextual para copiar"""
         menu = QMenu(self)
 
         copiar_action = menu.addAction("Copiar selección")
@@ -738,7 +640,6 @@ class AdminApp(QMainWindow):
             self._copiar_toda_tabla(table)
 
     def _copiar_toda_tabla(self, table: QTableWidget):
-        """Copia toda la tabla al portapapeles"""
         if table.rowCount() == 0:
             return
 
@@ -767,26 +668,22 @@ class AdminApp(QMainWindow):
         self.statusBar().showMessage("Tabla completa copiada al portapapeles", 3000)
 
     def cargar_datos_iniciales(self):
-        """Carga todos los datos al iniciar"""
         self.cargar_clientes()
         self.cargar_normales()
 
     def _crear_item_centrado(self, texto: str) -> QTableWidgetItem:
-        """Helper para crear un QTableWidgetItem centrado y no editable."""
         item = QTableWidgetItem(texto)
         item.setTextAlignment(Qt.AlignCenter)
         item.setFlags(item.flags() & ~Qt.ItemIsEditable)
         return item
 
     def _crear_item_moneda(self, valor: float) -> QTableWidgetItem:
-        """Helper para crear un QTableWidgetItem formateado como moneda en Quetzales."""
         item = QTableWidgetItem(f"Q{valor:,.2f}")
         item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
         item.setFlags(item.flags() & ~Qt.ItemIsEditable)
         return item
 
     def _get_selected_id(self, table: QTableWidget) -> Optional[int]:
-        """Obtiene el ID (col 0) de la fila seleccionada."""
         selected_items = table.selectedItems()
         if not selected_items:
             return None
@@ -796,67 +693,6 @@ class AdminApp(QMainWindow):
             return int(id_item.text())
         except Exception as e:
             logger.error(f"Error al obtener ID de fila: {e}")
-            return None
-
-    def _get_selected_row_data_dict(self, table: QTableWidget) -> Optional[Dict[str, Any]]:
-        """Extrae todos los datos de la fila seleccionada y los devuelve como dict."""
-        selected_items = table.selectedItems()
-        if not selected_items:
-            return None
-
-        try:
-            row = selected_items[0].row()
-            data = {}
-            for col in range(table.columnCount()):
-                header = table.horizontalHeaderItem(col).text()
-                item = table.item(row, col)
-                data[header] = item.text() if item else ""
-
-            if table == self.table_clientes:
-                data_db = {
-                    'id': data.get('ID'),
-                    'cantidad': data.get('Cant.'),
-                    'tamano': data.get('Tamaño'),
-                    'sabor': data.get('Sabor'),
-                    'sucursal': data.get('Sucursal'),
-                    'fecha': data.get('Fecha Pedido'),
-                    'fecha_entrega': data.get('Fecha Entrega'),
-                    'detalles': data.get('Detalles'),
-                    'dedicatoria': data.get('Dedicatoria'),
-                    'color': data.get('Color'),
-                    'precio': data.get('Precio U.'),
-                    'total': data.get('Total'),
-                    'foto_path': data.get('Foto')
-                }
-            elif table == self.table_normales:
-                data_db = {
-                    'id': data.get('ID'),
-                    'cantidad': data.get('Cant.'),
-                    'tamano': data.get('Tamaño'),
-                    'sabor': data.get('Sabor'),
-                    'sucursal': data.get('Sucursal'),
-                    'fecha': data.get('Fecha'),
-                    'precio': data.get('Precio U.'),
-                    'total': data.get('Total')
-                }
-            else:
-                data_db = {
-                    'id': data.get('ID'),
-                    'color': data.get('Color'),
-                    'sabor': data.get('Sabor'),
-                    'tamano': data.get('Tamaño'),
-                    'cantidad': data.get('Cant.', 1),
-                    'precio': data.get('Precio U.', 0.0),
-                    'total': data.get('Total', 0.0),
-                    'sucursal': data.get('Sucursal'),
-                    'fecha': data.get('Fecha'),
-                    'dedicatoria': data.get('Dedicatoria'),
-                    'detalles': data.get('Detalles'),
-                    'sabor_personalizado': data.get('Sabor (Otro)')
-                }
-            return data_db
-        except Exception as e:
-            logger.error(f"Error al obtener datos de fila: {e}", exc_info=True)
             return None
 
     def cargar_clientes(self):
@@ -955,7 +791,7 @@ class AdminApp(QMainWindow):
             cursor = conn.cursor()
 
             query = """
-                SELECT id, cantidad, tamano, sabor, sucursal, fecha, precio
+                SELECT id, cantidad, tamano, sabor, sucursal, fecha, fecha_entrega, precio, total
                 FROM PastelesNormales 
                 WHERE CAST(fecha AS DATE) = ?
             """
@@ -974,45 +810,44 @@ class AdminApp(QMainWindow):
 
             for fila, datos in enumerate(resultados):
 
-                cantidad = datos[1] if datos[1] is not None else 0
-                precio = datos[6] if datos[6] is not None else 0
-                total = cantidad * precio
+                for col in range(9):
+                    valor = datos[col]
+                    valor_str = ""
 
-                for col in range(8):
-                    if col == 7:
-                        item = self._crear_item_moneda(total)
+                    if col == 5:
+                        if valor:
+                            valor_str = valor.strftime('%Y-%m-%d %H:%M')
+                        else:
+                            valor_str = ''
+                        item = self._crear_item_centrado(valor_str)
                         self.table_normales.setItem(fila, col, item)
 
-                    elif col < 7:
-                        valor = datos[col]
-                        valor_str = ""
-
-                        if col == 5:
-                            if valor:
-                                valor_str = valor.strftime('%Y-%m-%d %H:%M')
-                            else:
-                                valor_str = ''
-                            item = self._crear_item_centrado(valor_str)
-                            self.table_normales.setItem(fila, col, item)
-
-                        elif col == 6:
-                            if valor is not None:
-                                try:
-                                    valor_float = float(valor)
-                                    item = self._crear_item_moneda(valor_float)
-                                    self.table_normales.setItem(fila, col, item)
-                                except (ValueError, TypeError):
-                                    valor_str = str(valor)
-                                    item = self._crear_item_centrado(valor_str)
-                                    self.table_normales.setItem(fila, col, item)
-                            else:
-                                item = self._crear_item_centrado('')
-                                self.table_normales.setItem(fila, col, item)
-
+                    elif col == 6:
+                        if valor:
+                            valor_str = valor.strftime('%Y-%m-%d')
                         else:
-                            valor_str = str(valor if valor is not None else '')
-                            item = self._crear_item_centrado(valor_str)
+                            valor_str = 'Sin especificar'
+                        item = self._crear_item_centrado(valor_str)
+                        self.table_normales.setItem(fila, col, item)
+
+                    elif col in (7, 8):
+                        if valor is not None:
+                            try:
+                                valor_float = float(valor)
+                                item = self._crear_item_moneda(valor_float)
+                                self.table_normales.setItem(fila, col, item)
+                            except (ValueError, TypeError):
+                                valor_str = str(valor)
+                                item = self._crear_item_centrado(valor_str)
+                                self.table_normales.setItem(fila, col, item)
+                        else:
+                            item = self._crear_item_centrado('')
                             self.table_normales.setItem(fila, col, item)
+
+                    else:
+                        valor_str = str(valor if valor is not None else '')
+                        item = self._crear_item_centrado(valor_str)
+                        self.table_normales.setItem(fila, col, item)
 
             self.statusBar().showMessage(f"Tiendas: {len(resultados)} pedidos cargados para {fecha}")
         except Exception as e:
@@ -1027,23 +862,19 @@ class AdminApp(QMainWindow):
         finally:
             self.actualizar_botones_crud_normales()
 
-
     @Slot()
     def abrir_dialogo_precios(self):
-        """Abre el diálogo de administración de precios."""
         dialog = DialogoPrecios(self)
         dialog.exec()
 
     @Slot()
     def actualizar_botones_crud_clientes(self):
-        """Habilita/deshabilita botones CRUD si hay una fila seleccionada."""
         hay_seleccion = bool(self.table_clientes.selectedItems())
         self.btn_editar_cliente.setEnabled(hay_seleccion)
         self.btn_eliminar_cliente.setEnabled(hay_seleccion)
 
     @Slot()
     def abrir_dialogo_cliente_nuevo(self):
-        """Abre el diálogo para un cliente NUEVO."""
         dialog = DialogoNuevoCliente(self)
         if dialog.exec():
             self.cargar_clientes()
@@ -1051,7 +882,6 @@ class AdminApp(QMainWindow):
 
     @Slot()
     def abrir_dialogo_cliente_editar(self):
-        """Abre el diálogo para EDITAR un cliente existente."""
         pedido_id = self._get_selected_id(self.table_clientes)
         if not pedido_id:
             dialogo = DialogoConfirmacionMejorado(
@@ -1091,7 +921,6 @@ class AdminApp(QMainWindow):
 
     @Slot()
     def eliminar_cliente(self):
-        """Elimina el pedido de cliente seleccionado."""
         pedido_id = self._get_selected_id(self.table_clientes)
         if not pedido_id:
             dialogo = DialogoConfirmacionMejorado(
@@ -1128,14 +957,12 @@ class AdminApp(QMainWindow):
 
     @Slot()
     def actualizar_botones_crud_normales(self):
-        """Habilita/deshabilita botones CRUD si hay una fila seleccionada."""
         hay_seleccion = bool(self.table_normales.selectedItems())
         self.btn_editar_normal.setEnabled(hay_seleccion)
         self.btn_eliminar_normal.setEnabled(hay_seleccion)
 
     @Slot()
     def abrir_dialogo_normal_nuevo(self):
-        """Abre el diálogo para un pastel normal NUEVO."""
         dialog = DialogoNuevoNormal(self)
         if dialog.exec():
             self.cargar_normales()
@@ -1143,7 +970,6 @@ class AdminApp(QMainWindow):
 
     @Slot()
     def abrir_dialogo_normal_editar(self):
-        """Abre el diálogo para EDITAR un pastel normal existente."""
         pedido_id = self._get_selected_id(self.table_normales)
         if not pedido_id:
             dialogo = DialogoConfirmacionMejorado(
@@ -1183,7 +1009,6 @@ class AdminApp(QMainWindow):
 
     @Slot()
     def eliminar_normal(self):
-        """Elimina el pastel normal seleccionado."""
         pedido_id = self._get_selected_id(self.table_normales)
         if not pedido_id:
             dialogo = DialogoConfirmacionMejorado(
@@ -1218,16 +1043,15 @@ class AdminApp(QMainWindow):
                 )
                 dialogo_error.exec()
 
-    def generar_reporte_avanzado(self):
+    def generar_reporte_listas(self):
+        """Genera el reporte de listas de producción y pedidos"""
         tab_actual = self.tabs.currentIndex()
         if tab_actual == 0:
             fecha = self.date_clientes.date().toPython()
             sucursal = self.cmb_sucursal_clientes.currentText()
-            tipo_reporte = "Clientes"
         elif tab_actual == 1:
             fecha = self.date_normales.date().toPython()
             sucursal = self.cmb_sucursal_normales.currentText()
-            tipo_reporte = "Normales"
         else:
             return
 
@@ -1236,9 +1060,9 @@ class AdminApp(QMainWindow):
 
         ruta = "reportes"
         os.makedirs(ruta, exist_ok=True)
-        default_name = f"{ruta}/Reporte_{tipo_reporte}_{fecha.strftime('%Y-%m-%d')}_{sucursal or 'TODAS'}.pdf"
+        default_name = f"{ruta}/Listas_{fecha.strftime('%Y-%m-%d')}_{sucursal or 'TODAS'}.pdf"
         nombre_pdf, _ = QFileDialog.getSaveFileName(
-            self, "Guardar Reporte", default_name, "PDF Files (*.pdf)"
+            self, "Guardar Reporte de Listas", default_name, "PDF Files (*.pdf)"
         )
 
         if not nombre_pdf:
@@ -1246,8 +1070,10 @@ class AdminApp(QMainWindow):
             return
 
         try:
-            self.statusBar().showMessage("Generando reporte avanzado...")
-            reportes.generar_reporte_completo(
+            from pdf_reportes import generar_pdf_listas
+
+            self.statusBar().showMessage("Generando reporte de listas...")
+            generar_pdf_listas(
                 target_date=fecha,
                 sucursal=sucursal,
                 output_path=nombre_pdf
@@ -1256,24 +1082,122 @@ class AdminApp(QMainWindow):
             dialogo = DialogoConfirmacionMejorado(
                 self,
                 "Reporte Generado",
-                f"El reporte se ha generado exitosamente:\n\n{nombre_pdf}",
+                f"El reporte de listas se ha generado exitosamente:\n\n{nombre_pdf}",
                 "success"
             )
             dialogo.exec()
 
-            self.statusBar().showMessage("Reporte generado exitosamente", 5000)
+            self.statusBar().showMessage("Reporte de listas generado exitosamente", 5000)
 
             try:
-                os.startfile(os.path.realpath(nombre_pdf))
+                if os.name == 'nt':
+                    os.startfile(os.path.realpath(nombre_pdf))
+                elif os.name == 'posix':
+                    import subprocess
+                    if os.uname().sysname == 'Darwin':
+                        subprocess.call(['open', nombre_pdf])
+                    else:  # Linux
+                        subprocess.call(['xdg-open', nombre_pdf])
             except Exception as e:
                 logger.warning(f"No se pudo abrir el PDF automáticamente: {e}")
 
         except Exception as e:
-            logger.error(f"ERROR DETALLADO (generar_reporte): {e}", exc_info=True)
+            logger.error(f"ERROR DETALLADO (generar_reporte_listas): {e}", exc_info=True)
             dialogo = DialogoConfirmacionMejorado(
                 self,
                 "Error al Generar Reporte",
-                f"No se pudo generar el reporte:\n\n{str(e)}",
+                f"No se pudo generar el reporte de listas:\n\n{str(e)}",
                 "error"
             )
             dialogo.exec()
+
+    def generar_reporte_ventas(self):
+        """Genera el reporte de ventas con selector de fecha y sucursal"""
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Generar Reporte de Ventas")
+        dialog.resize(400, 180)
+        dialog.setStyleSheet(DARK_STYLE)
+
+        layout = QVBoxLayout(dialog)
+        layout.setSpacing(15)
+        layout.setContentsMargins(20, 20, 20, 20)
+
+        titulo = QLabel("Seleccione:")
+        titulo.setStyleSheet("font-size: 15pt; margin-bottom: 10px;")
+        layout.addWidget(titulo)
+
+        fecha_layout = QHBoxLayout()
+        fecha_layout.addStretch()
+        fecha_layout.addWidget(QLabel("Fecha:"))
+        date_selector = QDateEdit(calendarPopup=True)
+        date_selector.setDate(QDate.currentDate())
+        date_selector.setMaximumWidth(150)
+        fecha_layout.addWidget(date_selector)
+        fecha_layout.addStretch()
+        layout.addLayout(fecha_layout)
+
+        sucursal_layout = QHBoxLayout()
+        sucursal_layout.addStretch()
+        sucursal_layout.addWidget(QLabel("Sucursal:"))
+        sucursal_combo = QComboBox()
+        sucursal_combo.addItems(SUCURSALES_FILTRO)
+        sucursal_combo.setMaximumWidth(150)
+        sucursal_layout.addWidget(sucursal_combo)
+        sucursal_layout.addStretch()
+        layout.addLayout(sucursal_layout)
+
+        layout.addStretch()
+        buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        buttons.button(QDialogButtonBox.Ok).setText("Generar")
+        buttons.button(QDialogButtonBox.Cancel).setText("Cancelar")
+        buttons.accepted.connect(dialog.accept)
+        buttons.rejected.connect(dialog.reject)
+        buttons.setCenterButtons(True)
+        layout.addWidget(buttons)
+
+        if dialog.exec() == QDialog.Accepted:
+            from pdf_reportes import generar_pdf_ventas
+
+            fecha_py = date_selector.date().toPython()
+            sucursal_sel = sucursal_combo.currentText()
+            sucursal_filtro = None if sucursal_sel == "Todas" else sucursal_sel
+
+            ruta = "reportes"
+            os.makedirs(ruta, exist_ok=True)
+            filename = f"{ruta}/Ventas_{fecha_py.strftime('%Y-%m-%d')}_{sucursal_filtro or 'TODAS'}.pdf"
+
+            try:
+                self.statusBar().showMessage("Generando reporte de ventas...")
+                generar_pdf_ventas(fecha_py, sucursal_filtro, filename)
+
+                dialogo = DialogoConfirmacionMejorado(
+                    self,
+                    "Reporte Generado",
+                    f"El reporte de ventas se ha generado exitosamente:\n\n{filename}",
+                    "success"
+                )
+                dialogo.exec()
+
+                self.statusBar().showMessage("Reporte de ventas generado exitosamente", 5000)
+
+                try:
+                    if os.name == 'nt':
+                        os.startfile(os.path.realpath(filename))
+                    elif os.name == 'posix':
+                        import subprocess
+                        if os.uname().sysname == 'Darwin':
+                            subprocess.call(['open', filename])
+                        else:
+                            subprocess.call(['xdg-open', filename])
+                except Exception as e:
+                    logger.warning(f"No se pudo abrir el PDF automáticamente: {e}")
+
+            except Exception as e:
+                logger.error(f"ERROR DETALLADO (generar_reporte_ventas): {e}", exc_info=True)
+                dialogo = DialogoConfirmacionMejorado(
+                    self,
+                    "Error al Generar Reporte",
+                    f"No se pudo generar el reporte de ventas:\n\n{str(e)}",
+                    "error"
+                )
+                dialogo.exec()
