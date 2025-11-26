@@ -91,6 +91,10 @@
             color: white;
         }
 
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            cursor: pointer;
+        }
+
     </style>
 </head>
 <body>
@@ -190,7 +194,6 @@
 
     <div class="tab-content">
 
-        <!-- TAB TIENDAS (Normales) -->
         <div class="tab-pane fade show active" id="normales">
 
             {% if normales %}
@@ -247,7 +250,6 @@
             {% endif %}
         </div>
 
-        <!-- TAB CLIENTES -->
         <div class="tab-pane fade" id="clientes">
 
             {% if clientes %}
@@ -338,7 +340,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="modalReporteVentasLabel">
-                     Generar Reporte de Ventas
+                    Generar Reporte de Ventas
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
@@ -388,9 +390,24 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
+    function establecerFechaHoyYYYYMMDD(inputId) {
+        const today = new Date();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        const year = today.getFullYear();
+
+        document.getElementById(inputId).value = `${year}-${month}-${day}`;
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
-        const hoy = new Date().toISOString().split('T')[0];
-        document.getElementById('fechaReporteVentas').value = hoy;
+        establecerFechaHoyYYYYMMDD('fechaReporteVentas');
+
+        const modalReporte = document.getElementById('modalReporteVentas');
+        if (modalReporte) {
+            modalReporte.addEventListener('shown.bs.modal', function () {
+                establecerFechaHoyYYYYMMDD('fechaReporteVentas');
+            });
+        }
     });
 
     function generarReporteVentasPDF() {
@@ -399,6 +416,7 @@
 
         if (!fecha) {
             alert('Por favor selecciona una fecha');
+            document.getElementById('fechaReporteVentas').focus();
             return;
         }
 

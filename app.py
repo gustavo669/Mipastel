@@ -63,7 +63,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="Mi Pastel - Sistema de Gestión",
-    version="1.0.0",
+    version="0.0.0",
     lifespan=lifespan
 )
 
@@ -126,7 +126,7 @@ async def index(request: Request):
 @app.get("/api/obtener-precio")
 async def api_obtener_precio(sabor: str, tamano: str):
     try:
-        if sabor.lower() == "otro":
+        if sabor.lower() == "Otro":
             return {"precio": 0, "encontrado": False, "detalle": "Precio manual requerido"}
 
         from database import obtener_precio_db

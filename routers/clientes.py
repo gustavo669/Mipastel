@@ -10,7 +10,6 @@ router = APIRouter(prefix="/clientes", tags=["Pedidos de Clientes"])
 logger = logging.getLogger(__name__)
 templates = Jinja2Templates(directory="templates")
 
-
 UPLOAD_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "static", "uploads"))
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 

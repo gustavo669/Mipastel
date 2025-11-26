@@ -380,7 +380,7 @@ class AdminApp(QMainWindow):
         header_layout.addWidget(title_label)
         header_layout.addStretch()
 
-        self.btn_admin_precios = QPushButton("Administrar Precios")
+        self.btn_admin_precios = QPushButton("Editar Precios")
         self.btn_admin_precios.setProperty("cssClass", "btnMorado")
         self.btn_admin_precios.setToolTip("Configurar precios de pasteles")
         header_layout.addWidget(self.btn_admin_precios)
