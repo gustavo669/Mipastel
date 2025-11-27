@@ -1,10 +1,17 @@
-from fastapi import APIRouter, Request, HTTPException, Query, Depends
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi import APIRouter, Request, HTTPException, Query, Depends, Body
+from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 from datetime import datetime
 import logging
+from typing import Optional
 
-from database import DatabaseManager
+from database import (
+    DatabaseManager,
+    obtener_normal_por_id_db,
+    obtener_cliente_por_id_db,
+    actualizar_pastel_normal_db,
+    actualizar_pedido_cliente_db
+)
 from config import (
     SABORES_NORMALES,
     SABORES_CLIENTES,
@@ -23,20 +30,17 @@ logger = logging.getLogger(__name__)
 @router.get("/", response_class=HTMLResponse)
 async def vista_admin(
         request: Request,
-        username: str = Depends(requiere_autenticacion)
+        user_data: dict = Depends(requiere_autenticacion)
 ):
-    """Vista principal del panel de administración - REQUIERE LOGIN"""
     try:
-
-        if not username:
-            return RedirectResponse(url="/login", status_code=302)
-
         db = DatabaseManager()
         hoy = datetime.now().date()
         fecha_str = hoy.isoformat()
 
-        normales = db.obtener_pasteles_normales(fecha_inicio=fecha_str)
-        clientes = db.obtener_pedidos_clientes(fecha_inicio=fecha_str)
+        sucursal_filtro = user_data["sucursal"] if user_data["rol"] != "admin" else None
+
+        normales = db.obtener_pasteles_normales(fecha_inicio=fecha_str, sucursal=sucursal_filtro)
+        clientes = db.obtener_pedidos_clientes(fecha_inicio=fecha_str, sucursal=sucursal_filtro)
         precios = db.obtener_precios()
 
         return templates.TemplateResponse("admin.html", {
@@ -50,7 +54,7 @@ async def vista_admin(
             "tamanos_clientes": TAMANOS_CLIENTES,
             "sucursales": SUCURSALES,
             "fecha_actual": fecha_str,
-            "username": username
+            "user_data": user_data
         })
 
     except HTTPException:
@@ -65,16 +69,89 @@ async def obtener_normales(
         request: Request,
         fecha: str = Query(None, description="Fecha en formato YYYY-MM-DD"),
         sucursal: str = Query(None, description="Nombre de la sucursal"),
-        username: str = Depends(requiere_autenticacion)
+        user_data: dict = Depends(requiere_autenticacion)
 ):
-    """Obtener pasteles normales con filtros opcionales - REQUIERE LOGIN"""
     try:
         db = DatabaseManager()
-        normales = db.obtener_pasteles_normales(fecha_inicio=fecha, sucursal=sucursal)
+
+        sucursal_filtro = sucursal
+        if user_data["rol"] != "admin" and not sucursal:
+            sucursal_filtro = user_data["sucursal"]
+
+        normales = db.obtener_pasteles_normales(fecha_inicio=fecha, sucursal=sucursal_filtro)
         return {"normales": normales}
     except Exception as e:
         logger.error(f"Error en /admin/normales: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Error al obtener pasteles normales: {str(e)}")
+
+
+@router.get("/normales/{pedido_id}")
+async def obtener_normal_por_id(
+        pedido_id: int,
+        user_data: dict = Depends(requiere_autenticacion)
+):
+    try:
+        pedido = obtener_normal_por_id_db(pedido_id)
+        if not pedido:
+            raise HTTPException(status_code=404, detail="Pedido no encontrado")
+
+        if user_data["rol"] != "admin" and pedido.get("sucursal") != user_data["sucursal"]:
+            raise HTTPException(status_code=403, detail="No autorizado")
+
+        return {"pedido": pedido}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error al obtener pedido normal: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.put("/normales/{pedido_id}")
+async def actualizar_normal(
+        pedido_id: int,
+        pedido_data: dict = Body(...),
+        user_data: dict = Depends(requiere_autenticacion)
+):
+    try:
+        pedido_actual = obtener_normal_por_id_db(pedido_id)
+        if not pedido_actual:
+            raise HTTPException(status_code=404, detail="Pedido no encontrado")
+
+        if user_data["rol"] != "admin" and pedido_actual.get("sucursal") != user_data["sucursal"]:
+            raise HTTPException(status_code=403, detail="No autorizado")
+
+        actualizar_pastel_normal_db(pedido_id, pedido_data)
+        return {"message": "Pedido actualizado correctamente"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error al actualizar pedido normal: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.delete("/normales/{pedido_id}")
+async def eliminar_normal(
+        pedido_id: int,
+        user_data: dict = Depends(requiere_autenticacion)
+):
+    try:
+        pedido = obtener_normal_por_id_db(pedido_id)
+        if not pedido:
+            raise HTTPException(status_code=404, detail="Pedido no encontrado")
+
+        if user_data["rol"] != "admin" and pedido.get("sucursal") != user_data["sucursal"]:
+            raise HTTPException(status_code=403, detail="No autorizado")
+
+        db = DatabaseManager()
+        if db.eliminar_pastel_normal(pedido_id):
+            return {"message": f"Pedido #{pedido_id} eliminado correctamente"}
+
+        raise HTTPException(status_code=500, detail="Error al eliminar")
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error al eliminar pedido normal: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.get("/clientes")
@@ -82,24 +159,96 @@ async def obtener_clientes(
         request: Request,
         fecha: str = Query(None, description="Fecha en formato YYYY-MM-DD"),
         sucursal: str = Query(None, description="Nombre de la sucursal"),
-        username: str = Depends(requiere_autenticacion)
+        user_data: dict = Depends(requiere_autenticacion)
 ):
-    """Obtener pedidos de clientes filtrados - REQUIERE LOGIN"""
     try:
         db = DatabaseManager()
-        clientes = db.obtener_pedidos_clientes(fecha_inicio=fecha, sucursal=sucursal)
+
+        sucursal_filtro = sucursal
+        if user_data["rol"] != "admin" and not sucursal:
+            sucursal_filtro = user_data["sucursal"]
+
+        clientes = db.obtener_pedidos_clientes(fecha_inicio=fecha, sucursal=sucursal_filtro)
         return {"clientes": clientes}
     except Exception as e:
         logger.error(f"Error en /admin/clientes: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Error al obtener pedidos de clientes: {str(e)}")
 
 
+@router.get("/clientes/{pedido_id}")
+async def obtener_cliente_por_id(
+        pedido_id: int,
+        user_data: dict = Depends(requiere_autenticacion)
+):
+    try:
+        pedido = obtener_cliente_por_id_db(pedido_id)
+        if not pedido:
+            raise HTTPException(status_code=404, detail="Pedido no encontrado")
+
+        if user_data["rol"] != "admin" and pedido.get("sucursal") != user_data["sucursal"]:
+            raise HTTPException(status_code=403, detail="No autorizado")
+
+        return {"pedido": pedido}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error al obtener pedido cliente: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.put("/clientes/{pedido_id}")
+async def actualizar_cliente(
+        pedido_id: int,
+        pedido_data: dict = Body(...),
+        user_data: dict = Depends(requiere_autenticacion)
+):
+    try:
+        pedido_actual = obtener_cliente_por_id_db(pedido_id)
+        if not pedido_actual:
+            raise HTTPException(status_code=404, detail="Pedido no encontrado")
+
+        if user_data["rol"] != "admin" and pedido_actual.get("sucursal") != user_data["sucursal"]:
+            raise HTTPException(status_code=403, detail="No autorizado")
+
+        actualizar_pedido_cliente_db(pedido_id, pedido_data)
+        return {"message": "Pedido actualizado correctamente"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error al actualizar pedido cliente: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.delete("/clientes/{pedido_id}")
+async def eliminar_cliente(
+        pedido_id: int,
+        user_data: dict = Depends(requiere_autenticacion)
+):
+    try:
+        pedido = obtener_cliente_por_id_db(pedido_id)
+        if not pedido:
+            raise HTTPException(status_code=404, detail="Pedido no encontrado")
+
+        if user_data["rol"] != "admin" and pedido.get("sucursal") != user_data["sucursal"]:
+            raise HTTPException(status_code=403, detail="No autorizado")
+
+        db = DatabaseManager()
+        if db.eliminar_pedido_cliente(pedido_id):
+            return {"message": f"Pedido #{pedido_id} eliminado correctamente"}
+
+        raise HTTPException(status_code=500, detail="Error al eliminar")
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error al eliminar pedido cliente: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @router.get("/precios")
 async def obtener_precios(
         request: Request,
-        username: str = Depends(requiere_autenticacion)
+        user_data: dict = Depends(requiere_autenticacion)
 ):
-    """Obtener configuración completa de precios - REQUIERE LOGIN"""
     try:
         db = DatabaseManager()
         precios = db.obtener_precios()
@@ -112,10 +261,12 @@ async def obtener_precios(
 @router.post("/precios/actualizar")
 async def actualizar_precios(
         precios_data: list,
-        username: str = Depends(requiere_autenticacion)
+        user_data: dict = Depends(requiere_autenticacion)
 ):
-    """Actualizar los precios en la base de datos - REQUIERE LOGIN"""
     try:
+        if user_data["rol"] != "admin":
+            raise HTTPException(status_code=403, detail="Solo administradores pueden actualizar precios")
+
         db = DatabaseManager()
 
         for precio in precios_data:
@@ -136,98 +287,11 @@ async def actualizar_precios(
         raise HTTPException(status_code=500, detail=f"Error al actualizar precios: {str(e)}")
 
 
-@router.post("/normales/registrar")
-async def registrar_pastel_normal(
-        pastel_data: dict,
-        username: str = Depends(requiere_autenticacion)
-):
-    """Registrar un nuevo pastel normal - REQUIERE LOGIN"""
-    try:
-        db = DatabaseManager()
-
-        campos = ["sabor", "tamano", "cantidad", "precio", "sucursal"]
-        for campo in campos:
-            if campo not in pastel_data or not pastel_data[campo]:
-                raise HTTPException(status_code=400, detail=f"Campo requerido faltante: {campo}")
-
-        if db.registrar_pastel_normal(pastel_data):
-            return {"message": "Pastel normal registrado correctamente"}
-
-        raise HTTPException(status_code=500, detail="Error al registrar pastel normal")
-
-    except Exception as e:
-        logger.error(f"Error registrando pastel normal: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Error al registrar pastel normal: {str(e)}")
-
-
-@router.post("/clientes/registrar")
-async def registrar_pedido_cliente(
-        pedido_data: dict,
-        username: str = Depends(requiere_autenticacion)
-):
-    """Registrar un nuevo pedido de cliente - REQUIERE LOGIN"""
-    try:
-        db = DatabaseManager()
-
-        campos = ["sabor", "tamano", "cantidad", "precio", "sucursal"]
-        for campo in campos:
-            if campo not in pedido_data or not pedido_data[campo]:
-                raise HTTPException(status_code=400, detail=f"Campo requerido faltante: {campo}")
-
-        if db.registrar_pedido_cliente(pedido_data):
-            return {"message": "Pedido de cliente registrado correctamente"}
-
-        raise HTTPException(status_code=500, detail="Error al registrar pedido de cliente")
-
-    except Exception as e:
-        logger.error(f"Error registrando pedido cliente: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Error al registrar pedido de cliente: {str(e)}")
-
-
-@router.delete("/normales/{pastel_id}")
-async def eliminar_pastel_normal(
-        pastel_id: int,
-        username: str = Depends(requiere_autenticacion)
-):
-    """Eliminar pastel normal - REQUIERE LOGIN"""
-    try:
-        db = DatabaseManager()
-
-        if db.eliminar_pastel_normal(pastel_id):
-            return {"message": f"Pastel normal #{pastel_id} eliminado correctamente"}
-
-        raise HTTPException(status_code=500, detail="Error al eliminar pastel normal")
-
-    except Exception as e:
-        logger.error(f"Error eliminando pastel normal: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Error al eliminar pastel normal: {str(e)}")
-
-
-@router.delete("/clientes/{pedido_id}")
-async def eliminar_pedido_cliente(
-        pedido_id: int,
-        username: str = Depends(requiere_autenticacion)
-):
-    """Eliminar pedido cliente - REQUIERE LOGIN"""
-    try:
-        db = DatabaseManager()
-
-        if db.eliminar_pedido_cliente(pedido_id):
-            return {"message": f"Pedido cliente #{pedido_id} eliminado correctamente"}
-
-        raise HTTPException(status_code=500, detail="Error al eliminar pedido de cliente")
-
-    except Exception as e:
-        logger.error(f"Error eliminando pedido cliente: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Error al eliminar pedido de cliente: {str(e)}")
-
-
 @router.get("/estadisticas")
 async def obtener_estadisticas(
         fecha: str = Query(None, description="YYYY-MM-DD"),
-        username: str = Depends(requiere_autenticacion)
+        user_data: dict = Depends(requiere_autenticacion)
 ):
-    """Obtener estadísticas globales - REQUIERE LOGIN"""
     try:
         db = DatabaseManager()
         estadisticas = db.obtener_estadisticas(fecha_inicio=fecha)
@@ -239,7 +303,6 @@ async def obtener_estadisticas(
 
 @router.get("/health")
 async def health_check():
-    """Comprueba salud del módulo admin - PÚBLICO"""
     try:
         db = DatabaseManager()
         precios = db.obtener_precios()

@@ -3,115 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mi Pastel - Sistema de Pedidos</title>
+    <title>Mi Pastel - {{ user_data.sucursal }}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
     <style>
-        .navbar-brand {
-            font-family: 'Great Vibes', cursive;
-            color: #d63384 !important;
-            font-weight: 550;
-            font-size: 2rem;
-        }
-        .hero-section {
-            background: linear-gradient(135deg,#fff0f6 0%,#fffaf6 100%);
-            border-radius:15px;
-            padding:3rem 2rem;
-            margin:2rem 0;
-        }
-        .btn-primary {
-            background: linear-gradient(135deg,#ff66b2,#d63384);
-            border:none;
-            border-radius:25px;
-            padding:12px 30px;
-            font-weight:bold;
-        }
-        .btn-primary:hover {
-            background:linear-gradient(135deg,#e60073,#c2185b);
-            transform:scale(1.05);
-        }
-        .form-section {
-            background:white;
-            border-radius:15px;
-            padding:2rem;
-            margin:1rem 0;
-            box-shadow:0 2px 10px rgba(0,0,0,0.1);
-        }
-        .price-display {
-            background:#fff0f6;
-            border-radius:10px;
-            padding:15px;
-            margin:10px 0;
-            border-left:4px solid #d63384;
-        }
-
-        .nav-pills .nav-link.active {
-            background: linear-gradient(135deg, #ff66b2, #d63384) !important;
-            border-color: #dee2e6 #dee2e6 #fff;
-            border-radius: 20px;
-            color: #fff !important;
-            font-weight: 600;
-            box-shadow: 0 4px 12px rgba(214, 51, 132, 0.35);
-            transform: translateY(-2px);
-            transition: all 0.25s ease-in-out;
-        }
-
-        .nav-pills .nav-link {
-            border-radius: 12px;
-            color: #860bb8;
-            font-weight: 500;
-            transition: all 0.25s ease-in-out;
-        }
-
-        .nav-pills .nav-link:not(.active):hover {
-            background: rgba(255, 102, 178, 0.12);
-            color: #d63384;
-            border-radius: 20px;
-            box-shadow: 0 4px 12px rgba(214, 51, 132, 0.2);
-            transform: translateY(-1px);
-        }
-
-        .form-label {
-            font-weight:600;
-            color:#495057;
-            margin-bottom:0.5rem;
-        }
-        .form-control:focus, .form-select:focus {
-            border-color:#d63384;
-            box-shadow:0 0 0 0.2rem rgba(214,51,132,0.25);
-        }
-
-        .banner-container {
-            width: 100%;
-            height: 300px;
-            overflow: hidden;
-            border-radius: 15px;
-            margin: 1rem 0;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-        .banner-img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            background-position: center;
-            background-size: contain;
-        }
-
-        input[type="date"]::-webkit-calendar-picker-indicator {
-            cursor: pointer;
-        }
+        .navbar-brand { font-family: 'Great Vibes', cursive; color: #d63384 !important; font-size: 2rem; }
+        .hero-section { background: linear-gradient(135deg,#fff0f6 0%,#fffaf6 100%); border-radius:15px; padding:2rem; margin:2rem 0; }
+        .btn-primary { background: linear-gradient(135deg,#ff66b2,#d63384); border:none; border-radius:25px; padding:12px 30px; font-weight:bold; }
+        .btn-success { background: linear-gradient(135deg, #48c774, #2e8b57); border:none; border-radius:25px; padding:12px 30px; font-weight:bold; color: white; }
+        .form-section { background:white; border-radius:15px; padding:2rem; margin:1rem 0; box-shadow:0 2px 10px rgba(0,0,0,0.1); }
+        .price-display { background:#fff0f6; border-radius:10px; padding:15px; margin:10px 0; border-left:4px solid #d63384; }
+        .nav-pills .nav-link.active { background: linear-gradient(135deg, #ff66b2, #d63384) !important; border-radius: 20px; color: #fff !important; font-weight: 600; }
+        .cart-item { background: #f8f9fa; border-left: 4px solid #d63384; padding: 10px; margin: 5px 0; border-radius: 5px; }
+        .cart-badge { position: relative; top: -10px; right: -5px; background: #d63384; color: white; border-radius: 50%; padding: 2px 8px; font-size: 11px; }
+        .banner-container { width: 100%; height: 300px; overflow: hidden; border-radius: 15px; margin: 1rem 0; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .banner-img { width: 100%; height: 100%; object-fit: cover; }
+        .table-container { background: white; border-radius: 15px; padding: 1.5rem; margin: 1rem 0; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .table { font-size: 0.9rem; }
+        .table thead { background: linear-gradient(135deg, #ff66b2, #d63384); color: white; }
+        .badge-editable { background: #48c774; }
+        .badge-locked { background: #6c757d; }
+        .alert-success-custom { background: linear-gradient(135deg, #d4edda, #c3e6cb); border-left: 4px solid #28a745; border-radius: 10px; }
+        .btn-sm-custom { padding: 5px 10px; font-size: 0.8rem; border-radius: 15px; }
     </style>
 </head>
 <body>
+
 <nav class="navbar navbar-expand-lg navbar-light" style="background-color:#fff0f6;">
     <div class="container">
-        <a class="navbar-brand" href="/">
-            Mi Pastel
-        </a>
+        <a class="navbar-brand" href="/">Mi Pastel</a>
         <div class="navbar-nav ms-auto">
-            <a class="nav-link" href="/login" style="color:#d63384;">
-                <i class="fas fa-chart-bar"></i> Panel de Administración
+            <span class="navbar-text me-3">
+                <strong style="color: #690f73;">{{ user_data.sucursal }}</strong>
+            </span>
+            <a class="btn btn-sm btn-outline-primary" href="/admin">
+                <i class="fas fa-chart-bar"></i> Panel Admin
+            </a>
+            <a class="btn btn-sm btn-outline-danger ms-2" href="/logout">
+                <i class="fas fa-sign-out-alt"></i> Salir
             </a>
         </div>
     </div>
@@ -123,66 +53,86 @@
     </div>
 </div>
 
+<!-- Mensaje de éxito -->
+<div class="container">
+    <div id="mensajeExito" class="alert alert-success-custom d-none" role="alert">
+        <i class="fas fa-check-circle"></i> <strong>¡Éxito!</strong> <span id="mensajeExitoTexto"></span>
+    </div>
+</div>
+
 <div class="container">
     <div class="hero-section text-center">
-        <p class="lead" style="color:#690f73; font-size:40px; font-weight: 550; font-family: 'Great Vibes', cursive;" >Sistema de Registro para pasteles de tienda y pedidos de clientes</p>
+        <p class="lead" style="color:#690f73; font-size:35px; font-weight: 550; font-family: 'Great Vibes', cursive;">
+            Sistema de Registro de Pedidos
+        </p>
+        <p style="color:#860bb8; font-size:18px;">Sucursal: <strong>{{ user_data.sucursal }}</strong></p>
     </div>
 
-    <ul class="nav nav-pills nav-justified mb-4" id="myTab" role="tablist">
-        <li class="nav-item"><button class="nav-link active" id="normales-tab" data-bs-toggle="tab" data-bs-target="#normales" type="button">Pasteles de Tienda</button></li>
-        <li class="nav-item"><button class="nav-link" id="clientes-tab" data-bs-toggle="tab" data-bs-target="#clientes" type="button">Pasteles de Clientes</button></li>
+    <ul class="nav nav-pills nav-justified mb-4" id="myTab">
+        <li class="nav-item">
+            <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#normales">
+                Pasteles de Tienda
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#clientes">
+                Pasteles de Clientes
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#pedidos">
+                Mi Lista <span class="cart-badge" id="cartBadge">0</span>
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#registrados" onclick="cargarPedidosRegistrados()">
+                Pedidos Registrados
+            </button>
+        </li>
     </ul>
 
-    <div class="tab-content" id="myTabContent">
-
-        <div class="tab-pane fade show active" id="normales" role="tabpanel">
+    <div class="tab-content">
+        <!-- Tab Normales -->
+        <div class="tab-pane fade show active" id="normales">
             <div class="form-section">
-                <h4 class="mb-4" style="color:#d63384;">Ingresar Pedido de Tienda</h4>
-                <form id="formNormal" action="/normales/registrar" method="post">
+                <h4 class="mb-4" style="color:#d63384;">Pedido de Tienda</h4>
+                <form id="formNormal">
                     <div class="row g-3">
-
                         <div class="col-md-6">
                             <label class="form-label">Sabor</label>
-                            <select class="form-select" name="sabor" id="saborNormal" required>
-                                <option value="">Seleccionar sabor...</option>
+                            <select class="form-select" id="saborNormal" required>
+                                <option value="">Seleccionar...</option>
                                 {% for sabor in sabores_normales %}
                                 <option value="{{ sabor }}">{{ sabor }}</option>
                                 {% endfor %}
                                 <option value="Otro">Otro</option>
                             </select>
-                            <input type="text" class="form-control mt-2 d-none" name="sabor_personalizado" id="saborOtroNormal" placeholder="Escriba el sabor personalizado">
+                            <input type="text" class="form-control mt-2 d-none" id="saborOtroNormal" placeholder="Sabor personalizado">
                         </div>
 
                         <div class="col-md-6">
                             <label class="form-label">Tamaño</label>
-                            <select class="form-select" name="tamano" id="tamanoNormal" required>
-                                <option value="">Seleccionar tamaño...</option>
+                            <select class="form-select" id="tamanoNormal" required>
+                                <option value="">Seleccionar...</option>
                                 {% for tamano in tamanos_normales %}
                                 <option value="{{ tamano }}">{{ tamano }}</option>
                                 {% endfor %}
-                                <option value="Otro">Otro</option>
                             </select>
-                            <input type="text" class="form-control mt-2 d-none" name="tamano_otro" id="tamanoOtroNormal" placeholder="Ingrese tamaño personalizado">
                         </div>
 
                         <div class="col-md-4">
                             <label class="form-label">Cantidad</label>
-                            <input type="number" class="form-control" name="cantidad" id="cantidadNormal" value="1" min="1" required>
+                            <input type="number" class="form-control" id="cantidadNormal" value="1" min="1" required>
                         </div>
 
                         <div class="col-md-4">
                             <label class="form-label">Fecha de Entrega</label>
-                            <input type="date" class="form-control" name="fecha_entrega" id="fechaEntregaNormal" required>
+                            <input type="date" class="form-control" id="fechaEntregaNormal" required>
                         </div>
 
                         <div class="col-md-4">
-                            <label class="form-label">Sucursal</label>
-                            <select class="form-select" name="sucursal" required>
-                                <option value="">Seleccionar sucursal...</option>
-                                {% for sucursal in sucursales %}
-                                <option value="{{ sucursal }}">{{ sucursal }}</option>
-                                {% endfor %}
-                            </select>
+                            <label class="form-label">Detalles (Opcional)</label>
+                            <input type="text" class="form-control" id="detallesNormal">
                         </div>
                     </div>
 
@@ -191,84 +141,71 @@
                             <div class="col-md-6"><strong>Precio unitario:</strong> <span id="precioUnitarioNormal">Q0.00</span></div>
                             <div class="col-md-6"><strong>Total:</strong> <span id="precioTotalNormal" style="color:#d63384; font-weight:bold;">Q0.00</span></div>
                         </div>
-                        <input type="number" class="form-control mt-2 d-none" name="precio_personalizado" id="precioOtroNormal" placeholder="Ingrese precio manual" step="0.01">
                     </div>
 
-                    <div class="mt-4"><button type="submit" class="btn btn-primary btn-lg w-100"><i class="fas fa-save"></i> Registrar Pedido de Tienda</button></div>
+                    <div class="mt-4 d-flex gap-2">
+                        <button type="button" class="btn btn-success flex-fill" onclick="agregarAlCarrito('normal')">
+                            <i class="fas fa-cart-plus"></i> Agregar a Lista
+                        </button>
+                        <button type="button" class="btn btn-primary flex-fill" onclick="registrarDirecto('normal')">
+                            <i class="fas fa-save"></i> Registrar Directo
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>
 
-        <div class="tab-pane fade" id="clientes" role="tabpanel">
+        <!-- Tab Clientes -->
+        <div class="tab-pane fade" id="clientes">
             <div class="form-section">
-                <h4 class="mb-4" style="color:#d63384;">Ingresar Pedido de Cliente</h4>
-                <form id="formCliente" action="/clientes/registrar" method="post" enctype="multipart/form-data">
+                <h4 class="mb-4" style="color:#d63384;">Pedido de Cliente</h4>
+                <form id="formCliente">
                     <div class="row g-3">
-
                         <div class="col-md-6">
                             <label class="form-label">Sabor</label>
-                            <select class="form-select" name="sabor" id="saborCliente" required>
-                                <option value="">Seleccionar sabor...</option>
+                            <select class="form-select" id="saborCliente" required>
+                                <option value="">Seleccionar...</option>
                                 {% for sabor in sabores_clientes %}
                                 <option value="{{ sabor }}">{{ sabor }}</option>
                                 {% endfor %}
                                 <option value="Otro">Otro</option>
                             </select>
-                            <input type="text" class="form-control mt-2 d-none" name="sabor_personalizado" id="saborOtroCliente" placeholder="Escriba el sabor personalizado">
+                            <input type="text" class="form-control mt-2 d-none" id="saborOtroCliente" placeholder="Sabor personalizado">
                         </div>
 
                         <div class="col-md-6">
                             <label class="form-label">Tamaño</label>
-                            <select class="form-select" name="tamano" id="tamanoCliente" required>
-                                <option value="">Seleccionar tamaño...</option>
+                            <select class="form-select" id="tamanoCliente" required>
+                                <option value="">Seleccionar...</option>
                                 {% for tamano in tamanos_clientes %}
                                 <option value="{{ tamano }}">{{ tamano }}</option>
                                 {% endfor %}
-                                <option value="Otro">Otro</option>
                             </select>
-                            <input type="text" class="form-control mt-2 d-none" name="tamano_otro" id="tamanoOtroCliente" placeholder="Ingrese tamaño personalizado">
                         </div>
 
                         <div class="col-md-4">
                             <label class="form-label">Cantidad</label>
-                            <input type="number" class="form-control" name="cantidad" id="cantidadCliente" value="1" min="1" required>
+                            <input type="number" class="form-control" id="cantidadCliente" value="1" min="1" required>
                         </div>
 
-                        <div class="col-md-8">
-                            <label class="form-label">Sucursal</label>
-                            <select class="form-select" name="sucursal" required>
-                                <option value="">Seleccionar sucursal...</option>
-                                {% for sucursal in sucursales %}
-                                <option value="{{ sucursal }}">{{ sucursal }}</option>
-                                {% endfor %}
-                            </select>
+                        <div class="col-md-4">
+                            <label class="form-label">Fecha de Entrega</label>
+                            <input type="date" class="form-control" id="fechaEntregaCliente">
                         </div>
 
-                        <div class="col-md-6">
-                            <label class="form-label">Fecha de entrega</label>
-                            <input type="date" class="form-control" name="fecha_entrega" id="fechaEntregaCliente">
-                            <small class="text-muted">Fecha de entrega del pedido</small>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label class="form-label">Color (opcional)</label>
-                            <input type="text" class="form-control" name="color" placeholder="Ej: Rosado, Azul...">
+                        <div class="col-md-4">
+                            <label class="form-label">Color (Opcional)</label>
+                            <input type="text" class="form-control" id="colorCliente" placeholder="Ej: Rosado">
                         </div>
 
                         <div class="col-md-12">
-                            <label class="form-label">Foto (opcional)</label>
-                            <input type="file" class="form-control" name="foto" accept="image/jpeg,image/png,image/gif">
-                            <small class="text-muted">Formatos aceptados: JPG, PNG, GIF (máximo 5MB)</small>
+                            <label class="form-label">Dedicatoria (Opcional)</label>
+                            <textarea class="form-control" id="dedicatoriaCliente" rows="2"></textarea>
                         </div>
 
                         <div class="col-md-12">
-                            <label class="form-label">Dedicatoria (opcional)</label>
-                            <textarea class="form-control" name="dedicatoria" rows="2" placeholder="Dedicatoria del pedido..."></textarea>
-                        </div>
-
-                        <div class="col-md-12">
-                            <label class="form-label">Detalles (opcional)</label>
-                            <textarea class="form-control" name="detalles" rows="2" placeholder="Detalles adicionales del pedido..."></textarea>
+                            <label class="form-label">Detalles (Opcional)</label>
+                            <textarea class="form-control" id="detallesCliente" rows="2"></textarea>
                         </div>
                     </div>
 
@@ -277,122 +214,263 @@
                             <div class="col-md-6"><strong>Precio unitario:</strong> <span id="precioUnitarioCliente">Q0.00</span></div>
                             <div class="col-md-6"><strong>Total:</strong> <span id="precioTotalCliente" style="color:#d63384; font-weight:bold;">Q0.00</span></div>
                         </div>
-                        <input type="number" class="form-control mt-2 d-none" name="precio_personalizado" id="precioOtroCliente" placeholder="Ingrese precio manual" step="0.01">
                     </div>
 
-                    <div class="mt-4"><button type="submit" class="btn btn-primary btn-lg w-100"><i class="fas fa-save"></i> Registrar Pedido de Cliente</button></div>
+                    <div class="mt-4 d-flex gap-2">
+                        <button type="button" class="btn btn-success flex-fill" onclick="agregarAlCarrito('cliente')">
+                            <i class="fas fa-cart-plus"></i> Agregar a Lista
+                        </button>
+                        <button type="button" class="btn btn-primary flex-fill" onclick="registrarDirecto('cliente')">
+                            <i class="fas fa-save"></i> Registrar Directo
+                        </button>
+                    </div>
                 </form>
+            </div>
+        </div>
+
+        <!-- Tab Lista -->
+        <div class="tab-pane fade" id="pedidos">
+            <div class="form-section">
+                <h4 class="mb-4" style="color:#d63384;">Mi Lista de Pedidos</h4>
+
+                <div class="mb-4">
+                    <h5>Pasteles de Tienda (<span id="countNormalesLista">0</span>)</h5>
+                    <div id="listaNormales"></div>
+                </div>
+
+                <div class="mb-4">
+                    <h5>Pasteles de Clientes (<span id="countClientesLista">0</span>)</h5>
+                    <div id="listaClientes"></div>
+                </div>
+
+                <div class="d-flex gap-2 mt-4">
+                    <button class="btn btn-danger btn-lg flex-fill" onclick="limpiarLista()">
+                        <i class="fas fa-trash"></i> Limpiar Lista
+                    </button>
+                    <button class="btn btn-primary btn-lg flex-fill" onclick="registrarTodos()">
+                        <i class="fas fa-check-circle"></i> Registrar Todos
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Pedidos Registrados -->
+        <div class="tab-pane fade" id="registrados">
+            <div class="table-container">
+                <h4 class="mb-4" style="color:#d63384;">
+                    <i class="fas fa-list-alt"></i> Pedidos Registrados
+                    <button class="btn btn-sm btn-outline-primary float-end" onclick="cargarPedidosRegistrados()">
+                        <i class="fas fa-sync"></i> Actualizar
+                    </button>
+                </h4>
+
+                <!-- Pasteles de Tienda -->
+                <h5 class="mt-4 mb-3">Pasteles de Tienda</h5>
+                <div class="table-responsive">
+                    <table class="table table-hover table-bordered">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Sabor</th>
+                            <th>Tamaño</th>
+                            <th>Cantidad</th>
+                            <th>Precio Unit.</th>
+                            <th>Total</th>
+                            <th>Fecha Entrega</th>
+                            <th>Detalles</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                        </thead>
+                        <tbody id="tablaNormalesRegistrados">
+                        <tr>
+                            <td colspan="10" class="text-center">Cargando...</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pasteles de Clientes -->
+                <h5 class="mt-5 mb-3">Pasteles de Clientes</h5>
+                <div class="table-responsive">
+                    <table class="table table-hover table-bordered">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Sabor</th>
+                            <th>Tamaño</th>
+                            <th>Cantidad</th>
+                            <th>Precio Unit.</th>
+                            <th>Total</th>
+                            <th>Fecha Entrega</th>
+                            <th>Color</th>
+                            <th>Dedicatoria</th>
+                            <th>Detalles</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                        </thead>
+                        <tbody id="tablaClientesRegistrados">
+                        <tr>
+                            <td colspan="12" class="text-center">Cargando...</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<footer class="bg-light text-center py-4 mt-5"><p class="mb-0" style="color:#666;"><i class="fas fa-cake"></i> Mi Pastel - Sistema de Pedidos</p></footer>
+<!-- Modal Editar Pedido Normal -->
+<div class="modal fade" id="modalEditarNormal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header" style="background: linear-gradient(135deg, #ff66b2, #d63384); color: white;">
+                <h5 class="modal-title">Editar Pedido de Tienda</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editIdNormal">
+                <div class="mb-3">
+                    <label class="form-label">Sabor</label>
+                    <input type="text" class="form-control" id="editSaborNormal" readonly>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Tamaño</label>
+                    <input type="text" class="form-control" id="editTamanoNormal" readonly>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Cantidad</label>
+                    <input type="number" class="form-control" id="editCantidadNormal" min="1">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Fecha de Entrega</label>
+                    <input type="date" class="form-control" id="editFechaNormal">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Detalles</label>
+                    <input type="text" class="form-control" id="editDetallesNormal">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="guardarEdicionNormal()">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Editar Pedido Cliente -->
+<div class="modal fade" id="modalEditarCliente" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header" style="background: linear-gradient(135deg, #ff66b2, #d63384); color: white;">
+                <h5 class="modal-title">Editar Pedido de Cliente</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editIdCliente">
+                <div class="mb-3">
+                    <label class="form-label">Sabor</label>
+                    <input type="text" class="form-control" id="editSaborCliente" readonly>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Tamaño</label>
+                    <input type="text" class="form-control" id="editTamanoCliente" readonly>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Cantidad</label>
+                    <input type="number" class="form-control" id="editCantidadCliente" min="1">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Fecha de Entrega</label>
+                    <input type="date" class="form-control" id="editFechaCliente">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Color</label>
+                    <input type="text" class="form-control" id="editColorCliente">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Dedicatoria</label>
+                    <textarea class="form-control" id="editDedicatoriaCliente" rows="2"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Detalles</label>
+                    <textarea class="form-control" id="editDetallesCliente" rows="2"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="guardarEdicionCliente()">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer class="bg-light text-center py-4 mt-5">
+    <p class="mb-0" style="color:#666;"><i class="fas fa-cake"></i> Mi Pastel - {{ user_data.sucursal }}</p>
+</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+    // Variables globales
+    const SUCURSAL = "{{ user_data.sucursal }}";
+    let cartaNormales = [];
+    let cartaClientes = [];
 
-    function obtenerFechaManana() {
-        const tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
-
-        const year = tomorrow.getFullYear();
-        const month = String(tomorrow.getMonth() + 1).padStart(2, '0');
-        const day = String(tomorrow.getDate()).padStart(2, '0');
-
-        return `${year}-${month}-${day}`;
-    }
-
-    function establecerFechaManana(inputId) {
-        const input = document.getElementById(inputId);
-        if (input) {
-            input.value = obtenerFechaManana();
-        }
-    }
-
+    // Establecer fecha mínima (HOY)
     document.addEventListener('DOMContentLoaded', () => {
-        establecerFechaManana('fechaEntregaNormal');
-        establecerFechaManana('fechaEntregaCliente');
+        const hoy = new Date();
+        const fechaStr = hoy.toISOString().split('T')[0];
 
-        document.getElementById('saborNormal')?.addEventListener('change', () => {
-            toggleOtro('saborNormal', 'saborOtroNormal', 'precioOtroNormal');
-            actualizarPrecioNormal();
-        });
-        document.getElementById('tamanoNormal')?.addEventListener('change', () => {
-            toggleOtro('tamanoNormal', 'tamanoOtroNormal', 'precioOtroNormal');
-            actualizarPrecioNormal();
-        });
-        document.getElementById('cantidadNormal')?.addEventListener('input', actualizarPrecioNormal);
-        document.getElementById('precioOtroNormal')?.addEventListener('input', actualizarPrecioNormal);
+        // Fecha por defecto HOY
+        document.getElementById('fechaEntregaNormal').value = fechaStr;
+        document.getElementById('fechaEntregaNormal').min = fechaStr;
+        document.getElementById('fechaEntregaCliente').value = fechaStr;
+        document.getElementById('fechaEntregaCliente').min = fechaStr;
 
-        document.getElementById('saborCliente')?.addEventListener('change', () => {
-            toggleOtro('saborCliente', 'saborOtroCliente', 'precioOtroCliente');
-            actualizarPrecioCliente();
+        // Eventos
+        document.getElementById('saborNormal').addEventListener('change', () => {
+            toggleOtro('saborNormal', 'saborOtroNormal');
+            actualizarPrecio('normal');
         });
-        document.getElementById('tamanoCliente')?.addEventListener('change', () => {
-            toggleOtro('tamanoCliente', 'tamanoOtroCliente', 'precioOtroCliente');
-            actualizarPrecioCliente();
-        });
-        document.getElementById('cantidadCliente')?.addEventListener('input', actualizarPrecioCliente);
-        document.getElementById('precioOtroCliente')?.addEventListener('input', actualizarPrecioCliente);
+        document.getElementById('tamanoNormal').addEventListener('change', () => actualizarPrecio('normal'));
+        document.getElementById('cantidadNormal').addEventListener('input', () => actualizarPrecio('normal'));
 
-        actualizarPrecioNormal();
-        actualizarPrecioCliente();
+        document.getElementById('saborCliente').addEventListener('change', () => {
+            toggleOtro('saborCliente', 'saborOtroCliente');
+            actualizarPrecio('cliente');
+        });
+        document.getElementById('tamanoCliente').addEventListener('change', () => actualizarPrecio('cliente'));
+        document.getElementById('cantidadCliente').addEventListener('input', () => actualizarPrecio('cliente'));
     });
 
-    function toggleOtro(selectId, inputId, priceInputId) {
+    function toggleOtro(selectId, inputId) {
         const select = document.getElementById(selectId);
         const input = document.getElementById(inputId);
-        const priceInput = document.getElementById(priceInputId);
 
-        if (select && input) {
-            if (select.value === "Otro") {
-                input.classList.remove("d-none");
-                input.required = true;
-                if (priceInput) {
-                    priceInput.classList.remove("d-none");
-                    priceInput.required = true;
-                }
-            } else {
-                input.classList.add("d-none");
-                input.required = false;
-                input.value = "";
-                if (priceInput) {
-                    priceInput.classList.add("d-none");
-                    priceInput.required = false;
-                    priceInput.value = "";
-                }
-            }
+        if (select.value === 'Otro') {
+            input.classList.remove('d-none');
+            input.required = true;
+        } else {
+            input.classList.add('d-none');
+            input.required = false;
+            input.value = '';
         }
     }
 
-    async function actualizarPrecioNormal() {
-        const sabor = document.getElementById("saborNormal")?.value;
-        const tamano = document.getElementById("tamanoNormal")?.value;
-        const cantidad = parseFloat(document.getElementById("cantidadNormal")?.value) || 1;
-        const precioUnitarioEl = document.getElementById("precioUnitarioNormal");
-        const precioTotalEl = document.getElementById("precioTotalNormal");
-        const precioManualEl = document.getElementById("precioOtroNormal");
-        const precioManual = parseFloat(precioManualEl?.value) || 0;
+    async function actualizarPrecio(tipo) {
+        const sabor = document.getElementById(`sabor${tipo === 'normal' ? 'Normal' : 'Cliente'}`).value;
+        const tamano = document.getElementById(`tamano${tipo === 'normal' ? 'Normal' : 'Cliente'}`).value;
+        const cantidad = parseInt(document.getElementById(`cantidad${tipo === 'normal' ? 'Normal' : 'Cliente'}`).value) || 1;
 
+        const precioUnitEl = document.getElementById(`precioUnitario${tipo === 'normal' ? 'Normal' : 'Cliente'}`);
+        const precioTotalEl = document.getElementById(`precioTotal${tipo === 'normal' ? 'Normal' : 'Cliente'}`);
 
-        if (!precioUnitarioEl || !precioTotalEl || !precioManualEl) return;
-
-
-        if (sabor === "Otro" || tamano === "Otro" || precioManual > 0) {
-            const precioUnitario = precioManual > 0 ? precioManual : 0.00;
-            precioUnitarioEl.textContent = "Q" + precioUnitario.toFixed(2) + (precioManual > 0 ? " (Manual)" : "");
-            precioTotalEl.textContent = "Q" + (precioUnitario * cantidad).toFixed(2);
-            precioManualEl.classList.remove("d-none");
-            precioManualEl.required = true;
-            return;
-        }
-
-        if (!sabor || !tamano) {
-            precioUnitarioEl.textContent = "Q0.00";
-            precioTotalEl.textContent = "Q0.00";
-            precioManualEl.classList.add("d-none");
-            precioManualEl.required = false;
+        if (!sabor || !tamano || sabor === 'Otro') {
+            precioUnitEl.textContent = 'Q0.00';
+            precioTotalEl.textContent = 'Q0.00';
             return;
         }
 
@@ -401,75 +479,289 @@
             const data = await resp.json();
 
             if (data.encontrado && data.precio > 0) {
-                precioUnitarioEl.textContent = "Q" + data.precio.toFixed(2);
-                precioTotalEl.textContent = "Q" + (data.precio * cantidad).toFixed(2);
-                precioManualEl.classList.add("d-none");
-                precioManualEl.required = false;
+                precioUnitEl.textContent = `Q${data.precio.toFixed(2)}`;
+                precioTotalEl.textContent = `Q${(data.precio * cantidad).toFixed(2)}`;
             } else {
-                precioUnitarioEl.textContent = "Q0.00 (Manual Requerido)";
-                precioTotalEl.textContent = "Q0.00";
-                precioManualEl.classList.remove("d-none");
-                precioManualEl.required = true;
+                precioUnitEl.textContent = 'Q0.00 (No encontrado)';
+                precioTotalEl.textContent = 'Q0.00';
             }
         } catch (error) {
-            console.error("Error al obtener precio normal:", error);
-            precioUnitarioEl.textContent = "Q0.00 (Error)";
-            precioTotalEl.textContent = "Q0.00";
-            precioManualEl.classList.remove("d-none");
-            precioManualEl.required = true;
+            console.error('Error al obtener precio:', error);
+            precioUnitEl.textContent = 'Q0.00 (Error)';
+            precioTotalEl.textContent = 'Q0.00';
         }
     }
 
-    async function actualizarPrecioCliente() {
-        const sabor = document.getElementById("saborCliente")?.value;
-        const tamano = document.getElementById("tamanoCliente")?.value;
-        const cantidad = parseFloat(document.getElementById("cantidadCliente")?.value) || 1;
-        const precioUnitarioEl = document.getElementById("precioUnitarioCliente");
-        const precioTotalEl = document.getElementById("precioTotalCliente");
-        const precioManualEl = document.getElementById("precioOtroCliente");
-        const precioManual = parseFloat(precioManualEl?.value) || 0;
+    function mostrarMensajeExito(mensaje) {
+        const alertDiv = document.getElementById('mensajeExito');
+        const textoSpan = document.getElementById('mensajeExitoTexto');
 
-        if (!precioUnitarioEl || !precioTotalEl || !precioManualEl) return;
+        textoSpan.textContent = mensaje;
+        alertDiv.classList.remove('d-none');
 
+        // Scroll al mensaje
+        alertDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
-        if (sabor === "Otro" || tamano === "Otro" || precioManual > 0) {
-            const precioUnitario = precioManual > 0 ? precioManual : 0.00;
-            precioUnitarioEl.textContent = "Q" + precioUnitario.toFixed(2) + (precioManual > 0 ? " (Manual)" : "");
-            precioTotalEl.textContent = "Q" + (precioUnitario * cantidad).toFixed(2);
-            precioManualEl.classList.remove("d-none");
-            precioManualEl.required = true;
-            return;
+        // Ocultar después de 5 segundos
+        setTimeout(() => {
+            alertDiv.classList.add('d-none');
+        }, 5000);
+    }
+
+    function agregarAlCarrito(tipo) {
+        const datos = obtenerDatosFormulario(tipo);
+
+        if (!validarFormulario(datos, tipo)) return;
+
+        if (tipo === 'normal') {
+            cartaNormales.push(datos);
+        } else {
+            cartaClientes.push(datos);
         }
 
-        if (!sabor || !tamano) {
-            precioUnitarioEl.textContent = "Q0.00";
-            precioTotalEl.textContent = "Q0.00";
-            precioManualEl.classList.add("d-none");
-            precioManualEl.required = false;
-            return;
+        actualizarVista();
+        limpiarFormulario(tipo);
+
+        // Cambiar a tab de lista
+        const tab = new bootstrap.Tab(document.querySelector('[data-bs-target="#pedidos"]'));
+        tab.show();
+    }
+
+    function obtenerDatosFormulario(tipo) {
+        if (tipo === 'normal') {
+            const sabor = document.getElementById('saborNormal').value;
+            const saborOtro = document.getElementById('saborOtroNormal').value;
+
+            return {
+                sabor: sabor === 'Otro' ? saborOtro : sabor,
+                tamano: document.getElementById('tamanoNormal').value,
+                cantidad: parseInt(document.getElementById('cantidadNormal').value),
+                fecha_entrega: document.getElementById('fechaEntregaNormal').value,
+                detalles: document.getElementById('detallesNormal').value,
+                precio: parseFloat(document.getElementById('precioUnitarioNormal').textContent.replace('Q', '').replace(' (No encontrado)', '').replace(' (Error)', '')),
+                sabor_personalizado: sabor === 'Otro' ? saborOtro : null
+            };
+        } else {
+            const sabor = document.getElementById('saborCliente').value;
+            const saborOtro = document.getElementById('saborOtroCliente').value;
+
+            return {
+                sabor: sabor === 'Otro' ? saborOtro : sabor,
+                tamano: document.getElementById('tamanoCliente').value,
+                cantidad: parseInt(document.getElementById('cantidadCliente').value),
+                fecha_entrega: document.getElementById('fechaEntregaCliente').value,
+                color: document.getElementById('colorCliente').value,
+                dedicatoria: document.getElementById('dedicatoriaCliente').value,
+                detalles: document.getElementById('detallesCliente').value,
+                precio: parseFloat(document.getElementById('precioUnitarioCliente').textContent.replace('Q', '').replace(' (No encontrado)', '').replace(' (Error)', '')),
+                sabor_personalizado: sabor === 'Otro' ? saborOtro : null
+            };
         }
+    }
+
+    function validarFormulario(datos, tipo) {
+        if (!datos.sabor || !datos.tamano || !datos.cantidad || !datos.fecha_entrega) {
+            alert('Por favor completa todos los campos requeridos');
+            return false;
+        }
+
+        if (datos.precio <= 0 || isNaN(datos.precio)) {
+            alert('El precio no es válido. Verifica que el sabor y tamaño tengan precio configurado.');
+            return false;
+        }
+
+        return true;
+    }
+
+    function limpiarFormulario(tipo) {
+        if (tipo === 'normal') {
+            document.getElementById('saborNormal').value = '';
+            document.getElementById('tamanoNormal').value = '';
+            document.getElementById('cantidadNormal').value = '1';
+            document.getElementById('detallesNormal').value = '';
+            document.getElementById('saborOtroNormal').classList.add('d-none');
+            document.getElementById('precioUnitarioNormal').textContent = 'Q0.00';
+            document.getElementById('precioTotalNormal').textContent = 'Q0.00';
+        } else {
+            document.getElementById('saborCliente').value = '';
+            document.getElementById('tamanoCliente').value = '';
+            document.getElementById('cantidadCliente').value = '1';
+            document.getElementById('colorCliente').value = '';
+            document.getElementById('dedicatoriaCliente').value = '';
+            document.getElementById('detallesCliente').value = '';
+            document.getElementById('saborOtroCliente').classList.add('d-none');
+            document.getElementById('precioUnitarioCliente').textContent = 'Q0.00';
+            document.getElementById('precioTotalCliente').textContent = 'Q0.00';
+        }
+    }
+
+    function actualizarVista() {
+        // Actualizar badge
+        const total = cartaNormales.length + cartaClientes.length;
+        const badge = document.getElementById('cartBadge');
+        badge.textContent = total;
+        badge.style.display = total > 0 ? 'inline' : 'none';
+
+        // Actualizar contadores
+        document.getElementById('countNormalesLista').textContent = cartaNormales.length;
+        document.getElementById('countClientesLista').textContent = cartaClientes.length;
+
+        // Renderizar listas
+        const listaNorm = document.getElementById('listaNormales');
+        const listaCli = document.getElementById('listaClientes');
+
+        listaNorm.innerHTML = cartaNormales.length === 0 ? '<p class="text-muted">No hay pedidos de tienda</p>' : '';
+        cartaNormales.forEach((p, i) => {
+            listaNorm.innerHTML += `
+            <div class="cart-item">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <strong>${p.sabor}</strong> - ${p.tamano} x${p.cantidad}
+                        <br><small>Entrega: ${p.fecha_entrega} | Total: Q${(p.precio * p.cantidad).toFixed(2)}</small>
+                    </div>
+                    <button class="btn btn-sm btn-danger" onclick="eliminarDeLista('normal', ${i})">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+        });
+
+        listaCli.innerHTML = cartaClientes.length === 0 ? '<p class="text-muted">No hay pedidos de clientes</p>' : '';
+        cartaClientes.forEach((p, i) => {
+            listaCli.innerHTML += `
+            <div class="cart-item">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <strong>${p.sabor}</strong> - ${p.tamano} x${p.cantidad}
+                        <br><small>Entrega: ${p.fecha_entrega} | Total: Q${(p.precio * p.cantidad).toFixed(2)}</small>
+                        ${p.dedicatoria ? '<br><small>Dedicatoria: ' + p.dedicatoria + '</small>' : ''}
+                    </div>
+                    <button class="btn btn-sm btn-danger" onclick="eliminarDeLista('cliente', ${i})">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+        });
+    }
+
+    function eliminarDeLista(tipo, index) {
+        if (tipo === 'normal') {
+            cartaNormales.splice(index, 1);
+        } else {
+            cartaClientes.splice(index, 1);
+        }
+        actualizarVista();
+    }
+
+    function limpiarLista() {
+        if (!confirm('¿Limpiar toda la lista?')) return;
+        cartaNormales = [];
+        cartaClientes = [];
+        actualizarVista();
+    }
+
+    async function registrarDirecto(tipo) {
+        const datos = obtenerDatosFormulario(tipo);
+
+        if (!validarFormulario(datos, tipo)) return;
+
+        datos.sucursal = SUCURSAL;
+
+        const url = tipo === 'normal' ? '/normales/registrar' : '/clientes/registrar';
 
         try {
-            const resp = await fetch(`/api/obtener-precio?sabor=${encodeURIComponent(sabor)}&tamano=${encodeURIComponent(tamano)}`);
-            const data = await resp.json();
+            const formData = new FormData();
+            for (let key in datos) {
+                if (datos[key] !== null && datos[key] !== undefined) {
+                    formData.append(key, datos[key]);
+                }
+            }
 
-            if (data.encontrado && data.precio > 0) {
-                precioUnitarioEl.textContent = "Q" + data.precio.toFixed(2);
-                precioTotalEl.textContent = "Q" + (data.precio * cantidad).toFixed(2);
-                precioManualEl.classList.add("d-none");
-                precioManualEl.required = false;
+            const resp = await fetch(url, {
+                method: 'POST',
+                body: formData
+            });
+
+            if (resp.ok) {
+                alert('✅ Pedido registrado correctamente');
+                limpiarFormulario(tipo);
             } else {
-                precioUnitarioEl.textContent = "Q0.00 (Manual Requerido)";
-                precioTotalEl.textContent = "Q0.00";
-                precioManualEl.classList.remove("d-none");
-                precioManualEl.required = true;
+                const error = await resp.json();
+                alert('❌ Error: ' + (error.detail || 'No se pudo registrar'));
             }
         } catch (error) {
-            console.error("Error al obtener precio cliente:", error);
-            precioUnitarioEl.textContent = "Q0.00 (Error)";
-            precioTotalEl.textContent = "Q0.00";
-            precioManualEl.classList.remove("d-none");
-            precioManualEl.required = true;
+            console.error('Error:', error);
+            alert('❌ Error al registrar: ' + error.message);
+        }
+    }
+
+    async function registrarTodos() {
+        if (cartaNormales.length === 0 && cartaClientes.length === 0) {
+            alert('La lista está vacía');
+            return;
+        }
+
+        if (!confirm(`¿Registrar ${cartaNormales.length + cartaClientes.length} pedidos?`)) return;
+
+        let exitosos = 0;
+        let errores = 0;
+
+        // Registrar normales
+        for (let pedido of cartaNormales) {
+            pedido.sucursal = SUCURSAL;
+
+            const formData = new FormData();
+            for (let key in pedido) {
+                if (pedido[key] !== null && pedido[key] !== undefined) {
+                    formData.append(key, pedido[key]);
+                }
+            }
+
+            try {
+                const resp = await fetch('/normales/registrar', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (resp.ok) exitosos++;
+                else errores++;
+            } catch (error) {
+                errores++;
+            }
+        }
+
+        // Registrar clientes
+        for (let pedido of cartaClientes) {
+            pedido.sucursal = SUCURSAL;
+
+            const formData = new FormData();
+            for (let key in pedido) {
+                if (pedido[key] !== null && pedido[key] !== undefined) {
+                    formData.append(key, pedido[key]);
+                }
+            }
+
+            try {
+                const resp = await fetch('/clientes/registrar', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (resp.ok) exitosos++;
+                else errores++;
+            } catch (error) {
+                errores++;
+            }
+        }
+
+        alert(`✅ Registrados: ${exitosos}\n❌ Errores: ${errores}`);
+
+        if (exitosos > 0) {
+            cartaNormales = [];
+            cartaClientes = [];
+            actualizarVista();
         }
     }
 </script>

@@ -3,7 +3,7 @@ import socket
 from pathlib import Path
 from contextlib import asynccontextmanager
 from datetime import datetime, date
-from fastapi import FastAPI, Request, Form
+from fastapi import FastAPI, Request, Form, Depends
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -13,9 +13,10 @@ from auth import (
     verificar_credenciales,
     crear_respuesta_con_sesion,
     cerrar_sesion,
-    verificar_sesion
+    verificar_sesion,
+    requiere_autenticacion
 )
-from pdf_reportes import generar_pdf_listas, generar_pdf_ventas
+from pdf_reportes import generar_pdf_listas, generar_pdf_ventas, generar_pdf_rango_fechas
 
 logger = logging.getLogger(__name__)
 
@@ -63,7 +64,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="Mi Pastel - Sistema de Gestión",
-    version="0.0.0",
+    version="2.0.0",
     lifespan=lifespan
 )
 
@@ -77,9 +78,9 @@ app.include_router(admin.router)
 
 @app.get("/login", response_class=HTMLResponse)
 async def mostrar_login(request: Request, error: str = None):
-    username = verificar_sesion(request)
-    if username:
-        return RedirectResponse(url="/admin", status_code=302)
+    user_data = verificar_sesion(request)
+    if user_data:
+        return RedirectResponse(url="/", status_code=302)
 
     return templates.TemplateResponse("login.html", {
         "request": request,
@@ -93,9 +94,10 @@ async def procesar_login(
         username: str = Form(...),
         password: str = Form(...)
 ):
-    if verificar_credenciales(username, password):
-        response = RedirectResponse(url="/admin", status_code=302)
-        crear_respuesta_con_sesion(response, username)
+    user_data = verificar_credenciales(username, password)
+    if user_data:
+        response = RedirectResponse(url="/", status_code=302)
+        crear_respuesta_con_sesion(response, user_data)
         return response
     else:
         return templates.TemplateResponse("login.html", {
@@ -113,20 +115,25 @@ async def cerrar_sesion_usuario(request: Request):
 
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
+    user_data = verificar_sesion(request)
+    if not user_data:
+        return RedirectResponse(url="/login", status_code=302)
+
     return templates.TemplateResponse("index.html", {
         "request": request,
         "sabores_normales": SABORES_NORMALES,
         "sabores_clientes": SABORES_CLIENTES,
         "tamanos_normales": TAMANOS_NORMALES,
         "tamanos_clientes": TAMANOS_CLIENTES,
-        "sucursales": SUCURSALES
+        "sucursales": SUCURSALES,
+        "user_data": user_data
     })
 
 
 @app.get("/api/obtener-precio")
 async def api_obtener_precio(sabor: str, tamano: str):
     try:
-        if sabor.lower() == "Otro":
+        if sabor.lower() == "otro":
             return {"precio": 0, "encontrado": False, "detalle": "Precio manual requerido"}
 
         from database import obtener_precio_db
@@ -143,7 +150,6 @@ async def api_obtener_precio(sabor: str, tamano: str):
 
 @app.get("/reportes/pdf")
 async def generar_reporte_pdf(request: Request, fecha: str, sucursal: str = None):
-    """Genera el reporte de listas de producción"""
     try:
         try:
             fecha_obj = datetime.strptime(fecha, "%Y-%m-%d").date()
@@ -180,12 +186,34 @@ async def generar_reporte_pdf(request: Request, fecha: str, sucursal: str = None
         )
 
 
-@app.get("/reportes/dia/pdf")
-async def generar_pdf_del_dia(request: Request):
-    """Genera el reporte de listas del día actual"""
+@app.get("/reportes/rango-pdf")
+async def generar_reporte_rango_pdf(
+        request: Request,
+        fecha_inicio: str,
+        fecha_fin: str,
+        sucursal: str = None
+):
     try:
-        fecha_hoy = date.today()
-        nombre_archivo = generar_pdf_listas(target_date=fecha_hoy)
+        try:
+            fecha_inicio_obj = datetime.strptime(fecha_inicio, "%Y-%m-%d").date()
+            fecha_fin_obj = datetime.strptime(fecha_fin, "%Y-%m-%d").date()
+        except ValueError:
+            return JSONResponse(
+                status_code=400,
+                content={"error": "Formato de fecha inválido. Use YYYY-MM-DD"}
+            )
+
+        if fecha_fin_obj < fecha_inicio_obj:
+            return JSONResponse(
+                status_code=400,
+                content={"error": "La fecha fin debe ser posterior a la fecha inicio"}
+            )
+
+        nombre_archivo = generar_pdf_rango_fechas(
+            fecha_inicio=fecha_inicio_obj,
+            fecha_fin=fecha_fin_obj,
+            sucursal=sucursal if sucursal else None
+        )
 
         if not os.path.exists(nombre_archivo):
             return JSONResponse(
@@ -193,14 +221,19 @@ async def generar_pdf_del_dia(request: Request):
                 content={"error": "No se pudo generar el PDF"}
             )
 
+        nombre_descarga = f'Reporte_{fecha_inicio}_a_{fecha_fin}'
+        if sucursal:
+            nombre_descarga += f'_{sucursal}'
+        nombre_descarga += '.pdf'
+
         return FileResponse(
             path=nombre_archivo,
             media_type='application/pdf',
-            filename=f'Listas_MiPastel_{fecha_hoy.strftime("%Y-%m-%d")}.pdf'
+            filename=nombre_descarga
         )
 
     except Exception as e:
-        logger.error(f"Error al generar PDF del día: {e}", exc_info=True)
+        logger.error(f"Error al generar PDF de rango: {e}", exc_info=True)
         return JSONResponse(
             status_code=500,
             content={"error": f"Error al generar el reporte: {str(e)}"}
@@ -209,7 +242,6 @@ async def generar_pdf_del_dia(request: Request):
 
 @app.get("/reportes/ventas-pdf")
 async def generar_reporte_ventas_pdf(request: Request, fecha: str, sucursal: str = None):
-    """Genera el reporte de ventas con totales en dinero"""
     try:
         try:
             fecha_obj = datetime.strptime(fecha, "%Y-%m-%d").date()
@@ -240,33 +272,6 @@ async def generar_reporte_ventas_pdf(request: Request, fecha: str, sucursal: str
 
     except Exception as e:
         logger.error(f"Error al generar PDF de ventas: {e}", exc_info=True)
-        return JSONResponse(
-            status_code=500,
-            content={"error": f"Error al generar el reporte de ventas: {str(e)}"}
-        )
-
-
-@app.get("/reportes/ventas/dia/pdf")
-async def generar_pdf_ventas_del_dia(request: Request):
-    """Genera el reporte de ventas del día actual"""
-    try:
-        fecha_hoy = date.today()
-        nombre_archivo = generar_pdf_ventas(target_date=fecha_hoy)
-
-        if not os.path.exists(nombre_archivo):
-            return JSONResponse(
-                status_code=500,
-                content={"error": "No se pudo generar el PDF de ventas"}
-            )
-
-        return FileResponse(
-            path=nombre_archivo,
-            media_type='application/pdf',
-            filename=f'Ventas_MiPastel_{fecha_hoy.strftime("%Y-%m-%d")}.pdf'
-        )
-
-    except Exception as e:
-        logger.error(f"Error al generar PDF de ventas del día: {e}", exc_info=True)
         return JSONResponse(
             status_code=500,
             content={"error": f"Error al generar el reporte de ventas: {str(e)}"}

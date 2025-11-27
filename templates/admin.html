@@ -3,27 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel Admin Mi Pastel</title>
-
+    <title>Panel Admin - Mi Pastel</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-
     <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
-
     <style>
         .navbar-brand {
             font-family: 'Great Vibes', cursive;
             color: #d63384 !important;
             font-size: 2rem;
         }
-
         .table-responsive { border-radius: 12px; }
-
-        .table thead {
-            background-color: #fff0f6;
-        }
-
+        .table thead { background-color: #fff0f6; }
         .stats-card {
             background: linear-gradient(135deg, #fff0f6, #fffaf6);
             border-left: 5px solid #d63384;
@@ -31,12 +22,10 @@
             box-shadow: 0 4px 14px rgba(214, 51, 132, 0.15);
             transition: transform .25s ease, box-shadow .25s ease;
         }
-
         .stats-card:hover {
             transform: translateY(-6px);
             box-shadow: 0 10px 25px rgba(214, 51, 132, .25);
         }
-
         .nav-tabs .nav-link.active {
             background: linear-gradient(135deg, #ff66b2, #d63384);
             color: #fff !important;
@@ -46,14 +35,12 @@
             box-shadow: 0 4px 14px rgba(214, 51, 132, .35);
             transform: translateY(-2px);
         }
-
         .nav-tabs .nav-link {
             border-radius: 14px;
             color: #860bb8;
             font-weight: 500;
             transition: all .25s;
         }
-
         .nav-tabs .nav-link:hover:not(.active) {
             background: rgba(255, 102, 178, 0.12);
             color: #d63384;
@@ -61,40 +48,63 @@
             box-shadow: 0 4px 12px rgba(214, 51, 132, 0.2);
             transform: translateY(-1px);
         }
-
         .badge-color {
             padding: 5px 10px;
             border-radius: 8px;
             color: #fff;
             font-weight: 600;
         }
-
         .modal-header {
             background: linear-gradient(135deg, #ff66b2, #d63384);
             color: white;
         }
-
         .modal-header .btn-close {
             filter: brightness(0) invert(1);
         }
-
         .btn-ventas {
             background: linear-gradient(135deg, #48c774 0%, #2e8b57 100%);
             border: none;
             color: white;
             transition: all 0.3s ease;
+            border-radius: 25px;
+            padding: 12px 30px;
+            font-weight: bold;
         }
-
         .btn-ventas:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(72, 199, 116, 0.4);
             color: white;
         }
-
+        .btn-rango {
+            background: linear-gradient(135deg, #7feaf0 0%, #2ccadf 100%);
+            border: none;
+            color: #000;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            border-radius: 25px;
+            padding: 12px 30px;
+        }
+        .btn-rango:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(127, 234, 240, 0.4);
+            color: #000;
+        }
         input[type="date"]::-webkit-calendar-picker-indicator {
             cursor: pointer;
         }
-
+        .date-filter-section {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .quick-filter-btn {
+            margin: 5px;
+            border-radius: 20px;
+            padding: 8px 20px;
+            font-weight: 600;
+        }
     </style>
 </head>
 <body>
@@ -104,7 +114,7 @@
         <a class="navbar-brand" href="/">Mi Pastel</a>
         <div class="navbar-nav ms-auto">
             <div class="user-info">
-                <span class="navbar-text">
+                <span class="navbar-text me-3">
                     <i class="fas fa-user-circle" style="color: #d63384; font-size: 1.2rem;"></i>
                     Hola, <strong style="color: #690f73;">{{ username }}</strong>
                 </span>
@@ -122,17 +132,44 @@
         <i class="fas fa-chart-bar"></i> Panel de Visualización
     </h1>
 
-    <p class="text-center text-muted mb-5">
-        Vista de todos los pedidos - Solo lectura
-    </p>
+    <p class="text-center text-muted mb-4">Vista de todos los pedidos - Solo lectura</p>
 
+    <!-- Filtro de Fechas -->
+    <div class="date-filter-section">
+        <div class="row align-items-center">
+            <div class="col-md-3">
+                <label class="form-label"><strong>Fecha Inicio:</strong></label>
+                <input type="date" id="fechaInicio" class="form-control" value="{{ fecha_actual }}">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label"><strong>Fecha Fin:</strong></label>
+                <input type="date" id="fechaFin" class="form-control" value="{{ fecha_actual }}">
+            </div>
+            <div class="col-md-6">
+                <label class="form-label d-block">&nbsp;</label>
+                <button class="btn btn-primary quick-filter-btn" onclick="setFiltroHoy()">
+                    <i class="fas fa-calendar-day"></i> Hoy
+                </button>
+                <button class="btn btn-primary quick-filter-btn" onclick="setFiltroSemana()">
+                    <i class="fas fa-calendar-week"></i> Esta Semana
+                </button>
+                <button class="btn btn-primary quick-filter-btn" onclick="setFiltroMes()">
+                    <i class="fas fa-calendar-alt"></i> Este Mes
+                </button>
+                <button class="btn btn-success quick-filter-btn" onclick="aplicarFiltro()">
+                    <i class="fas fa-search"></i> Buscar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estadísticas -->
     <div class="row mb-4">
-
         <div class="col-md-3">
             <div class="card stats-card">
                 <div class="card-body text-center">
-                    <h5 class="card-title">De Tiendas Hoy</h5>
-                    <h2 class="text-primary">{{ normales|length }}</h2>
+                    <h5 class="card-title">Pedidos Tiendas</h5>
+                    <h2 class="text-primary" id="statTiendas">{{ normales|length }}</h2>
                 </div>
             </div>
         </div>
@@ -140,8 +177,8 @@
         <div class="col-md-3">
             <div class="card stats-card">
                 <div class="card-body text-center">
-                    <h5 class="card-title">De Clientes Hoy</h5>
-                    <h2 class="text-primary">{{ clientes|length }}</h2>
+                    <h5 class="card-title">Pedidos Clientes</h5>
+                    <h2 class="text-primary" id="statClientes">{{ clientes|length }}</h2>
                 </div>
             </div>
         </div>
@@ -149,8 +186,8 @@
         <div class="col-md-3">
             <div class="card stats-card">
                 <div class="card-body text-center">
-                    <h5 class="card-title">Ingresos de Tiendas</h5>
-                    <h2 class="text-success">
+                    <h5 class="card-title">Ingresos Tiendas</h5>
+                    <h2 class="text-success" id="statIngresosTiendas">
                         Q{% set total_normales = namespace(value=0) %}
                         {% for pedido in normales %}
                         {% set total_normales.value = total_normales.value + (pedido.precio * pedido.cantidad) %}
@@ -164,8 +201,8 @@
         <div class="col-md-3">
             <div class="card stats-card">
                 <div class="card-body text-center">
-                    <h5 class="card-title">Ingresos de Clientes</h5>
-                    <h2 class="text-success">
+                    <h5 class="card-title">Ingresos Clientes</h5>
+                    <h2 class="text-success" id="statIngresosClientes">
                         Q{% set total_clientes = namespace(value=0) %}
                         {% for pedido in clientes %}
                         {% set total_clientes.value = total_clientes.value + pedido.total %}
@@ -175,27 +212,25 @@
                 </div>
             </div>
         </div>
-
     </div>
 
+    <!-- Tabs -->
     <ul class="nav nav-tabs mb-4" id="adminTab">
         <li class="nav-item">
             <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#normales">
-                Pedidos de Tiendas ({{ normales|length }})
+                Pedidos de Tiendas (<span id="countNormales">{{ normales|length }}</span>)
             </button>
         </li>
-
         <li class="nav-item">
             <button class="nav-link" data-bs-toggle="tab" data-bs-target="#clientes">
-                Pedidos de Clientes ({{ clientes|length }})
+                Pedidos de Clientes (<span id="countClientes">{{ clientes|length }}</span>)
             </button>
         </li>
     </ul>
 
     <div class="tab-content">
-
+        <!-- Tab Pedidos Normales -->
         <div class="tab-pane fade show active" id="normales">
-
             {% if normales %}
             <div class="table-responsive">
                 <table class="table table-hover">
@@ -208,11 +243,10 @@
                         <th>Cantidad</th>
                         <th>Total</th>
                         <th>Sucursal</th>
-                        <th>Fecha entrega</th>
-                        <th>Fecha registro</th>
+                        <th>Fecha Entrega</th>
+                        <th>Fecha Registro</th>
                     </tr>
                     </thead>
-
                     <tbody>
                     {% for pedido in normales %}
                     <tr>
@@ -223,7 +257,6 @@
                         <td>{{ pedido.cantidad }}</td>
                         <td><strong>Q{{ "%.2f"|format(pedido.precio * pedido.cantidad) }}</strong></td>
                         <td><span class="badge bg-primary">{{ pedido.sucursal }}</span></td>
-
                         <td>
                             {% if pedido.fecha_entrega %}
                             {{ pedido.fecha_entrega[8:10] }}/{{ pedido.fecha_entrega[5:7] }}/{{ pedido.fecha_entrega[:4] }}
@@ -231,7 +264,6 @@
                             -
                             {% endif %}
                         </td>
-
                         <td>
                             {{ pedido.fecha[8:10] }}/{{ pedido.fecha[5:7] }}/{{ pedido.fecha[:4] }}
                             {{ pedido.fecha[11:16] if pedido.fecha|length > 10 else '' }}
@@ -241,17 +273,16 @@
                     </tbody>
                 </table>
             </div>
-
             {% else %}
             <div class="text-center py-5">
                 <i class="fas fa-cake fa-3x text-muted mb-3"></i>
-                <h4 class="text-muted">No hay pasteles de tienda registrados hoy</h4>
+                <h4 class="text-muted">No hay pasteles de tienda registrados</h4>
             </div>
             {% endif %}
         </div>
 
+        <!-- Tab Pedidos Clientes -->
         <div class="tab-pane fade" id="clientes">
-
             {% if clientes %}
             <div class="table-responsive">
                 <table class="table table-hover">
@@ -271,35 +302,29 @@
                         <th>Detalles</th>
                     </tr>
                     </thead>
-
                     <tbody>
                     {% for pedido in clientes %}
                     <tr>
                         <td>{{ pedido.id }}</td>
-
                         <td>
                             {% if pedido.color %}
-                            <span class="badge-color" style="background-color
-                              {{ pedido.color }}; color: #000;">
+                            <span class="badge-color" style="background-color {{ pedido.color }}; color: #000;">
                                 {{ pedido.color }}
                             </span>
                             {% else %}
                             <span class="text-muted">-</span>
                             {% endif %}
                         </td>
-
                         <td>{{ pedido.sabor }}</td>
                         <td>{{ pedido.tamano }}</td>
                         <td>{{ pedido.cantidad }}</td>
                         <td>Q{{ "%.2f"|format(pedido.precio) }}</td>
                         <td><strong>Q{{ "%.2f"|format(pedido.total) }}</strong></td>
                         <td><span class="badge bg-primary">{{ pedido.sucursal }}</span></td>
-
                         <td>
                             {{ pedido.fecha[8:10] }}/{{ pedido.fecha[5:7] }}/{{ pedido.fecha[:4] }}
                             {{ pedido.fecha[11:16] if pedido.fecha|length > 10 else '' }}
                         </td>
-
                         <td>
                             {% if pedido.fecha_entrega %}
                             {{ pedido.fecha_entrega[8:10] }}/{{ pedido.fecha_entrega[5:7] }}/{{ pedido.fecha_entrega[:4] }}
@@ -307,41 +332,40 @@
                             -
                             {% endif %}
                         </td>
-
                         <td>{{ pedido.dedicatoria if pedido.dedicatoria else '-' }}</td>
                         <td>{{ pedido.detalles if pedido.detalles else '-' }}</td>
-
                     </tr>
                     {% endfor %}
                     </tbody>
                 </table>
             </div>
-
             {% else %}
             <div class="text-center py-5">
                 <i class="fas fa-star fa-3x text-muted mb-3"></i>
-                <h4 class="text-muted">No hay pedidos de clientes registrados hoy</h4>
+                <h4 class="text-muted">No hay pedidos de clientes registrados</h4>
             </div>
             {% endif %}
         </div>
-
     </div>
 
+    <!-- Botones de Reportes -->
     <div class="text-center mt-5 mb-4">
-        <button class="btn btn-ventas btn-lg" data-bs-toggle="modal" data-bs-target="#modalReporteVentas">
-            Reporte de Ventas
+        <button class="btn btn-ventas btn-lg me-3" data-bs-toggle="modal" data-bs-target="#modalReporteVentas">
+            <i class="fas fa-dollar-sign"></i> Reporte de Ventas
+        </button>
+        <button class="btn btn-rango btn-lg" onclick="generarReporteRango()">
+            <i class="fas fa-file-pdf"></i> Reporte por Rango
         </button>
     </div>
 
 </div>
 
-<div class="modal fade" id="modalReporteVentas" tabindex="-1" aria-labelledby="modalReporteVentasLabel" aria-hidden="true">
+<!-- Modal Reporte de Ventas -->
+<div class="modal fade" id="modalReporteVentas" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="modalReporteVentasLabel">
-                    Generar Reporte de Ventas
-                </h5>
+                <h5 class="modal-title">Generar Reporte de Ventas</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
@@ -352,7 +376,6 @@
                         </label>
                         <input type="date" class="form-control" id="fechaReporteVentas" required>
                     </div>
-
                     <div class="mb-3">
                         <label for="sucursalReporteVentas" class="form-label">
                             <i class="fas fa-store"></i> Sucursal
@@ -366,7 +389,6 @@
                     </div>
                 </form>
             </div>
-
             <div class="modal-footer">
                 <button class="btn btn-secondary" data-bs-dismiss="modal">
                     <i class="fas fa-times"></i> Cancelar
@@ -390,26 +412,87 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-    function establecerFechaHoyYYYYMMDD(inputId) {
+    // Establecer fecha actual
+    function establecerFechaHoy() {
         const today = new Date();
+        const year = today.getFullYear();
         const month = String(today.getMonth() + 1).padStart(2, '0');
         const day = String(today.getDate()).padStart(2, '0');
-        const year = today.getFullYear();
-
-        document.getElementById(inputId).value = `${year}-${month}-${day}`;
+        return `${year}-${month}-${day}`;
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-        establecerFechaHoyYYYYMMDD('fechaReporteVentas');
+        const hoy = establecerFechaHoy();
+
+        // Establecer fecha en filtros si no vienen del servidor
+        if (!document.getElementById('fechaInicio').value) {
+            document.getElementById('fechaInicio').value = hoy;
+        }
+        if (!document.getElementById('fechaFin').value) {
+            document.getElementById('fechaFin').value = hoy;
+        }
+
+        // Establecer fecha en modal
+        document.getElementById('fechaReporteVentas').value = hoy;
 
         const modalReporte = document.getElementById('modalReporteVentas');
         if (modalReporte) {
             modalReporte.addEventListener('shown.bs.modal', function () {
-                establecerFechaHoyYYYYMMDD('fechaReporteVentas');
+                document.getElementById('fechaReporteVentas').value = hoy;
             });
         }
     });
 
+    // Filtros rápidos
+    function setFiltroHoy() {
+        const hoy = establecerFechaHoy();
+        document.getElementById('fechaInicio').value = hoy;
+        document.getElementById('fechaFin').value = hoy;
+    }
+
+    function setFiltroSemana() {
+        const hoy = new Date();
+        const diaSemana = hoy.getDay();
+        const diffInicio = diaSemana === 0 ? -6 : 1 - diaSemana;
+
+        const inicio = new Date(hoy);
+        inicio.setDate(hoy.getDate() + diffInicio);
+
+        const fin = new Date(inicio);
+        fin.setDate(inicio.getDate() + 6);
+
+        document.getElementById('fechaInicio').value = inicio.toISOString().split('T')[0];
+        document.getElementById('fechaFin').value = fin.toISOString().split('T')[0];
+    }
+
+    function setFiltroMes() {
+        const hoy = new Date();
+        const inicio = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+        const fin = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0);
+
+        document.getElementById('fechaInicio').value = inicio.toISOString().split('T')[0];
+        document.getElementById('fechaFin').value = fin.toISOString().split('T')[0];
+    }
+
+    // Aplicar filtro (recargar página con nuevas fechas)
+    function aplicarFiltro() {
+        const fechaInicio = document.getElementById('fechaInicio').value;
+        const fechaFin = document.getElementById('fechaFin').value;
+
+        if (!fechaInicio || !fechaFin) {
+            alert('Por favor selecciona ambas fechas');
+            return;
+        }
+
+        if (new Date(fechaFin) < new Date(fechaInicio)) {
+            alert('La fecha fin debe ser posterior a la fecha inicio');
+            return;
+        }
+
+        window.location.href = `/admin?fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}`;
+    }
+
+    // Generar reporte de ventas
     function generarReporteVentasPDF() {
         const fecha = document.getElementById('fechaReporteVentas').value;
         const sucursal = document.getElementById('sucursalReporteVentas').value;
@@ -432,6 +515,33 @@
 
         setTimeout(() => {
             alert('El reporte de ventas se está generando...');
+        }, 300);
+    }
+
+    // Generar reporte por rango
+    function generarReporteRango() {
+        const fechaInicio = document.getElementById('fechaInicio').value;
+        const fechaFin = document.getElementById('fechaFin').value;
+
+        if (!fechaInicio || !fechaFin) {
+            alert('Por favor selecciona el rango de fechas');
+            return;
+        }
+
+        if (new Date(fechaFin) < new Date(fechaInicio)) {
+            alert('La fecha fin debe ser posterior a la fecha inicio');
+            return;
+        }
+
+        let url = `/reportes/pdf?fecha=${fechaInicio}`;
+        if (fechaFin !== fechaInicio) {
+            url += `&fecha_fin=${fechaFin}`;
+        }
+
+        window.open(url, '_blank');
+
+        setTimeout(() => {
+            alert('El reporte por rango se está generando...');
         }, 300);
     }
 </script>
