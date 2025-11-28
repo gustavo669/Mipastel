@@ -1,0 +1,369 @@
+/* Mi Pastel - Admin Style CSS */
+/* Purple/Pink Color Scheme matching Desktop Admin App */
+
+:root {
+    --primary-purple: #8e44ad;
+    --dark-purple: #6f2f86;
+    --light-purple: #b65fae;
+    --pink: #ff88b8;
+    --light-pink: #fff5fb;
+    --border-pink: #f0d6ec;
+    --text-dark: #2b1b3a;
+    --success-green: #48c774;
+    --danger-red: #ff6fa3;
+}
+
+/* Body & General */
+body {
+    background: linear-gradient(135deg, #fff0f6 0%, #fffaf6 100%);
+    font-family: 'Segoe UI', 'Open Sans', 'Lato', sans-serif;
+    color: var(--text-dark);
+}
+
+/* Navbar - Admin Style */
+.navbar {
+    background: linear-gradient(135deg, #ffffff 0%, #fff5fb 100%) !important;
+    border-bottom: 3px solid var(--border-pink);
+    box-shadow: 0 2px 10px rgba(142, 68, 173, 0.1);
+}
+
+.navbar-brand {
+    font-family: 'Great Vibes', cursive;
+    color: var(--dark-purple) !important;
+    font-size: 2.5rem;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(111, 47, 134, 0.1);
+}
+
+/* Hero Section */
+.hero-section {
+    background: linear-gradient(135deg, #fff0f6 0%, #fffaf6 100%);
+    border-radius: 15px;
+    padding: 2rem;
+    margin: 2rem 0;
+    border: 2px solid var(--border-pink);
+    box-shadow: 0 4px 15px rgba(142, 68, 173, 0.1);
+}
+
+/* Buttons - Admin Style with Gradients */
+.btn-primary {
+    background: linear-gradient(180deg, #9b59b6 0%, #7d3c98 100%);
+    border: none;
+    border-radius: 25px;
+    padding: 12px 30px;
+    font-weight: 600;
+    color: white;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(142, 68, 173, 0.2);
+}
+
+.btn-primary:hover {
+    background: linear-gradient(180deg, #a66bbf 0%, #6e3288 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(142, 68, 173, 0.4);
+    color: white;
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(142, 68, 173, 0.3);
+}
+
+.btn-success {
+    background: linear-gradient(180deg, #48c774 0%, #2e8b57 100%);
+    border: none;
+    border-radius: 25px;
+    padding: 12px 30px;
+    font-weight: 600;
+    color: white;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(72, 199, 116, 0.2);
+}
+
+.btn-success:hover {
+    background: linear-gradient(180deg, #3fb868 0%, #256b46 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(72, 199, 116, 0.4);
+    color: white;
+}
+
+.btn-success:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(72, 199, 116, 0.3);
+}
+
+.btn-outline-primary {
+    border: 2px solid var(--primary-purple);
+    color: var(--primary-purple);
+    border-radius: 20px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    background: transparent;
+}
+
+.btn-outline-primary:hover {
+    background: var(--primary-purple);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(142, 68, 173, 0.3);
+}
+
+.btn-outline-danger {
+    border: 2px solid var(--danger-red);
+    color: var(--danger-red);
+    border-radius: 20px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    background: transparent;
+}
+
+.btn-outline-danger:hover {
+    background: var(--danger-red);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(255, 111, 163, 0.3);
+}
+
+.btn-danger {
+    background: linear-gradient(180deg, var(--danger-red) 0%, #ff5f97 100%);
+    border: none;
+    border-radius: 25px;
+    padding: 12px 30px;
+    font-weight: 600;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.btn-danger:hover {
+    background: linear-gradient(180deg, #ff5f97 0%, #ff4f87 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 111, 163, 0.4);
+}
+
+/* Form Sections */
+.form-section {
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    margin: 1rem 0;
+    box-shadow: 0 4px 15px rgba(142, 68, 173, 0.1);
+    border: 2px solid var(--border-pink);
+    transition: all 0.3s ease;
+}
+
+.form-section:hover {
+    box-shadow: 0 6px 20px rgba(142, 68, 173, 0.15);
+}
+
+.form-section h4 {
+    color: var(--primary-purple);
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+}
+
+/* Form Controls */
+.form-control, .form-select {
+    border: 2px solid var(--border-pink);
+    border-radius: 8px;
+    padding: 10px 15px;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--light-purple);
+    box-shadow: 0 0 0 0.2rem rgba(142, 68, 173, 0.25);
+    outline: none;
+}
+
+.form-control:hover, .form-select:hover {
+    border-color: var(--light-purple);
+}
+
+/* Labels */
+.form-label {
+    color: var(--text-dark);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+/* Price Display */
+.price-display {
+    background: var(--light-pink);
+    border-radius: 10px;
+    padding: 15px;
+    margin: 10px 0;
+    border-left: 4px solid var(--primary-purple);
+    box-shadow: 0 2px 8px rgba(142, 68, 173, 0.1);
+}
+
+.price-display strong {
+    color: var(--dark-purple);
+}
+
+/* Tabs - Admin Style */
+.nav-pills .nav-link {
+    color: var(--text-dark);
+    font-weight: 600;
+    border-radius: 20px;
+    padding: 12px 24px;
+    margin: 0 5px;
+    transition: all 0.3s ease;
+    border: 2px solid var(--border-pink);
+    background: white;
+}
+
+.nav-pills .nav-link:hover {
+    background: var(--light-pink);
+    border-color: var(--light-purple);
+    transform: translateY(-2px);
+}
+
+.nav-pills .nav-link.active {
+    background: linear-gradient(135deg, #9b59b6 0%, #7d3c98 100%) !important;
+    border-radius: 20px;
+    color: #fff !important;
+    font-weight: 600;
+    border: 2px solid var(--dark-purple);
+    box-shadow: 0 4px 12px rgba(142, 68, 173, 0.3);
+}
+
+/* Cart Items */
+.cart-item {
+    background: var(--light-pink);
+    border-left: 4px solid var(--primary-purple);
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(142, 68, 173, 0.1);
+    transition: all 0.3s ease;
+}
+
+.cart-item:hover {
+    transform: translateX(5px);
+    box-shadow: 0 4px 12px rgba(142, 68, 173, 0.2);
+}
+
+.cart-badge {
+    position: relative;
+    top: -10px;
+    right: -5px;
+    background: linear-gradient(135deg, var(--danger-red), #ff5f97);
+    color: white;
+    border-radius: 50%;
+    padding: 4px 10px;
+    font-size: 12px;
+    font-weight: bold;
+    box-shadow: 0 2px 6px rgba(255, 111, 163, 0.4);
+}
+
+/* Banner */
+.banner-container {
+    width: 100%;
+    height: 300px;
+    overflow: hidden;
+    border-radius: 15px;
+    margin: 1rem 0;
+    box-shadow: 0 4px 15px rgba(142, 68, 173, 0.15);
+    border: 3px solid var(--border-pink);
+}
+
+.banner-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.banner-container:hover .banner-img {
+    transform: scale(1.05);
+}
+
+/* Footer */
+footer {
+    background: linear-gradient(135deg, #ffffff 0%, #fff5fb 100%);
+    border-top: 3px solid var(--border-pink);
+    color: var(--text-dark);
+    font-weight: 500;
+}
+
+/* Tables - Admin Style */
+.table {
+    background-color: white;
+    border: 2px solid var(--border-pink);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.table thead {
+    background: linear-gradient(135deg, var(--primary-purple) 0%, var(--dark-purple) 100%);
+    color: white;
+}
+
+.table thead th {
+    border: none;
+    padding: 12px;
+    font-weight: 600;
+}
+
+.table tbody tr {
+    transition: all 0.2s ease;
+}
+
+.table tbody tr:nth-child(even) {
+    background-color: var(--light-pink);
+}
+
+.table tbody tr:hover {
+    background-color: #ffe6f5;
+    transform: scale(1.01);
+    box-shadow: 0 2px 8px rgba(142, 68, 173, 0.1);
+}
+
+.table tbody td {
+    padding: 10px;
+    border-color: var(--border-pink);
+}
+
+/* Alerts */
+.alert {
+    border-radius: 10px;
+    border: 2px solid var(--border-pink);
+}
+
+.alert-info {
+    background-color: var(--light-pink);
+    border-color: var(--light-purple);
+    color: var(--dark-purple);
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .navbar-brand {
+        font-size: 1.8rem;
+    }
+    
+    .btn-primary, .btn-success, .btn-danger {
+        padding: 10px 20px;
+        font-size: 14px;
+    }
+    
+    .form-section {
+        padding: 1.5rem;
+    }
+}

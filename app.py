@@ -75,6 +75,13 @@ app.include_router(normales.router)
 app.include_router(clientes.router)
 app.include_router(admin.router)
 
+# Import and include pedidos API router
+try:
+    from routers import pedidos_api
+    app.include_router(pedidos_api.router)
+except ImportError as e:
+    logger.warning(f"Could not import pedidos_api router: {e}")
+
 
 @app.get("/login", response_class=HTMLResponse)
 async def mostrar_login(request: Request, error: str = None):

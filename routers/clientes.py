@@ -45,6 +45,7 @@ async def registrar_pedido_cliente(
         tamano: str = Form(...),
         cantidad: int = Form(..., gt=0),
         sucursal: str = Form(...),
+        precio: Optional[float] = Form(None),
         fecha_entrega: Optional[str] = Form(None),
         color: Optional[str] = Form(None),
         dedicatoria: Optional[str] = Form(None),
@@ -75,7 +76,13 @@ async def registrar_pedido_cliente(
 
         sabor_real = sabor_personalizado if sabor_personalizado else sabor
 
-        precio_unitario = obtener_precio_db(sabor_real, tamano)
+        # Use sent precio if provided, otherwise fetch from database
+        if precio and precio > 0:
+            precio_unitario = precio
+            logger.info(f"Using precio from frontend: Q{precio_unitario:.2f}")
+        else:
+            precio_unitario = obtener_precio_db(sabor_real, tamano)
+            logger.info(f"Fetched precio from database: Q{precio_unitario:.2f}")
 
         if precio_unitario <= 0:
             raise HTTPException(status_code=400, detail="No se encontró precio válido para esta combinación")

@@ -33,10 +33,11 @@ async def registrar_pedido_normal(
         tamano: str = Form(...),
         cantidad: int = Form(..., gt=0),
         sucursal: str = Form(...),
-        detalles: Optional[str] = Form(None),
-        es_otro: bool = Form(False),
-        sabor_personalizado: Optional[str] = Form(None),
         fecha_entrega: str = Form(...),
+        precio: Optional[float] = Form(None),
+        detalles: Optional[str] = Form(None),
+        sabor_personalizado: Optional[str] = Form(None),
+        es_otro: Optional[bool] = Form(False),
 ):
     try:
         if tamano not in TAMANOS_NORMALES:
@@ -44,7 +45,13 @@ async def registrar_pedido_normal(
 
         sabor_real = sabor_personalizado if es_otro and sabor_personalizado else sabor
 
-        precio_unitario = obtener_precio_db(sabor, tamano)
+        # Use sent precio if provided, otherwise fetch from database
+        if precio and precio > 0:
+            precio_unitario = precio
+            logger.info(f"Using precio from frontend: Q{precio_unitario:.2f}")
+        else:
+            precio_unitario = obtener_precio_db(sabor, tamano)
+            logger.info(f"Fetched precio from database: Q{precio_unitario:.2f}")
 
         if precio_unitario <= 0 and not es_otro:
             raise HTTPException(
