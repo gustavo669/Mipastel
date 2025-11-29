@@ -3,16 +3,16 @@
 // Función principal para cargar pedidos registrados
 async function cargarPedidosRegistrados(fecha = null) {
     if (!fecha) {
-        fecha = document.getElementById('fechaBusqueda')?.value || new Date().toISOString().split('T')[0];
+        const fechaInput = document.getElementById('fechaBusqueda');
+        fecha = fechaInput ? fechaInput.value : new Date().toISOString().split('T')[0];
     }
-
 
     try {
         // Cargar pedidos normales
-        await cargarPedidosNormales(hoy);
+        await cargarPedidosNormales(fecha);
 
         // Cargar pedidos de clientes
-        await cargarPedidosClientes(hoy);
+        await cargarPedidosClientes(fecha);
     } catch (error) {
         console.error('Error cargando pedidos:', error);
         alert('Error al cargar los pedidos');
@@ -28,7 +28,7 @@ async function cargarPedidosNormales(fecha) {
         const tbody = document.getElementById('tablaNormalesRegistrados');
 
         if (!data.pedidos || data.pedidos.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="10" class="text-center">No hay pedidos para hoy</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="10" class="text-center text-muted">No hay pedidos para esta fecha</td></tr>';
             return;
         }
 
@@ -38,28 +38,28 @@ async function cargarPedidosNormales(fecha) {
             const row = document.createElement('tr');
             const editable = pedido.editable;
             const estadoBadge = editable
-                ? '<span class="badge badge-editable">Editable</span>'
-                : '<span class="badge badge-locked">Bloqueado</span>';
+                ? '<span class="badge bg-success">Editable</span>'
+                : '<span class="badge bg-secondary">Bloqueado</span>';
 
             row.innerHTML = `
-                <td>${pedido.id || ''}</td>
+                <td class="text-center">${pedido.id || ''}</td>
                 <td>${pedido.sabor || ''}</td>
                 <td>${pedido.tamano || ''}</td>
-                <td>${pedido.cantidad || 0}</td>
-                <td>Q${(pedido.precio || 0).toFixed(2)}</td>
-                <td>Q${(pedido.total || 0).toFixed(2)}</td>
-                <td>${pedido.fecha_entrega || ''}</td>
+                <td class="text-center">${pedido.cantidad || 0}</td>
+                <td class="text-end">Q${(pedido.precio || 0).toFixed(2)}</td>
+                <td class="text-end"><strong>Q${(pedido.total || 0).toFixed(2)}</strong></td>
+                <td class="text-center">${pedido.fecha_entrega || '-'}</td>
                 <td>${pedido.detalles || '-'}</td>
-                <td>${estadoBadge}</td>
-                <td>
+                <td class="text-center">${estadoBadge}</td>
+                <td class="text-center">
                     ${editable ? `
-                        <button class="btn btn-sm btn-sm-custom btn-primary me-1" onclick="editarPedidoNormal(${pedido.id})" title="Editar">
+                        <button class="btn btn-sm btn-primary me-1" onclick="editarPedidoNormal(${pedido.id})" title="Editar">
                             <i class="fas fa-edit"></i>
                         </button>
-                        <button class="btn btn-sm btn-sm-custom btn-danger" onclick="eliminarPedidoNormal(${pedido.id})" title="Eliminar">
+                        <button class="btn btn-sm btn-danger" onclick="eliminarPedidoNormal(${pedido.id})" title="Eliminar">
                             <i class="fas fa-trash"></i>
                         </button>
-                    ` : '-'}
+                    ` : '<span class="text-muted">-</span>'}
                 </td>
             `;
 
@@ -68,7 +68,7 @@ async function cargarPedidosNormales(fecha) {
     } catch (error) {
         console.error('Error cargando pedidos normales:', error);
         const tbody = document.getElementById('tablaNormalesRegistrados');
-        tbody.innerHTML = '<tr><td colspan="10" class="text-center text-danger">Error al cargar</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="10" class="text-center text-danger">Error al cargar pedidos</td></tr>';
     }
 }
 
@@ -81,7 +81,7 @@ async function cargarPedidosClientes(fecha) {
         const tbody = document.getElementById('tablaClientesRegistrados');
 
         if (!data.pedidos || data.pedidos.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="12" class="text-center">No hay pedidos para hoy</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="12" class="text-center text-muted">No hay pedidos para esta fecha</td></tr>';
             return;
         }
 
@@ -91,30 +91,30 @@ async function cargarPedidosClientes(fecha) {
             const row = document.createElement('tr');
             const editable = pedido.editable;
             const estadoBadge = editable
-                ? '<span class="badge badge-editable">Editable</span>'
-                : '<span class="badge badge-locked">Bloqueado</span>';
+                ? '<span class="badge bg-success">Editable</span>'
+                : '<span class="badge bg-secondary">Bloqueado</span>';
 
             row.innerHTML = `
-                <td>${pedido.id || ''}</td>
+                <td class="text-center">${pedido.id || ''}</td>
                 <td>${pedido.sabor || ''}</td>
                 <td>${pedido.tamano || ''}</td>
-                <td>${pedido.cantidad || 0}</td>
-                <td>Q${(pedido.precio || 0).toFixed(2)}</td>
-                <td>Q${(pedido.total || 0).toFixed(2)}</td>
-                <td>${pedido.fecha_entrega || ''}</td>
-                <td>${pedido.color || '-'}</td>
-                <td>${pedido.dedicatoria || '-'}</td>
-                <td>${pedido.detalles || '-'}</td>
-                <td>${estadoBadge}</td>
-                <td>
+                <td class="text-center">${pedido.cantidad || 0}</td>
+                <td class="text-end">Q${(pedido.precio || 0).toFixed(2)}</td>
+                <td class="text-end"><strong>Q${(pedido.total || 0).toFixed(2)}</strong></td>
+                <td class="text-center">${pedido.fecha_entrega || '-'}</td>
+                <td class="text-center">${pedido.color || '-'}</td>
+                <td class="text-truncate" style="max-width: 150px;" title="${pedido.dedicatoria || ''}">${pedido.dedicatoria || '-'}</td>
+                <td class="text-truncate" style="max-width: 150px;" title="${pedido.detalles || ''}">${pedido.detalles || '-'}</td>
+                <td class="text-center">${estadoBadge}</td>
+                <td class="text-center">
                     ${editable ? `
-                        <button class="btn btn-sm btn-sm-custom btn-primary me-1" onclick="editarPedidoCliente(${pedido.id})" title="Editar">
+                        <button class="btn btn-sm btn-primary me-1" onclick="editarPedidoCliente(${pedido.id})" title="Editar">
                             <i class="fas fa-edit"></i>
                         </button>
-                        <button class="btn btn-sm btn-sm-custom btn-danger" onclick="eliminarPedidoCliente(${pedido.id})" title="Eliminar">
+                        <button class="btn btn-sm btn-danger" onclick="eliminarPedidoCliente(${pedido.id})" title="Eliminar">
                             <i class="fas fa-trash"></i>
                         </button>
-                    ` : '-'}
+                    ` : '<span class="text-muted">-</span>'}
                 </td>
             `;
 
@@ -123,7 +123,7 @@ async function cargarPedidosClientes(fecha) {
     } catch (error) {
         console.error('Error cargando pedidos clientes:', error);
         const tbody = document.getElementById('tablaClientesRegistrados');
-        tbody.innerHTML = '<tr><td colspan="12" class="text-center text-danger">Error al cargar</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="12" class="text-center text-danger">Error al cargar pedidos</td></tr>';
     }
 }
 
@@ -131,7 +131,8 @@ async function cargarPedidosClientes(fecha) {
 async function editarPedidoNormal(id) {
     try {
         // Fetch pedido data
-        const resp = await fetch(`/api/pedidos/normales?fecha=${new Date().toISOString().split('T')[0]}`);
+        const fecha = document.getElementById('fechaBusqueda')?.value || new Date().toISOString().split('T')[0];
+        const resp = await fetch(`/api/pedidos/normales?fecha=${fecha}`);
         const data = await resp.json();
         const pedido = data.pedidos.find(p => p.id === id);
 
@@ -146,10 +147,12 @@ async function editarPedidoNormal(id) {
         document.getElementById('editTamanoNormal').value = pedido.tamano || '';
         document.getElementById('editCantidadNormal').value = pedido.cantidad || 1;
         document.getElementById('editFechaNormal').value = pedido.fecha_entrega || '';
+        document.getElementById('editDetallesNormal').value = pedido.detalles || '';
 
         // Set minimum date to today
         const hoy = new Date().toISOString().split('T')[0];
         document.getElementById('editFechaNormal').min = hoy;
+
 
         // Show modal
         const modal = new bootstrap.Modal(document.getElementById('modalEditarNormal'));
@@ -165,9 +168,15 @@ async function guardarEdicionNormal() {
     const id = document.getElementById('editIdNormal').value;
     const cantidad = document.getElementById('editCantidadNormal').value;
     const fecha_entrega = document.getElementById('editFechaNormal').value;
+    const detalles = document.getElementById('editDetallesNormal').value;
 
     if (!cantidad || !fecha_entrega) {
-        alert('Por favor completa todos los campos');
+        alert('Por favor completa todos los campos requeridos');
+        return;
+    }
+
+    if (parseInt(cantidad) < 1) {
+        alert('La cantidad debe ser mayor a 0');
         return;
     }
 
@@ -175,6 +184,7 @@ async function guardarEdicionNormal() {
         const formData = new FormData();
         formData.append('cantidad', cantidad);
         formData.append('fecha_entrega', fecha_entrega);
+        formData.append('detalles', detalles);
 
         const resp = await fetch(`/api/pedidos/normal/${id}`, {
             method: 'PUT',
@@ -199,7 +209,8 @@ async function guardarEdicionNormal() {
 async function editarPedidoCliente(id) {
     try {
         // Fetch pedido data
-        const resp = await fetch(`/api/pedidos/clientes?fecha=${new Date().toISOString().split('T')[0]}`);
+        const fecha = document.getElementById('fechaBusqueda')?.value || new Date().toISOString().split('T')[0];
+        const resp = await fetch(`/api/pedidos/clientes?fecha=${fecha}`);
         const data = await resp.json();
         const pedido = data.pedidos.find(p => p.id === id);
 
@@ -245,6 +256,11 @@ async function guardarEdicionCliente() {
         return;
     }
 
+    if (parseInt(cantidad) < 1) {
+        alert('La cantidad debe ser mayor a 0');
+        return;
+    }
+
     try {
         const formData = new FormData();
         formData.append('cantidad', cantidad);
@@ -259,55 +275,75 @@ async function guardarEdicionCliente() {
         });
 
         if (resp.ok) {
-            alert('✅ Pedido actualizado correctamente');
+            alert('Pedido actualizado correctamente');
             bootstrap.Modal.getInstance(document.getElementById('modalEditarCliente')).hide();
             cargarPedidosRegistrados();
         } else {
             const error = await resp.json();
-            alert('❌ Error: ' + (error.detail || 'No se pudo actualizar'));
+            alert('Error: ' + (error.detail || 'No se pudo actualizar'));
         }
     } catch (error) {
         console.error('Error:', error);
-        alert('❌ Error al actualizar el pedido');
+        alert('Error al actualizar el pedido');
     }
 }
 
 // Eliminar pedido normal
 async function eliminarPedidoNormal(id) {
-    if (!confirm('�Est�s seguro de que deseas eliminar este pedido?\\n\\nEsta acci�n no se puede deshacer.')) {
+    if (!confirm('¿Estás seguro de que deseas eliminar este pedido?\n\nEsta acción no se puede deshacer.')) {
         return;
     }
+
     try {
-        const resp = await fetch`/api/pedidos/normal/${id}`, { method: 'DELETE' });
+        const resp = await fetch(`/api/pedidos/normal/${id}`, {
+            method: 'DELETE'
+        });
+
         if (resp.ok) {
-            alert(' Pedido eliminado correctamente');
+            alert('Pedido eliminado correctamente');
             cargarPedidosRegistrados();
         } else {
             const error = await resp.json();
-            alert(' Error: ' + (error.detail || 'No se pudo eliminar'));
+            alert('Error: ' + (error.detail || 'No se pudo eliminar'));
         }
     } catch (error) {
         console.error('Error:', error);
-        alert(' Error al eliminar el pedido');
+        alert('Error al eliminar el pedido');
     }
 }
 
 // Eliminar pedido cliente
 async function eliminarPedidoCliente(id) {
-    if (!confirm('�Est�s seguro de que deseas eliminar este pedido?\\n\\nEsta acci�n no se puede deshacer.')) {
+    if (!confirm('¿Estás seguro de que deseas eliminar este pedido?\n\nEsta acción no se puede deshacer.')) {
         return;
     }
+
     try {
-        const resp = await fetch`/api/pedidos/cliente/${id}`, { method: 'DELETE' });
+        const resp = await fetch(`/api/pedidos/cliente/${id}`, {
+            method: 'DELETE'
+        });
+
         if (resp.ok) {
-            alert(' Pedido eliminado correctamente');
+            alert('Pedido eliminado correctamente');
             cargarPedidosRegistrados();
         } else {
             const error = await resp.json();
-            alert(' Error: ' + (error.detail || 'No se pudo eliminar'));
+            alert('Error: ' + (error.detail || 'No se pudo eliminar'));
         }
     } catch (error) {
         console.error('Error:', error);
-        alert(' Error al eliminar el pedido');
+        alert('Error al eliminar el pedido');
     }
 }
+
+// Inicializar cuando se carga la página
+document.addEventListener('DOMContentLoaded', function() {
+    // Establecer fecha de hoy por defecto
+    const fechaBusqueda = document.getElementById('fechaBusqueda');
+    if (fechaBusqueda) {
+        fechaBusqueda.value = new Date().toISOString().split('T')[0];
+    }
+
+    // Cargar pedidos al iniciar
+    cargarPedidosRegistrados();
+});

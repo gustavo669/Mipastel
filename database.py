@@ -154,7 +154,7 @@ def obtener_normal_por_id_db(pedido_id: int) -> Optional[Dict[str, Any]]:
 
         return {
             'id': row[0], 'sabor': row[1], 'tamano': row[2], 'cantidad': row[3],
-            'precio': float(row[4]), 'sucursal': row[5], 'fecha': row[6].isoformat(),
+            'precio': float(row[4]), 'sucursal': row[5], 'fecha': row[6].isoformat() if row[6] else None,
             'fecha_entrega': row[7].isoformat() if row[7] else None,
             'detalles': row[8], 'sabor_personalizado': row[9]
         }
@@ -193,8 +193,9 @@ def registrar_pedido_cliente_db(data: Dict[str, Any]) -> bool:
 
 
 def actualizar_pedido_cliente_db(pedido_id: int, data: Dict[str, Any]) -> bool:
+    """Actualizar pedido de cliente - CORREGIDO"""
     precio = data.get('precio')
-    if not precio or precio <= 0:
+    if precio and precio <= 0:
         raise ValueError("El precio debe ser mayor a 0")
 
     query = """
@@ -255,7 +256,7 @@ def obtener_cliente_por_id_db(pedido_id: int) -> Optional[Dict[str, Any]]:
         return {
             'id': row[0], 'color': row[1], 'sabor': row[2], 'tamano': row[3],
             'cantidad': row[4], 'precio': float(row[5]), 'total': float(row[6]),
-            'sucursal': row[7], 'fecha': row[8].isoformat(), 'foto_path': row[9],
+            'sucursal': row[7], 'fecha': row[8].isoformat() if row[8] else None, 'foto_path': row[9],
             'dedicatoria': row[10], 'detalles': row[11],
             'fecha_entrega': row[12].isoformat() if row[12] else None,
             'sabor_personalizado': row[13]
@@ -341,7 +342,7 @@ class DatabaseManager:
                 'precio': float(row[3]),
                 'cantidad': row[4],
                 'sucursal': row[5],
-                'fecha': row[6].isoformat(),
+                'fecha': row[6].isoformat() if row[6] else None,
                 'fecha_entrega': row[7].isoformat() if row[7] else None,
                 'detalles': row[8],
                 'sabor_personalizado': row[9]
@@ -350,7 +351,6 @@ class DatabaseManager:
 
     def eliminar_pastel_normal(self, pastel_id: int) -> bool:
         return eliminar_normal_db(pastel_id)
-
 
     def registrar_pedido_cliente(self, data: Dict[str, Any]) -> bool:
         return registrar_pedido_cliente_db(data)
@@ -391,7 +391,7 @@ class DatabaseManager:
                 'precio': float(row[5]),
                 'total': float(row[6]),
                 'sucursal': row[7],
-                'fecha': row[8].isoformat(),
+                'fecha': row[8].isoformat() if row[8] else None,
                 'foto_path': row[9],
                 'dedicatoria': row[10],
                 'detalles': row[11],

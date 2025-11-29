@@ -292,11 +292,11 @@
                         <div class="mt-4 d-flex gap-2">
                             <button type="button" class="btn btn-success flex-fill"
                                 onclick="agregarAlCarrito('normal')">
-                                <i class="fas fa-cart-plus"></i> Agregar a Lista
+                                <i class="fas fa-cart-plus"></i> Agregar
                             </button>
                             <button type="button" class="btn btn-primary flex-fill"
                                 onclick="registrarDirecto('normal')">
-                                <i class="fas fa-save"></i> Registrar Directo
+                                <i class="fas fa-save"></i> Registrar
                             </button>
                         </div>
                     </form>
@@ -606,6 +606,8 @@
             document.getElementById('fechaEntregaCliente').value = fechaStr;
             document.getElementById('fechaEntregaCliente').min = fechaStr;
 
+            document.getElementById('fechaBusqueda').value = fechaStr;
+
             // Eventos
             document.getElementById('saborNormal').addEventListener('change', () => {
                 toggleOtro('saborNormal', 'saborOtroNormal');
@@ -836,97 +838,39 @@
             actualizarVista();
         }
 
-        async function registrarDirecto(tipo) {
-            const datos = obtenerDatosFormulario(tipo);
+        async function registrarTodos() {
+            // Si no hay pedidos no hace nada
+            if (cartaNormales.length === 0 && cartaClientes.length === 0) return;
 
-            if (!validarFormulario(datos, tipo)) return;
-
-            datos.sucursal = SUCURSAL;
-
-            const url = tipo === 'normal' ? '/normales/registrar' : '/clientes/registrar';
+            const data = {
+                normales: cartaNormales,
+                clientes: cartaClientes,
+                sucursal: SUCURSAL
+            };
 
             try {
-                const formData = new FormData();
-                for (let key in datos) {
-                    if (datos[key] !== null && datos[key] !== undefined) {
-                        formData.append(key, datos[key]);
-                    }
-                }
-
-                const resp = await fetch(url, {
+                const resp = await fetch('/api/pedidos/registrar', {
                     method: 'POST',
-                    body: formData
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
                 });
 
                 if (resp.ok) {
+                    // limpiar arrays
+                    cartaNormales = [];
+                    cartaClientes = [];
+                    actualizarVista();
+
+                    // redirigir siempre
                     window.location.href = '/exito.html';
                 } else {
-                    window.location.href = '/exito.html'; // puedes cambiarlo por error.html
+                    alert("Error al registrar pedidos");
                 }
-            } catch (error) {
-                console.error('Error:', error);
-                window.location.href = '/exito.html';
+            } catch (e) {
+                alert("Error de conexión");
             }
         }
 
-        async function registrarTodos() {
-            // Si no hay pedidos, simplemente no hace nada
-            if (cartaNormales.length === 0 && cartaClientes.length === 0) return;
-
-            let exitosos = 0;
-
-            // Registrar normales
-            for (let pedido of cartaNormales) {
-                pedido.sucursal = SUCURSAL;
-
-                const formData = new FormData();
-                for (let key in pedido) {
-                    if (pedido[key] !== null && pedido[key] !== undefined) {
-                        formData.append(key, pedido[key]);
-                    }
-                }
-
-                try {
-                    const resp = await fetch('/normales/registrar', {
-                        method: 'POST',
-                        body: formData
-                    });
-
-                    if (resp.ok) exitosos++;
-                } catch (e) { }
-            }
-
-            // Registrar clientes
-            for (let pedido of cartaClientes) {
-                pedido.sucursal = SUCURSAL;
-
-                const formData = new FormData();
-                for (let key in pedido) {
-                    if (pedido[key] !== null && pedido[key] !== undefined) {
-                        formData.append(key, pedido[key]);
-                    }
-                }
-
-                try {
-                    const resp = await fetch('/clientes/registrar', {
-                        method: 'POST',
-                        body: formData
-                    });
-
-                    if (resp.ok) exitosos++;
-                } catch (e) { }
-            }
-
-            // Limpiar listas
-            if (exitosos > 0) {
-                cartaNormales = [];
-                cartaClientes = [];
-                actualizarVista();
-            }
-
-            // Siempre redirige a exito.html
-            window.location.href = '/exito.html';
-        }
     </script>
     <script src="/static/js/pedidos_table.js"></script>
 </body>

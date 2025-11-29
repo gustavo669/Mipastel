@@ -28,15 +28,16 @@ TEMPLATES_DIR = BASE_DIR / "templates"
 os.makedirs(UPLOADS_DIR, exist_ok=True)
 
 try:
-    from routers import normales, clientes, admin
+    from routers import normales, clientes, admin, pedidos_api
     from config import (
         SABORES_NORMALES, SABORES_CLIENTES,
         TAMANOS_NORMALES, TAMANOS_CLIENTES, SUCURSALES
     )
+    print("✓ Todos los routers importados correctamente")
 except ImportError as e:
     print(f"Advertencia de Importación: {e}")
     from fastapi import APIRouter
-    normales = clientes = admin = APIRouter()
+    normales = clientes = admin = pedidos_api = APIRouter()
     SABORES_NORMALES = SABORES_CLIENTES = ["Error Carga"]
     TAMANOS_NORMALES = TAMANOS_CLIENTES = ["Error Carga"]
     SUCURSALES = ["Error Carga"]
@@ -56,10 +57,13 @@ def get_local_ip():
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     local_ip = get_local_ip()
+    print(f"\n{'='*60}")
     print(f"MI PASTEL - Sistema de Gestión")
-    print(f"Servidor iniciado en: http://{local_ip}:5000")
-    print(f"Acceso local: http://127.0.0.1:5000")
-    print(f"Acceso desde red WiFi: http://{local_ip}:5000")
+    print(f"{'='*60}")
+    print(f"✓ Servidor iniciado en: http://{local_ip}:5000")
+    print(f"✓ Acceso local: http://127.0.0.1:5000")
+    print(f"✓ Acceso desde red WiFi: http://{local_ip}:5000")
+    print(f"{'='*60}\n")
     yield
 
 app = FastAPI(
@@ -68,19 +72,21 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+# Mount static files
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 templates = Jinja2Templates(directory=TEMPLATES_DIR)
 
+# Include routers
 app.include_router(normales.router)
 app.include_router(clientes.router)
 app.include_router(admin.router)
+app.include_router(pedidos_api.router)
 
-# Import and include pedidos API router
-try:
-    from routers import pedidos_api
-    app.include_router(pedidos_api.router)
-except ImportError as e:
-    logger.warning(f"Could not import pedidos_api router: {e}")
+print("✓ Routers registrados:")
+print("  - /normales")
+print("  - /clientes")
+print("  - /admin")
+print("  - /api/pedidos")
 
 
 @app.get("/login", response_class=HTMLResponse)
@@ -290,8 +296,29 @@ async def health_check():
     return JSONResponse({
         "status": "ok",
         "ip_servidor": get_local_ip(),
-        "mensaje": "Conexión exitosa con el servidor de pedidos"
+        "mensaje": "Conexión exitosa con el servidor de pedidos",
+        "routers": [
+            "/normales",
+            "/clientes",
+            "/admin",
+            "/api/pedidos"
+        ]
     })
+
+
+@app.get("/debug/routes")
+async def debug_routes():
+    """Endpoint para debug - muestra todas las rutas disponibles"""
+    routes = []
+    for route in app.routes:
+        if hasattr(route, 'methods'):
+            routes.append({
+                "path": route.path,
+                "methods": list(route.methods),
+                "name": route.name
+            })
+    return {"routes": routes}
+
 
 if __name__ == "__main__":
     import uvicorn
