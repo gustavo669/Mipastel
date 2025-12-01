@@ -6,7 +6,7 @@ from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
 from reportlab.lib.units import inch
-from config import SUCURSALES
+from config import SUCURSALES, TAMANOS_NORMALES, SABORES_NORMALES
 import os
 from collections import defaultdict
 
@@ -92,16 +92,26 @@ def abreviar_sucursal(sucursal):
     return ABREVIACIONES_SUCURSALES.get(sucursal, sucursal[:3])
 
 
-def generar_pdf_listas(target_date=None, sucursal=None, output_path=None):
+def generar_pdf_listas(target_date=None, sucursal=None, output_path=None, tipo='ambos'):
     fecha_obj = target_date or date.today()
-    return generar_reporte_listas(fecha_obj, fecha_obj, sucursal, output_path)
+    return generar_reporte_listas(fecha_obj, fecha_obj, sucursal, output_path, tipo)
 
 
-def generar_pdf_rango_fechas(fecha_inicio, fecha_fin, sucursal=None, output_path=None):
-    return generar_reporte_listas(fecha_inicio, fecha_fin, sucursal, output_path)
+def generar_pdf_rango_fechas(fecha_inicio, fecha_fin, sucursal=None, output_path=None, tipo='ambos'):
+    return generar_reporte_listas(fecha_inicio, fecha_fin, sucursal, output_path, tipo)
 
 
-def generar_reporte_listas(fecha_inicio, fecha_fin, sucursal=None, output_path=None):
+def generar_pdf_produccion(target_date=None, sucursal=None, output_path=None):
+    fecha_obj = target_date or date.today()
+    return generar_reporte_listas(fecha_obj, fecha_obj, sucursal, output_path, 'produccion')
+
+
+def generar_pdf_clientes_control(target_date=None, sucursal=None, output_path=None):
+    fecha_obj = target_date or date.today()
+    return generar_reporte_listas(fecha_obj, fecha_obj, sucursal, output_path, 'clientes')
+
+
+def generar_reporte_listas(fecha_inicio, fecha_fin, sucursal=None, output_path=None, tipo='ambos'):
     inicio = datetime.combine(fecha_inicio, datetime.min.time())
     fin = datetime.combine(fecha_fin, datetime.max.time())
 
@@ -145,31 +155,53 @@ def generar_reporte_listas(fecha_inicio, fecha_fin, sucursal=None, output_path=N
 
     agregar_logo_header(elements, fecha_inicio, fecha_fin, sucursal)
 
-    elements.append(Paragraph(f"<font size={TAMANO_TITULO - 2}><b>Producción — Pasteles de Tiendas</b></font>", styles["Normal"]))
-    elements.append(Spacer(1, 6))
-    tabla1 = generar_tabla_produccion_acumulada(normales)
-    elements.append(tabla1)
-    elements.append(Spacer(1, 20))
+    if tipo in ['produccion', 'ambos']:
+        elements.append(Paragraph(f"<font size={TAMANO_TITULO - 2}><b>Producción — Pasteles de Tiendas</b></font>", styles["Normal"]))
+        elements.append(Spacer(1, 6))
+        tabla1 = generar_tabla_produccion_acumulada(normales)
+        elements.append(tabla1)
+        elements.append(Spacer(1, 20))
 
-    elements.append(Paragraph(f"<font size={TAMANO_TITULO - 2}><b>Control de Pedidos — Clientes</b></font>", styles["Normal"]))
-    elements.append(Spacer(1, 6))
-    tabla2 = generar_tabla_clientes_acumulada(clientes)
-    elements.append(tabla2)
+    if tipo in ['clientes', 'ambos']:
+        elements.append(Paragraph(f"<font size={TAMANO_TITULO - 2}><b>Control de Pedidos — Clientes</b></font>", styles["Normal"]))
+        elements.append(Spacer(1, 6))
+        tabla2 = generar_tabla_clientes_acumulada(clientes)
+        elements.append(tabla2)
 
     doc.build(elements)
     return filename
 
 
 def generar_tabla_produccion_acumulada(normales):
-    totales_por_producto = defaultdict(lambda: {s: 0 for s in SUCURSALES})
+    totales_por_producto = {}
 
     for row in normales:
         _id, sabor, tamano, precio, cantidad, sucursal, fecha_entrega, sabor_personalizado = row
         sabor_real = sabor_personalizado if sabor_personalizado else sabor
         producto_key = f"{tamano} de {sabor_real}".upper()
 
+        if producto_key not in totales_por_producto:
+            totales_por_producto[producto_key] = {s: 0 for s in SUCURSALES}
+
         if sucursal in totales_por_producto[producto_key]:
             totales_por_producto[producto_key][sucursal] += cantidad
+
+    sabores_base = ["Fresas", "Frutas", "Chocolate", "Selva negra", "Oreo", "Chocofresa", "Tres Leches", "Tres leches con Arándanos", "Fiesta"]
+    tamanos_base = ["Mini", "Pequeño", "Mediano", "Grande"]
+
+    productos_ordenados = []
+    for sabor in sabores_base:
+        for tamano in tamanos_base:
+            producto_key = f"{tamano} de {sabor}".upper()
+            productos_ordenados.append(producto_key)
+            if producto_key not in totales_por_producto:
+                totales_por_producto[producto_key] = {s: 0 for s in SUCURSALES}
+
+        if sabor in ["Fresas", "Frutas"]:
+            producto_key = f"Extra grande de {sabor}".upper()
+            productos_ordenados.append(producto_key)
+            if producto_key not in totales_por_producto:
+                totales_por_producto[producto_key] = {s: 0 for s in SUCURSALES}
 
     sucursales_abreviadas = [abreviar_sucursal(s) for s in SUCURSALES]
     encabezado = ["Producto"] + sucursales_abreviadas + ["Total"]
@@ -177,8 +209,6 @@ def generar_tabla_produccion_acumulada(normales):
 
     totales_sucursales = {s: 0 for s in SUCURSALES}
     gran_total = 0
-
-    productos_ordenados = sorted(totales_por_producto.keys())
 
     for producto in productos_ordenados:
         fila = [Paragraph(producto, style_celda)]
@@ -238,7 +268,7 @@ def generar_tabla_produccion_acumulada(normales):
 
 
 def generar_tabla_clientes_acumulada(clientes):
-    encabezado = ["ID", "Cant.", "Descripción", "Suc.", "Color", "F. Entrega", "Detalles", "Foto", "Dedicatoria"]
+    encabezado = ["ID", "Cant.", "Descripción", "Suc.", "F. Entrega", "Detalles", "Foto", "Dedicatoria", "Color"]
     data = [encabezado]
     total_cantidad_clientes = 0
 
@@ -265,11 +295,11 @@ def generar_tabla_clientes_acumulada(clientes):
             str(cant),
             Paragraph(descripcion_txt, style_celda),
             Paragraph(abreviar_sucursal(sucursal), style_celda_centro),
-            Paragraph(color or "", style_celda_centro),
             Paragraph(fecha_entrega_formateada, style_celda_centro),
             Paragraph(detalles or "", style_celda),
             "SI" if foto_path else "NO",
-            Paragraph(dedicatoria or "", style_celda)
+            Paragraph(dedicatoria or "", style_celda),
+            Paragraph(color or "", style_celda_centro)
         ])
 
     data.append([
@@ -279,7 +309,7 @@ def generar_tabla_clientes_acumulada(clientes):
         "", "", "", "", "", ""
     ])
 
-    col_widths = [25, 30, 130, 35, 45, 55, 150, 30, 140]
+    col_widths = [35, 35, 150, 40, 70, 180, 40, 150, 55]
 
     tabla = Table(data, colWidths=col_widths, repeatRows=1)
     tabla.setStyle(TableStyle([
@@ -289,11 +319,8 @@ def generar_tabla_clientes_acumulada(clientes):
         ('ALIGN', (0,0), (-1,0), 'CENTER'),
         ('BOTTOMPADDING', (0,0), (-1,0), 8),
         ('TOPPADDING', (0,0), (-1,0), 8),
-        ('VALIGN', (0,0), (-1,-1), 'TOP'),
-        ('ALIGN', (0,1), (0,-1), 'CENTER'),
-        ('ALIGN', (1,1), (1,-1), 'CENTER'),
-        ('ALIGN', (3,1), (5,-1), 'CENTER'),
-        ('ALIGN', (7,1), (7,-1), 'CENTER'),
+        ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+        ('ALIGN', (0,1), (-1,-1), 'CENTER'),
         ('GRID', (0,0), (-1,-2), 0.5, colors.grey),
         ('FONTSIZE', (0,0), (-1,-1), TAMANO_FUENTE_BODY),
         ('ROWBACKGROUNDS', (0, 1), (-1, -2), [colors.white, colors.whitesmoke]),
@@ -304,7 +331,7 @@ def generar_tabla_clientes_acumulada(clientes):
         ('BACKGROUND', (0,-1), (-1,-1), colors.HexColor("#E0E0E0")),
         ('FONTNAME', (0,-1), (-1,-1), 'Helvetica-Bold'),
         ('FONTSIZE', (0,-1), (-1,-1), TAMANO_FUENTE_HEADER),
-        ('ALIGN', (1,-1), (1,-1), 'CENTER'),
+        ('ALIGN', (0,-1), (-1,-1), 'CENTER'),
         ('TOPPADDING', (0,-1), (-1,-1), 6),
         ('BOTTOMPADDING', (0,-1), (-1,-1), 6),
         ('GRID', (0,-1), (-1,-1), 1, colors.black),

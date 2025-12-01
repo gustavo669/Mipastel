@@ -1,7 +1,7 @@
 
 SABORES_NORMALES = [
     "Fresas", "Frutas", "Chocolate", "Selva negra", "Oreo", "Chocofresa",
-    "Tres Leches", "Tres leches con Arándanos", "Fiesta", "Ambiente", "Zanahoria",
+    "Tres Leches", "Tres leches con Arándanos", "Fiesta",
 ]
 
 SABORES_CLIENTES = SABORES_NORMALES

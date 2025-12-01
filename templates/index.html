@@ -4,185 +4,519 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mi Pastel - {{ user_data.sucursal }}</title>
+    <title>Mi Pastel - Sistema de Pedidos</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="admin-style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
     <style>
-        .navbar-brand {
-            font-family: 'Great Vibes', cursive;
-            color: #d63384 !important;
-            font-size: 2rem;
-        }
+    /* ===============================================
+    VARIABLES & ROOT CONFIGURATION
+    =============================================== */
+    :root {
+    --primary-purple: #8e44ad;
+    --dark-purple: #6f2f86;
+    --light-purple: #b65fae;
+    --pink: #ff88b8;
+    --light-pink: #fff5fb;
+    --border-pink: #f0d6ec;
+    --text-dark: #2b1b3a;
+    --success-green: #48c774;
+    --danger-red: #ff6fa3;
+    }
 
-        .hero-section {
-            background: linear-gradient(135deg, #fff0f6 0%, #fffaf6 100%);
-            border-radius: 15px;
-            padding: 2rem;
-            margin: 2rem 0;
-        }
+    body {
+    background: linear-gradient(135deg, #fff0f6 0%, #fffaf6 100%);
+    font-family: 'Segoe UI', 'Open Sans', 'Lato', sans-serif;
+    color: var(--text-dark);
+    min-height: 100vh;
+    }
 
-        .btn-primary {
-            background: linear-gradient(135deg, #ff66b2, #d63384);
-            border: none;
-            border-radius: 25px;
-            padding: 12px 30px;
-            font-weight: bold;
-        }
+    h1, h2, h3, h4, h5, h6 {
+    color: var(--primary-purple);
+    }
 
-        .btn-success {
-            background: linear-gradient(135deg, #48c774, #2e8b57);
-            border: none;
-            border-radius: 25px;
-            padding: 12px 30px;
-            font-weight: bold;
-            color: white;
-        }
+    .text-primary { color: var(--primary-purple) !important; }
+    .text-success { color: var(--success-green) !important; }
 
-        .form-section {
-            background: white;
-            border-radius: 15px;
-            padding: 2rem;
-            margin: 1rem 0;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
+    /* ===============================================
+    NAVBAR
+    =============================================== */
+    .navbar {
+    background: linear-gradient(135deg, #ffffff 0%, #fff5fb 100%) !important;
+    border-bottom: 3px solid var(--border-pink);
+    box-shadow: 0 2px 10px rgba(142, 68, 173, 0.1);
+    }
 
-        .price-display {
-            background: #fff0f6;
-            border-radius: 10px;
-            padding: 15px;
-            margin: 10px 0;
-            border-left: 4px solid #d63384;
-        }
+    .navbar-brand {
+    font-family: 'Great Vibes', cursive;
+    color: var(--dark-purple) !important;
+    font-size: 2.5rem;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(111, 47, 134, 0.1);
+    }
 
-        .nav-pills .nav-link.active {
-            background: linear-gradient(135deg, #ff66b2, #d63384) !important;
-            border-radius: 20px;
-            color: #fff !important;
-            font-weight: 600;
-        }
+    /* ===============================================
+    HERO & SECTIONS
+    =============================================== */
+    .hero-section {
+    background: linear-gradient(135deg, #fff0f6 0%, #fffaf6 100%);
+    border-radius: 15px;
+    padding: 2rem;
+    margin: 2rem 0;
+    border: 2px solid var(--border-pink);
+    box-shadow: 0 4px 15px rgba(142, 68, 173, 0.1);
+    }
 
-        .cart-item {
-            background: #f8f9fa;
-            border-left: 4px solid #d63384;
-            padding: 10px;
-            margin: 5px 0;
-            border-radius: 5px;
-        }
+    /* ===============================================
+    BUTTONS (Unified Gradients)
+    =============================================== */
+    /* Primary */
+    .btn-primary {
+    background: linear-gradient(180deg, #9b59b6 0%, #7d3c98 100%);
+    border: none;
+    border-radius: 25px;
+    padding: 12px 30px;
+    font-weight: 600;
+    color: white;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(142, 68, 173, 0.2);
+    }
 
-        .cart-badge {
-            position: relative;
-            top: -10px;
-            right: -5px;
-            background: #d63384;
-            color: white;
-            border-radius: 50%;
-            padding: 2px 8px;
-            font-size: 11px;
-        }
+    .btn-primary:hover {
+    background: linear-gradient(180deg, #a66bbf 0%, #6e3288 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(142, 68, 173, 0.4);
+    color: white;
+    }
 
-        .banner-container {
-            width: 100%;
-            height: 300px;
-            overflow: hidden;
-            border-radius: 15px;
-            margin: 1rem 0;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        }
+    /* Success */
+    .btn-success {
+    background: linear-gradient(180deg, #48c774 0%, #2e8b57 100%);
+    border: none;
+    border-radius: 25px;
+    padding: 12px 30px;
+    font-weight: 600;
+    color: white;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(72, 199, 116, 0.2);
+    }
 
-        .banner-img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
+    .btn-success:hover {
+    background: linear-gradient(180deg, #3fb868 0%, #256b46 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(72, 199, 116, 0.4);
+    color: white;
+    }
 
-        .table-container {
-            background: white;
-            border-radius: 15px;
-            padding: 1.5rem;
-            margin: 1rem 0;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
+    /* Danger */
+    .btn-danger {
+    background: linear-gradient(180deg, var(--danger-red) 0%, #ff5f97 100%);
+    border: none;
+    border-radius: 25px;
+    padding: 12px 30px;
+    font-weight: 600;
+    color: white;
+    transition: all 0.3s ease;
+    }
 
-        .table {
-            font-size: 0.9rem;
-        }
+    .btn-danger:hover {
+    background: linear-gradient(180deg, #ff5f97 0%, #ff4f87 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 111, 163, 0.4);
+    }
 
-        .table thead {
-            background: linear-gradient(135deg, #ff66b2, #d63384);
-            color: white;
-        }
+    /* Outlines */
+    .btn-outline-danger {
+    border: 2px solid var(--danger-red);
+    color: var(--danger-red);
+    border-radius: 20px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    background: transparent;
+    }
 
-        .badge-editable {
-            background: #48c774;
-        }
+    .btn-outline-danger:hover {
+    background: var(--danger-red);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(255, 111, 163, 0.3);
+    }
 
-        .badge-locked {
-            background: #6c757d;
-        }
+    .btn-outline-primary {
+    border: 2px solid var(--primary-purple);
+    color: var(--primary-purple);
+    border-radius: 20px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    background: transparent;
+    }
 
-        .alert-success-custom {
-            background: linear-gradient(135deg, #d4edda, #c3e6cb);
-            border-left: 4px solid #28a745;
-            border-radius: 10px;
-        }
+    .btn-outline-primary:hover {
+    background: var(--primary-purple);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(142, 68, 173, 0.3);
+    }
 
-        .btn-sm-custom {
-            padding: 5px 10px;
-            font-size: 0.8rem;
-            border-radius: 15px;
-        }
+    /* ===============================================
+    FORMS
+    =============================================== */
+    .form-section {
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    margin: 1rem 0;
+    box-shadow: 0 4px 15px rgba(142, 68, 173, 0.1);
+    border: 2px solid var(--border-pink);
+    transition: all 0.3s ease;
+    }
 
-        /* Transiciones suaves */
-        .btn,
-        .form-control,
-        .form-select,
-        .card,
-        .form-section {
-            transition: all 0.3s ease;
-        }
+    .form-section:hover {
+    box-shadow: 0 6px 20px rgba(142, 68, 173, 0.15);
+    }
 
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
+    .form-section h4 {
+    color: var(--primary-purple);
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+    }
 
-        .form-control:focus,
-        .form-select:focus {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(214, 51, 132, 0.2);
-        }
+    .form-control, .form-select {
+    border: 2px solid var(--border-pink);
+    border-radius: 8px;
+    padding: 10px 15px;
+    transition: all 0.3s ease;
+    }
 
-        .cart-item {
-            transition: all 0.3s ease;
-        }
+    .form-control:focus, .form-select:focus {
+    border-color: var(--light-purple);
+    box-shadow: 0 0 0 0.2rem rgba(142, 68, 173, 0.25);
+    outline: none;
+    }
 
-        .cart-item:hover {
-            transform: translateX(5px);
-            box-shadow: 0 3px 10px rgba(214, 51, 132, 0.2);
-        }
+    .form-label {
+    color: var(--text-dark);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    }
 
-        .tab-pane {
-            animation: fadeIn 0.4s ease-in-out;
-        }
+    /* Date Filter Section (from Code 1) */
+    .date-filter-section {
+    background: white;
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(142, 68, 173, 0.1);
+    margin-bottom: 2rem;
+    border: 2px solid var(--border-pink);
+    }
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
+    .quick-filter-btn {
+    margin: 5px;
+    border-radius: 20px;
+    padding: 10px 20px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    }
 
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
+    /* ===============================================
+    TABS & NAVIGATION
+    =============================================== */
+    /* Standard Nav Tabs */
+    .nav-tabs {
+    border-bottom: 2px solid var(--border-pink);
+    }
+
+    .nav-tabs .nav-link {
+    color: var(--text-dark);
+    font-weight: 600;
+    border-radius: 15px 15px 0 0;
+    padding: 12px 24px;
+    margin: 0 5px;
+    transition: all 0.3s ease;
+    border: none;
+    background: transparent;
+    }
+
+    .nav-tabs .nav-link:hover {
+    background: var(--light-pink);
+    transform: translateY(-2px);
+    }
+
+    .nav-tabs .nav-link.active {
+    background: linear-gradient(135deg, #9b59b6 0%, #7d3c98 100%);
+    color: #fff !important;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(142, 68, 173, 0.3);
+    transform: translateY(-2px);
+    }
+
+    /* Nav Pills (from Code 2) */
+    .nav-pills .nav-link {
+    color: var(--text-dark);
+    font-weight: 600;
+    border-radius: 20px;
+    padding: 12px 24px;
+    margin: 0 5px;
+    transition: all 0.3s ease;
+    border: 2px solid var(--border-pink);
+    background: white;
+    }
+
+    .nav-pills .nav-link:hover {
+    background: var(--light-pink);
+    border-color: var(--light-purple);
+    transform: translateY(-2px);
+    }
+
+    .nav-pills .nav-link.active {
+    background: linear-gradient(135deg, #9b59b6 0%, #7d3c98 100%) !important;
+    color: #fff !important;
+    border: 2px solid var(--dark-purple);
+    box-shadow: 0 4px 12px rgba(142, 68, 173, 0.3);
+    }
+
+    /* ===============================================
+    CARDS & STATS
+    =============================================== */
+    .stats-card {
+    background: white;
+    border-left: 5px solid var(--primary-purple);
+    border-radius: 15px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 15px rgba(142, 68, 173, 0.1);
+    transition: all 0.3s ease;
+    border: 2px solid var(--border-pink);
+    }
+
+    .stats-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 10px 25px rgba(142, 68, 173, 0.2);
+    }
+
+    .stats-card h5 {
+    color: var(--text-dark);
+    font-weight: 600;
+    margin-bottom: 1rem;
+    }
+
+    .stats-card h2 {
+    color: var(--primary-purple);
+    font-weight: bold;
+    }
+
+    /* Success Card */
+    .success-card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(214, 51, 132, 0.1);
+    border: none;
+    max-width: 500px;
+    }
+
+    .success-icon {
+    font-size: 4rem;
+    color: #28a745;
+    margin-bottom: 1rem;
+    }
+
+    /* ===============================================
+    TABLES
+    =============================================== */
+    .table-container {
+    background: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin: 1rem 0;
+    box-shadow: 0 4px 15px rgba(142, 68, 173, 0.1);
+    border: 2px solid var(--border-pink);
+    }
+
+    .table {
+    background-color: white;
+    border: 2px solid var(--border-pink);
+    border-radius: 8px;
+    overflow: hidden;
+    }
+
+    .table thead {
+    background: linear-gradient(135deg, var(--primary-purple) 0%, var(--dark-purple) 100%);
+    color: white;
+    }
+
+    .table thead th {
+    border: none;
+    padding: 12px;
+    font-weight: 600;
+    }
+
+    .table tbody tr {
+    transition: all 0.2s ease;
+    }
+
+    .table tbody tr:nth-child(even) {
+    background-color: var(--light-pink);
+    }
+
+    .table tbody tr:hover {
+    background-color: #ffe6f5;
+    transform: scale(1.01);
+    box-shadow: 0 2px 8px rgba(142, 68, 173, 0.1);
+    }
+
+    .table tbody td {
+    padding: 10px;
+    border-color: var(--border-pink);
+    }
+
+    /* ===============================================
+    ELEMENTS: Badges, Alerts, Price, Cart
+    =============================================== */
+    .badge {
+    background: linear-gradient(135deg, var(--primary-purple) 0%, var(--dark-purple) 100%);
+    border-radius: 20px;
+    padding: 6px 12px;
+    font-weight: 600;
+    }
+
+    .badge-color {
+    padding: 5px 10px;
+    border-radius: 8px;
+    color: #000;
+    font-weight: 600;
+    }
+
+    .alert {
+    border-radius: 10px;
+    border: 2px solid var(--border-pink);
+    }
+
+    .alert-info {
+    background-color: var(--light-pink);
+    border-color: var(--light-purple);
+    color: var(--dark-purple);
+    }
+
+    /* Price Display */
+    .price-display {
+    background: var(--light-pink);
+    border-radius: 10px;
+    padding: 15px;
+    margin: 10px 0;
+    border-left: 4px solid var(--primary-purple);
+    box-shadow: 0 2px 8px rgba(142, 68, 173, 0.1);
+    }
+
+    .price-display strong {
+    color: var(--dark-purple);
+    }
+
+    /* Cart Items */
+    .cart-item {
+    background: var(--light-pink);
+    border-left: 4px solid var(--primary-purple);
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(142, 68, 173, 0.1);
+    transition: all 0.3s ease;
+    }
+
+    .cart-item:hover {
+    transform: translateX(5px);
+    box-shadow: 0 4px 12px rgba(142, 68, 173, 0.2);
+    }
+
+    .cart-badge {
+    position: relative;
+    top: -10px;
+    right: -5px;
+    background: linear-gradient(135deg, var(--danger-red), #ff5f97);
+    color: white;
+    border-radius: 50%;
+    padding: 4px 10px;
+    font-size: 12px;
+    font-weight: bold;
+    box-shadow: 0 2px 6px rgba(255, 111, 163, 0.4);
+    }
+
+    /* Banner */
+    .banner-container {
+    width: 100%;
+    height: 300px;
+    overflow: hidden;
+    border-radius: 15px;
+    margin: 1rem 0;
+    box-shadow: 0 4px 15px rgba(142, 68, 173, 0.15);
+    border: 3px solid var(--border-pink);
+    }
+
+    .banner-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+    }
+
+    .banner-container:hover .banner-img {
+    transform: scale(1.05);
+    }
+
+    /* ===============================================
+    MODALS & FOOTER
+    =============================================== */
+    .modal-header {
+    background: linear-gradient(135deg, #9b59b6 0%, #7d3c98 100%);
+    color: white;
+    border: none;
+    }
+
+    .modal-header .btn-close {
+    filter: brightness(0) invert(1);
+    }
+
+    footer {
+    background: linear-gradient(135deg, #ffffff 0%, #fff5fb 100%);
+    border-top: 3px solid var(--border-pink);
+    color: var(--text-dark);
+    font-weight: 500;
+    padding: 1.5rem 0;
+    }
+
+    /* ===============================================
+    ANIMATIONS
+    =============================================== */
+    @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+    }
+
+    .fade-in, .tab-pane {
+    animation: fadeIn 0.5s ease;
+    }
+
+    /* ===============================================
+    RESPONSIVE
+    =============================================== */
+    @media (max-width: 768px) {
+    .navbar-brand {
+    font-size: 1.8rem;
+    }
+
+    .btn-primary, .btn-success, .btn-danger {
+    padding: 10px 20px;
+    font-size: 14px;
+    }
+
+    .form-section, .date-filter-section {
+    padding: 1.5rem;
+    }
+    }
     </style>
 </head>
-
 <body>
 
-    <nav class="navbar navbar-expand-lg navbar-light" style="background-color:#fff0f6;">
+<nav class="navbar navbar-expand-lg navbar-light" style="background-color:#fff0f6;">
         <div class="container">
             <a class="navbar-brand" href="/">Mi Pastel</a>
             <div class="navbar-nav ms-auto">
@@ -217,12 +551,12 @@
         <ul class="nav nav-pills nav-justified mb-4" id="myTab">
             <li class="nav-item">
                 <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#normales">
-                    Pasteles Tienda
+                    Tienda
                 </button>
             </li>
             <li class="nav-item">
                 <button class="nav-link" data-bs-toggle="tab" data-bs-target="#clientes">
-                    Pasteles Clientes
+                    Cliente
                 </button>
             </li>
             <li class="nav-item">
@@ -239,7 +573,6 @@
         </ul>
 
         <div class="tab-content">
-            <!-- Tab Normales -->
             <div class="tab-pane fade show active" id="normales">
                 <div class="form-section">
                     <h4 class="mb-4" style="color:#d63384;">Pedido de Tienda</h4>
@@ -303,7 +636,6 @@
                 </div>
             </div>
 
-            <!-- Tab Clientes -->
             <div class="tab-pane fade" id="clientes">
                 <div class="form-section">
                     <h4 class="mb-4" style="color:#d63384;">Pedido de Cliente</h4>
@@ -389,7 +721,6 @@
                 </div>
             </div>
 
-            <!-- Tab Lista -->
             <div class="tab-pane fade" id="pedidos">
                 <div class="form-section">
                     <h4 class="mb-4" style="color:#d63384;">Mi Lista de Pedidos</h4>
@@ -415,7 +746,6 @@
                 </div>
             </div>
 
-            <!-- Tab Pedidos Registrados -->
             <div class="tab-pane fade" id="registrados">
                 <div class="table-container">
                     <h4 class="mb-4" style="color:#d63384;">
@@ -425,7 +755,6 @@
                         </button>
                     </h4>
 
-                    <!-- Búsqueda por Fecha -->
                     <div class="row mb-4">
                         <div class="col-md-4">
                             <label class="form-label"><i class="fas fa-calendar"></i> Buscar por Fecha</label>
@@ -438,7 +767,6 @@
                         </div>
                     </div>
 
-                    <!-- Pasteles de Tienda -->
                     <h5 class="mt-4 mb-3">Pasteles de Tienda</h5>
                     <div class="table-responsive">
                         <table class="table table-hover table-bordered">
@@ -464,7 +792,6 @@
                         </table>
                     </div>
 
-                    <!-- Pasteles de Clientes -->
                     <h5 class="mt-5 mb-3">Pasteles de Clientes</h5>
                     <div class="table-responsive">
                         <table class="table table-hover table-bordered">
@@ -496,7 +823,6 @@
         </div>
     </div>
 
-    <!-- Modal Editar Pedido Normal -->
     <div class="modal fade" id="modalEditarNormal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -536,7 +862,6 @@
         </div>
     </div>
 
-    <!-- Modal Editar Pedido Cliente -->
     <div class="modal fade" id="modalEditarCliente" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -590,25 +915,34 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Variables globales
         const SUCURSAL = "{{ user_data.sucursal }}";
         let cartaNormales = [];
         let cartaClientes = [];
 
-        // Establecer fecha mínima (HOY)
-        document.addEventListener('DOMContentLoaded', () => {
+        function obtenerFechas() {
             const hoy = new Date();
-            const fechaStr = hoy.toISOString().split('T')[0];
+            const manana = new Date(hoy);
+            manana.setDate(manana.getDate() + 1);
 
-            // Fecha por defecto HOY
-            document.getElementById('fechaEntregaNormal').value = fechaStr;
-            document.getElementById('fechaEntregaNormal').min = fechaStr;
-            document.getElementById('fechaEntregaCliente').value = fechaStr;
-            document.getElementById('fechaEntregaCliente').min = fechaStr;
+            const formatoFecha = (fecha) => fecha.toISOString().split('T')[0];
 
-            document.getElementById('fechaBusqueda').value = fechaStr;
+            return {
+                hoy: formatoFecha(hoy),
+                manana: formatoFecha(manana)
+            };
+        }
 
-            // Eventos
+        document.addEventListener('DOMContentLoaded', () => {
+            const fechas = obtenerFechas();
+
+            document.getElementById('fechaEntregaNormal').value = fechas.manana;
+            document.getElementById('fechaEntregaNormal').min = fechas.manana;
+
+            document.getElementById('fechaEntregaCliente').value = fechas.manana;
+            document.getElementById('fechaEntregaCliente').min = fechas.manana;
+
+            document.getElementById('fechaBusqueda').value = fechas.hoy;
+
             document.getElementById('saborNormal').addEventListener('change', () => {
                 toggleOtro('saborNormal', 'saborOtroNormal');
                 actualizarPrecio('normal');
@@ -670,57 +1004,32 @@
             }
         }
 
-        function mostrarMensajeExito(mensaje) {
-            const alertDiv = document.getElementById('mensajeExito');
-            const textoSpan = document.getElementById('mensajeExitoTexto');
-
-            textoSpan.textContent = mensaje;
-            alertDiv.classList.remove('d-none');
-
-            // Scroll al mensaje
-            alertDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-            // Ocultar después de 5 segundos
-            setTimeout(() => {
-                alertDiv.classList.add('d-none');
-            }, 5000);
-        }
-
-        function agregarAlCarrito(tipo) {
-            const datos = obtenerDatosFormulario(tipo);
-
-            if (!validarFormulario(datos, tipo)) return;
-
-            if (tipo === 'normal') {
-                cartaNormales.push(datos);
-            } else {
-                cartaClientes.push(datos);
-            }
-
-            actualizarVista();
-            limpiarFormulario(tipo);
-
-            // Cambiar a tab de lista
-            const tab = new bootstrap.Tab(document.querySelector('[data-bs-target="#pedidos"]'));
-            tab.show();
-        }
-
         function obtenerDatosFormulario(tipo) {
             if (tipo === 'normal') {
                 const sabor = document.getElementById('saborNormal').value;
                 const saborOtro = document.getElementById('saborOtroNormal').value;
+                const precioText = document.getElementById('precioUnitarioNormal').textContent
+                    .replace('Q', '')
+                    .replace(' (No encontrado)', '')
+                    .replace(' (Error)', '')
+                    .trim();
 
                 return {
                     sabor: sabor === 'Otro' ? saborOtro : sabor,
                     tamano: document.getElementById('tamanoNormal').value,
                     cantidad: parseInt(document.getElementById('cantidadNormal').value),
                     fecha_entrega: document.getElementById('fechaEntregaNormal').value,
-                    precio: parseFloat(document.getElementById('precioUnitarioNormal').textContent.replace('Q', '').replace(' (No encontrado)', '').replace(' (Error)', '')),
+                    precio: parseFloat(precioText) || 0,
                     sabor_personalizado: sabor === 'Otro' ? saborOtro : null
                 };
             } else {
                 const sabor = document.getElementById('saborCliente').value;
                 const saborOtro = document.getElementById('saborOtroCliente').value;
+                const precioText = document.getElementById('precioUnitarioCliente').textContent
+                    .replace('Q', '')
+                    .replace(' (No encontrado)', '')
+                    .replace(' (Error)', '')
+                    .trim();
 
                 return {
                     sabor: sabor === 'Otro' ? saborOtro : sabor,
@@ -730,7 +1039,7 @@
                     color: document.getElementById('colorCliente').value,
                     dedicatoria: document.getElementById('dedicatoriaCliente').value,
                     detalles: document.getElementById('detallesCliente').value,
-                    precio: parseFloat(document.getElementById('precioUnitarioCliente').textContent.replace('Q', '').replace(' (No encontrado)', '').replace(' (Error)', '')),
+                    precio: parseFloat(precioText) || 0,
                     sabor_personalizado: sabor === 'Otro' ? saborOtro : null
                 };
             }
@@ -751,11 +1060,14 @@
         }
 
         function limpiarFormulario(tipo) {
+            const fechas = obtenerFechas();
+
             if (tipo === 'normal') {
                 document.getElementById('saborNormal').value = '';
                 document.getElementById('tamanoNormal').value = '';
                 document.getElementById('cantidadNormal').value = '1';
                 document.getElementById('saborOtroNormal').classList.add('d-none');
+                document.getElementById('fechaEntregaNormal').value = fechas.manana;
                 document.getElementById('precioUnitarioNormal').textContent = 'Q0.00';
                 document.getElementById('precioTotalNormal').textContent = 'Q0.00';
             } else {
@@ -766,60 +1078,30 @@
                 document.getElementById('dedicatoriaCliente').value = '';
                 document.getElementById('detallesCliente').value = '';
                 document.getElementById('saborOtroCliente').classList.add('d-none');
+                document.getElementById('fechaEntregaCliente').value = fechas.manana;
                 document.getElementById('precioUnitarioCliente').textContent = 'Q0.00';
                 document.getElementById('precioTotalCliente').textContent = 'Q0.00';
             }
         }
 
-        function actualizarVista() {
-            // Actualizar badge
-            const total = cartaNormales.length + cartaClientes.length;
-            const badge = document.getElementById('cartBadge');
-            badge.textContent = total;
-            badge.style.display = total > 0 ? 'inline' : 'none';
+        function agregarAlCarrito(tipo) {
+            const datos = obtenerDatosFormulario(tipo);
 
-            // Actualizar contadores
-            document.getElementById('countNormalesLista').textContent = cartaNormales.length;
-            document.getElementById('countClientesLista').textContent = cartaClientes.length;
+            if (!validarFormulario(datos, tipo)) return;
 
-            // Renderizar listas
-            const listaNorm = document.getElementById('listaNormales');
-            const listaCli = document.getElementById('listaClientes');
+            if (tipo === 'normal') {
+                cartaNormales.push(datos);
+            } else {
+                cartaClientes.push(datos);
+            }
 
-            listaNorm.innerHTML = cartaNormales.length === 0 ? '<p class="text-muted">No hay pedidos de tienda</p>' : '';
-            cartaNormales.forEach((p, i) => {
-                listaNorm.innerHTML += `
-            <div class="cart-item">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <strong>${p.sabor}</strong> - ${p.tamano} x${p.cantidad}
-                        <br><small>Entrega: ${p.fecha_entrega} | Total: Q${(p.precio * p.cantidad).toFixed(2)}</small>
-                    </div>
-                    <button class="btn btn-sm btn-danger" onclick="eliminarDeLista('normal', ${i})">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-            </div>
-        `;
-            });
+            actualizarVista();
+            limpiarFormulario(tipo);
 
-            listaCli.innerHTML = cartaClientes.length === 0 ? '<p class="text-muted">No hay pedidos de clientes</p>' : '';
-            cartaClientes.forEach((p, i) => {
-                listaCli.innerHTML += `
-            <div class="cart-item">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <strong>${p.sabor}</strong> - ${p.tamano} x${p.cantidad}
-                        <br><small>Entrega: ${p.fecha_entrega} | Total: Q${(p.precio * p.cantidad).toFixed(2)}</small>
-                        ${p.dedicatoria ? '<br><small>Dedicatoria: ' + p.dedicatoria + '</small>' : ''}
-                    </div>
-                    <button class="btn btn-sm btn-danger" onclick="eliminarDeLista('cliente', ${i})">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-            </div>
-        `;
-            });
+            const tab = new bootstrap.Tab(document.querySelector('[data-bs-target="#pedidos"]'));
+            tab.show();
+
+            alert('Pedido agregado a la lista');
         }
 
         function eliminarDeLista(tipo, index) {
@@ -838,37 +1120,168 @@
             actualizarVista();
         }
 
-        async function registrarTodos() {
-            // Si no hay pedidos no hace nada
-            if (cartaNormales.length === 0 && cartaClientes.length === 0) return;
+        async function registrarDirecto(tipo) {
+            const form = tipo === 'normal' ? document.getElementById('formNormal') : document.getElementById('formCliente');
+            const formData = new FormData(form);
 
-            const data = {
-                normales: cartaNormales,
-                clientes: cartaClientes,
-                sucursal: SUCURSAL
-            };
+            formData.append('sucursal', SUCURSAL);
+
+            const endpoint = tipo === 'normal' ? '/normales/registrar' : '/clientes/registrar';
 
             try {
-                const resp = await fetch('/api/pedidos/registrar', {
+                const response = await fetch(endpoint, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
+                    body: formData
                 });
 
-                if (resp.ok) {
-                    // limpiar arrays
+                if (response.ok) {
+                    limpiarFormulario(tipo);
+                    alert('✓ Pedido registrado exitosamente');
+                    cargarPedidosRegistrados();
+                    const tab = new bootstrap.Tab(document.querySelector('[data-bs-target="#registrados"]'));
+                    tab.show();
+                } else {
+                    const error = await response.json();
+                    alert('Error: ' + (error.detail || 'No se pudo registrar'));
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al registrar pedido: ' + error.message);
+            }
+        }
+
+        async function registrarTodos() {
+            if (cartaNormales.length === 0 && cartaClientes.length === 0) {
+                alert('No hay pedidos en la lista');
+                return;
+            }
+
+            if (!confirm('¿Registrar todos los pedidos?')) {
+                return;
+            }
+
+            let exitosos = 0;
+            let fallidos = 0;
+
+            try {
+                for (const pedido of cartaNormales) {
+                    const formData = new FormData();
+                    formData.append('sabor', pedido.sabor);
+                    formData.append('tamano', pedido.tamano);
+                    formData.append('cantidad', pedido.cantidad);
+                    formData.append('sucursal', SUCURSAL);
+                    formData.append('fecha_entrega', pedido.fecha_entrega);
+                    formData.append('detalles', pedido.detalles || '');
+                    formData.append('sabor_personalizado', pedido.sabor_personalizado || '');
+                    formData.append('precio', pedido.precio);
+
+                    try {
+                        const resp = await fetch('/normales/registrar', {
+                            method: 'POST',
+                            body: formData
+                        });
+                        if (resp.ok) exitosos++;
+                        else fallidos++;
+                    } catch (e) {
+                        fallidos++;
+                    }
+                }
+
+                for (const pedido of cartaClientes) {
+                    const formData = new FormData();
+                    formData.append('sabor', pedido.sabor);
+                    formData.append('tamano', pedido.tamano);
+                    formData.append('cantidad', pedido.cantidad);
+                    formData.append('sucursal', SUCURSAL);
+                    formData.append('fecha_entrega', pedido.fecha_entrega);
+                    formData.append('color', pedido.color || '');
+                    formData.append('dedicatoria', pedido.dedicatoria || '');
+                    formData.append('detalles', pedido.detalles || '');
+                    formData.append('sabor_personalizado', pedido.sabor_personalizado || '');
+                    formData.append('precio', pedido.precio);
+
+                    try {
+                        const resp = await fetch('/clientes/registrar', {
+                            method: 'POST',
+                            body: formData
+                        });
+                        if (resp.ok) exitosos++;
+                        else fallidos++;
+                    } catch (e) {
+                        fallidos++;
+                    }
+                }
+
+                if (exitosos > 0) {
                     cartaNormales = [];
                     cartaClientes = [];
                     actualizarVista();
-
-                    // redirigir siempre
-                    window.location.href = '/exito.html';
+                    alert(`✓ ${exitosos} pedido(s) registrado(s) exitosamente${fallidos > 0 ? '. ' + fallidos + ' fallaron.' : ''}`);
+                    cargarPedidosRegistrados();
+                    const tab = new bootstrap.Tab(document.querySelector('[data-bs-target="#registrados"]'));
+                    tab.show();
                 } else {
-                    alert("Error al registrar pedidos");
+                    alert('Error al registrar pedidos');
                 }
-            } catch (e) {
-                alert("Error de conexión");
+
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al registrar pedidos: ' + error.message);
             }
+        }
+
+        function actualizarVista() {
+            const total = cartaNormales.length + cartaClientes.length;
+            const badge = document.getElementById('cartBadge');
+            badge.textContent = total;
+            badge.style.display = total > 0 ? 'inline' : 'none';
+
+            document.getElementById('countNormalesLista').textContent = cartaNormales.length;
+            document.getElementById('countClientesLista').textContent = cartaClientes.length;
+
+            const listaNorm = document.getElementById('listaNormales');
+            const listaCli = document.getElementById('listaClientes');
+
+            listaNorm.innerHTML = cartaNormales.length === 0
+                ? '<p class="text-muted">No hay pedidos de tienda</p>'
+                : '';
+
+            cartaNormales.forEach((p, i) => {
+                listaNorm.innerHTML += `
+            <div class="cart-item">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <strong>${p.sabor}</strong> - ${p.tamano} x${p.cantidad}
+                        <br><small>Entrega: ${p.fecha_entrega} | Total: Q${(p.precio * p.cantidad).toFixed(2)}</small>
+                    </div>
+                    <button class="btn btn-sm btn-danger" onclick="eliminarDeLista('normal', ${i})">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+            });
+
+            listaCli.innerHTML = cartaClientes.length === 0
+                ? '<p class="text-muted">No hay pedidos de clientes</p>'
+                : '';
+
+            cartaClientes.forEach((p, i) => {
+                listaCli.innerHTML += `
+            <div class="cart-item">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <strong>${p.sabor}</strong> - ${p.tamano} x${p.cantidad}
+                        <br><small>Entrega: ${p.fecha_entrega} | Total: Q${(p.precio * p.cantidad).toFixed(2)}</small>
+                        ${p.dedicatoria ? '<br><small>Dedicatoria: ' + p.dedicatoria + '</small>' : ''}
+                    </div>
+                    <button class="btn btn-sm btn-danger" onclick="eliminarDeLista('cliente', ${i})">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+            });
         }
 
     </script>
