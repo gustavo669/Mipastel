@@ -1,9 +1,10 @@
-// JavaScript para cargar y manejar tablas de pedidos registrados
+// JavaScript para cargar y manejar tablas de pedidos registrados - ACTUALIZADO
 
 // Función principal para cargar pedidos registrados
 async function cargarPedidosRegistrados(fecha = null) {
     if (!fecha) {
-        const fechaInput = document.getElementById('fechaBusqueda');
+        // Usar fecha de inicio si existe, sino usar hoy
+        const fechaInput = document.getElementById('fechaInicio');
         fecha = fechaInput ? fechaInput.value : new Date().toISOString().split('T')[0];
     }
 
@@ -19,7 +20,7 @@ async function cargarPedidosRegistrados(fecha = null) {
     }
 }
 
-// Cargar pedidos normales (tienda)
+// Cargar pedidos normales (tienda) - CON TODAS LAS COLUMNAS
 async function cargarPedidosNormales(fecha) {
     try {
         const resp = await fetch(`/api/pedidos/normales?fecha=${fecha}`);
@@ -28,7 +29,7 @@ async function cargarPedidosNormales(fecha) {
         const tbody = document.getElementById('tablaNormalesRegistrados');
 
         if (!data.pedidos || data.pedidos.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="10" class="text-center text-muted">No hay pedidos para esta fecha</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="11" class="text-center text-muted">No hay pedidos para esta fecha</td></tr>';
             return;
         }
 
@@ -45,11 +46,12 @@ async function cargarPedidosNormales(fecha) {
                 <td class="text-center">${pedido.id || ''}</td>
                 <td>${pedido.sabor || ''}</td>
                 <td>${pedido.tamano || ''}</td>
-                <td class="text-center">${pedido.cantidad || 0}</td>
                 <td class="text-end">Q${(pedido.precio || 0).toFixed(2)}</td>
+                <td class="text-center">${pedido.cantidad || 0}</td>
                 <td class="text-end"><strong>Q${(pedido.total || 0).toFixed(2)}</strong></td>
-                <td class="text-center">${pedido.fecha_entrega || '-'}</td>
-                <td>${pedido.detalles || '-'}</td>
+                <td class="text-center"><span class="badge bg-primary">${pedido.sucursal || ''}</span></td>
+                <td class="text-center">${formatearFechaSolo(pedido.fecha_entrega)}</td>
+                <td class="text-center">${formatearFechaHora(pedido.fecha)}</td>
                 <td class="text-center">${estadoBadge}</td>
                 <td class="text-center">
                     ${editable ? `
@@ -68,11 +70,11 @@ async function cargarPedidosNormales(fecha) {
     } catch (error) {
         console.error('Error cargando pedidos normales:', error);
         const tbody = document.getElementById('tablaNormalesRegistrados');
-        tbody.innerHTML = '<tr><td colspan="10" class="text-center text-danger">Error al cargar pedidos</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="11" class="text-center text-danger">Error al cargar pedidos</td></tr>';
     }
 }
 
-// Cargar pedidos de clientes
+// Cargar pedidos de clientes - CON TODAS LAS COLUMNAS
 async function cargarPedidosClientes(fecha) {
     try {
         const resp = await fetch(`/api/pedidos/clientes?fecha=${fecha}`);
@@ -81,7 +83,7 @@ async function cargarPedidosClientes(fecha) {
         const tbody = document.getElementById('tablaClientesRegistrados');
 
         if (!data.pedidos || data.pedidos.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="12" class="text-center text-muted">No hay pedidos para esta fecha</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="14" class="text-center text-muted">No hay pedidos para esta fecha</td></tr>';
             return;
         }
 
@@ -96,13 +98,21 @@ async function cargarPedidosClientes(fecha) {
 
             row.innerHTML = `
                 <td class="text-center">${pedido.id || ''}</td>
+                <td class="text-center">
+                    ${pedido.color ? `
+                        <span class="badge-color" style="background-color: ${pedido.color}; color: #000; padding: 5px 10px; border-radius: 8px; font-weight: 600;">
+                            ${pedido.color}
+                        </span>
+                    ` : '<span class="text-muted">-</span>'}
+                </td>
                 <td>${pedido.sabor || ''}</td>
                 <td>${pedido.tamano || ''}</td>
                 <td class="text-center">${pedido.cantidad || 0}</td>
                 <td class="text-end">Q${(pedido.precio || 0).toFixed(2)}</td>
                 <td class="text-end"><strong>Q${(pedido.total || 0).toFixed(2)}</strong></td>
-                <td class="text-center">${pedido.fecha_entrega || '-'}</td>
-                <td class="text-center">${pedido.color || '-'}</td>
+                <td class="text-center"><span class="badge bg-primary">${pedido.sucursal || ''}</span></td>
+                <td class="text-center">${formatearFechaHora(pedido.fecha)}</td>
+                <td class="text-center">${formatearFechaSolo(pedido.fecha_entrega)}</td>
                 <td class="text-truncate" style="max-width: 150px;" title="${pedido.dedicatoria || ''}">${pedido.dedicatoria || '-'}</td>
                 <td class="text-truncate" style="max-width: 150px;" title="${pedido.detalles || ''}">${pedido.detalles || '-'}</td>
                 <td class="text-center">${estadoBadge}</td>
@@ -123,15 +133,43 @@ async function cargarPedidosClientes(fecha) {
     } catch (error) {
         console.error('Error cargando pedidos clientes:', error);
         const tbody = document.getElementById('tablaClientesRegistrados');
-        tbody.innerHTML = '<tr><td colspan="12" class="text-center text-danger">Error al cargar pedidos</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="14" class="text-center text-danger">Error al cargar pedidos</td></tr>';
+    }
+}
+
+// Funciones auxiliares para formatear fechas
+function formatearFechaSolo(fecha) {
+    if (!fecha) return '-';
+    try {
+        const f = new Date(fecha);
+        const dia = String(f.getDate()).padStart(2, '0');
+        const mes = String(f.getMonth() + 1).padStart(2, '0');
+        const anio = f.getFullYear();
+        return `${dia}/${mes}/${anio}`;
+    } catch {
+        return '-';
+    }
+}
+
+function formatearFechaHora(fecha) {
+    if (!fecha) return '-';
+    try {
+        const f = new Date(fecha);
+        const dia = String(f.getDate()).padStart(2, '0');
+        const mes = String(f.getMonth() + 1).padStart(2, '0');
+        const anio = f.getFullYear();
+        const hora = String(f.getHours()).padStart(2, '0');
+        const min = String(f.getMinutes()).padStart(2, '0');
+        return `${dia}/${mes}/${anio} ${hora}:${min}`;
+    } catch {
+        return '-';
     }
 }
 
 // Editar pedido normal
 async function editarPedidoNormal(id) {
     try {
-        // Fetch pedido data
-        const fecha = document.getElementById('fechaBusqueda')?.value || new Date().toISOString().split('T')[0];
+        const fecha = document.getElementById('fechaInicio')?.value || new Date().toISOString().split('T')[0];
         const resp = await fetch(`/api/pedidos/normales?fecha=${fecha}`);
         const data = await resp.json();
         const pedido = data.pedidos.find(p => p.id === id);
@@ -141,7 +179,6 @@ async function editarPedidoNormal(id) {
             return;
         }
 
-        // Populate modal
         document.getElementById('editIdNormal').value = pedido.id;
         document.getElementById('editSaborNormal').value = pedido.sabor || '';
         document.getElementById('editTamanoNormal').value = pedido.tamano || '';
@@ -149,12 +186,9 @@ async function editarPedidoNormal(id) {
         document.getElementById('editFechaNormal').value = pedido.fecha_entrega || '';
         document.getElementById('editDetallesNormal').value = pedido.detalles || '';
 
-        // Set minimum date to today
         const hoy = new Date().toISOString().split('T')[0];
         document.getElementById('editFechaNormal').min = hoy;
 
-
-        // Show modal
         const modal = new bootstrap.Modal(document.getElementById('modalEditarNormal'));
         modal.show();
     } catch (error) {
@@ -208,8 +242,7 @@ async function guardarEdicionNormal() {
 // Editar pedido cliente
 async function editarPedidoCliente(id) {
     try {
-        // Fetch pedido data
-        const fecha = document.getElementById('fechaBusqueda')?.value || new Date().toISOString().split('T')[0];
+        const fecha = document.getElementById('fechaInicio')?.value || new Date().toISOString().split('T')[0];
         const resp = await fetch(`/api/pedidos/clientes?fecha=${fecha}`);
         const data = await resp.json();
         const pedido = data.pedidos.find(p => p.id === id);
@@ -219,7 +252,6 @@ async function editarPedidoCliente(id) {
             return;
         }
 
-        // Populate modal
         document.getElementById('editIdCliente').value = pedido.id;
         document.getElementById('editSaborCliente').value = pedido.sabor || '';
         document.getElementById('editTamanoCliente').value = pedido.tamano || '';
@@ -229,11 +261,9 @@ async function editarPedidoCliente(id) {
         document.getElementById('editDedicatoriaCliente').value = pedido.dedicatoria || '';
         document.getElementById('editDetallesCliente').value = pedido.detalles || '';
 
-        // Set minimum date to today
         const hoy = new Date().toISOString().split('T')[0];
         document.getElementById('editFechaCliente').min = hoy;
 
-        // Show modal
         const modal = new bootstrap.Modal(document.getElementById('modalEditarCliente'));
         modal.show();
     } catch (error) {
@@ -338,12 +368,21 @@ async function eliminarPedidoCliente(id) {
 
 // Inicializar cuando se carga la página
 document.addEventListener('DOMContentLoaded', function() {
-    // Establecer fecha de hoy por defecto
-    const fechaBusqueda = document.getElementById('fechaBusqueda');
-    if (fechaBusqueda) {
-        fechaBusqueda.value = new Date().toISOString().split('T')[0];
+    const fechaInicio = document.getElementById('fechaInicio');
+    if (fechaInicio && !fechaInicio.value) {
+        fechaInicio.value = new Date().toISOString().split('T')[0];
     }
 
-    // Cargar pedidos al iniciar
-    cargarPedidosRegistrados();
+    const fechaFin = document.getElementById('fechaFin');
+    if (fechaFin && !fechaFin.value) {
+        fechaFin.value = new Date().toISOString().split('T')[0];
+    }
+
+    // Cargar pedidos al iniciar (solo si estamos en la pestaña de registrados)
+    const tabRegistrados = document.querySelector('[data-bs-target="#registrados"]');
+    if (tabRegistrados) {
+        tabRegistrados.addEventListener('shown.bs.tab', function() {
+            cargarPedidosRegistrados();
+        });
+    }
 });
