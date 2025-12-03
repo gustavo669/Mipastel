@@ -97,8 +97,8 @@ def generar_pdf_listas(target_date=None, sucursal=None, output_path=None, tipo='
     return generar_reporte_listas(fecha_obj, fecha_obj, sucursal, output_path, tipo)
 
 
-def generar_pdf_rango_fechas(fecha_inicio, fecha_fin, sucursal=None, output_path=None, tipo='ambos'):
-    return generar_reporte_listas(fecha_inicio, fecha_fin, sucursal, output_path, tipo)
+def generar_pdf_rango_fechas(fecha_inicio, fecha_fin, sucursal=None, output_path=None):
+    return generar_reporte_listas(fecha_inicio, fecha_fin, sucursal, output_path, 'ambos')
 
 
 def generar_pdf_produccion(target_date=None, sucursal=None, output_path=None):
@@ -338,6 +338,191 @@ def generar_tabla_clientes_acumulada(clientes):
     ]))
 
     return tabla
+
+
+def generar_pdf_ventas_rango(fecha_inicio, fecha_fin, sucursal=None, output_path=None):
+    """Genera reporte de ventas para un rango de fechas"""
+    inicio = datetime.combine(fecha_inicio, datetime.min.time())
+    fin = datetime.combine(fecha_fin, datetime.max.time())
+
+    conn = get_conn_normales()
+    cur = conn.cursor()
+    query = "SELECT id, sabor, tamano, precio, cantidad, sucursal, fecha_entrega, sabor_personalizado FROM PastelesNormales WHERE fecha BETWEEN ? AND ?"
+    params = [inicio, fin]
+    if sucursal:
+        query += " AND sucursal = ?"
+        params.append(sucursal)
+    cur.execute(query, tuple(params))
+    normales = cur.fetchall()
+    conn.close()
+
+    conn = get_conn_clientes()
+    cur = conn.cursor()
+    query2 = "SELECT id, sabor, tamano, cantidad, sucursal, dedicatoria, detalles, precio, total, foto_path, sabor_personalizado, color, fecha_entrega FROM PastelesClientes WHERE fecha BETWEEN ? AND ?"
+    params2 = [inicio, fin]
+    if sucursal:
+        query2 += " AND sucursal = ?"
+        params2.append(sucursal)
+    cur.execute(query2, tuple(params2))
+    clientes = cur.fetchall()
+    conn.close()
+
+    file_date_str = f"{fecha_inicio.strftime('%d-%m-%Y')}"
+    if fecha_inicio != fecha_fin:
+        file_date_str += f"_a_{fecha_fin.strftime('%d-%m-%Y')}"
+
+    filename = output_path or f"Ventas_{file_date_str}" + (f"_{sucursal}" if sucursal else "") + ".pdf"
+
+    doc = SimpleDocTemplate(
+        filename,
+        pagesize=letter,
+        rightMargin=30,
+        leftMargin=30,
+        topMargin=30,
+        bottomMargin=30
+    )
+    elements = []
+
+    logo_path = "static/uploads/logo1.jpg"
+    if os.path.exists(logo_path):
+        try:
+            logo = Image(logo_path, width=1*inch, height=0.4*inch)
+            logo.hAlign = 'LEFT'
+            elements.append(logo)
+            elements.append(Spacer(1, 5))
+        except:
+            pass
+
+    # Título con rango de fechas
+    if fecha_inicio != fecha_fin:
+        fecha_texto = f"{fecha_inicio.strftime('%d-%m-%Y')} a {fecha_fin.strftime('%d-%m-%Y')}"
+    else:
+        fecha_texto = fecha_inicio.strftime('%d-%m-%Y')
+
+    titulo = Paragraph(f"<font size={TAMANO_TITULO+2}><b>REPORTE DE VENTAS</b></font>",
+                       ParagraphStyle('TituloCenter', parent=styles['Normal'], alignment=TA_CENTER))
+    fecha_label = Paragraph(f"<font size={TAMANO_FUENTE_HEADER + 1}><b>Período:</b> {fecha_texto}</font>", styles["Normal"])
+
+    elements.append(titulo)
+    elements.append(fecha_label)
+    if sucursal:
+        elements.append(Paragraph(f"<font size={TAMANO_FUENTE_HEADER}><b>Sucursal:</b> {sucursal}</font>", styles["Normal"]))
+    elements.append(Spacer(1, 15))
+
+    elements.append(Paragraph(f"<font size={TAMANO_TITULO - 2}><b>Ventas - Pasteles de Tienda</b></font>", styles["Normal"]))
+    elements.append(Spacer(1, 8))
+
+    ventas = {}
+    for row in normales:
+        _id, sabor, tamano, precio, cantidad, sucursal_ped, fecha_entrega, sabor_personalizado = row
+        sabor_real = sabor_personalizado if sabor_personalizado else sabor
+        descripcion = f"{tamano} de {sabor_real}"
+        precio_float = float(precio) if precio is not None else 0.0
+        key = (sucursal_ped, descripcion, precio_float)
+        if key not in ventas:
+            ventas[key] = 0
+        ventas[key] += cantidad
+
+    data_normales = [["Sucursal", "Producto", "Cant.", "Precio Unit.", "Subtotal"]]
+    total_normales = 0.0
+    for (suc, producto, precio), cantidad in sorted(ventas.items()):
+        subtotal = precio * cantidad
+        total_normales += subtotal
+        data_normales.append([
+            abreviar_sucursal(suc),
+            Paragraph(producto, style_celda),
+            str(cantidad),
+            f"Q {precio:.2f}",
+            f"Q {subtotal:.2f}"
+        ])
+
+    data_normales.append([
+        "",
+        Paragraph("<b>TOTAL</b>", style_celda_bold),
+        "",
+        "",
+        Paragraph(f"<b>Q {total_normales:,.2f}</b>", style_celda_bold)
+    ])
+
+    tabla_normales = Table(data_normales, colWidths=[65, 220, 50, 80, 90], repeatRows=1)
+    tabla_normales.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#C8E6C9")),
+        ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
+        ('ALIGN', (0,0), (-1,0), 'CENTER'),
+        ('FONTSIZE', (0,0), (-1,0), TAMANO_FUENTE_HEADER),
+        ('ALIGN', (0,1), (0,-1), 'CENTER'),
+        ('ALIGN', (2,1), (2,-1), 'CENTER'),
+        ('ALIGN', (3,1), (-1,-1), 'RIGHT'),
+        ('GRID', (0,0), (-1,-2), 0.5, colors.grey),
+        ('BACKGROUND', (0,-1), (-1,-1), colors.HexColor("#A5D6A7")),
+        ('GRID', (0,-1), (-1,-1), 1, colors.black),
+    ]))
+    elements.append(tabla_normales)
+    elements.append(Spacer(1, 20))
+
+    elements.append(Paragraph(f"<font size={TAMANO_TITULO - 2}><b>Ventas - Pedidos de Clientes</b></font>", styles["Normal"]))
+    elements.append(Spacer(1, 8))
+
+    data_clientes = [["ID", "Suc.", "Producto", "Cant.", "Precio", "Total"]]
+    total_clientes = 0.0
+
+    for row in clientes:
+        _id, sabor, tamano, cantidad, sucursal_ped, dedicatoria, detalles, precio, total_row, foto_path, sabor_pers, color, fecha_entrega = row
+        sabor_real = sabor_pers if sabor_pers else sabor
+        descripcion = f"{tamano} de {sabor_real}"
+        cant = int(cantidad) if cantidad else 0
+        precio_val = float(precio) if precio else 0.0
+        total_val = float(total_row) if total_row else (precio_val * cant)
+        total_clientes += total_val
+
+        data_clientes.append([
+            str(_id),
+            abreviar_sucursal(sucursal_ped),
+            Paragraph(descripcion, style_celda),
+            str(cant),
+            f"Q {precio_val:.2f}",
+            f"Q {total_val:.2f}"
+        ])
+
+    data_clientes.append([
+        "",
+        "",
+        Paragraph("<b>TOTAL</b>", style_celda_bold),
+        "",
+        "",
+        Paragraph(f"<b>Q {total_clientes:,.2f}</b>", style_celda_bold)
+    ])
+
+    tabla_clientes = Table(data_clientes, colWidths=[40, 55, 200, 45, 80, 90], repeatRows=1)
+    tabla_clientes.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#FFF9C4")),
+        ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
+        ('ALIGN', (0,0), (-1,0), 'CENTER'),
+        ('FONTSIZE', (0,0), (-1,0), TAMANO_FUENTE_HEADER),
+        ('ALIGN', (0,1), (1,-1), 'CENTER'),
+        ('ALIGN', (3,1), (3,-1), 'CENTER'),
+        ('ALIGN', (4,1), (-1,-1), 'RIGHT'),
+        ('GRID', (0,0), (-1,-2), 0.5, colors.grey),
+        ('BACKGROUND', (0,-1), (-1,-1), colors.HexColor("#FFF59D")),
+        ('GRID', (0,-1), (-1,-1), 1, colors.black),
+    ]))
+    elements.append(tabla_clientes)
+    elements.append(Spacer(1, 20))
+
+    total_general = total_normales + total_clientes
+    resumen = f"""
+    <font size={TAMANO_FUENTE_HEADER+1} name="Helvetica">
+    <b>RESUMEN DE VENTAS</b><br/><br/>
+    Total Pasteles de Tienda: Q {total_normales:,.2f}<br/>
+    Total Pedidos de Clientes: Q {total_clientes:,.2f}<br/>
+    <br/>
+    <b><font size={TAMANO_TITULO}>TOTAL GENERAL: Q {total_general:,.2f}</font></b>
+    </font>
+    """
+    elements.append(Paragraph(resumen, styles["Normal"]))
+
+    doc.build(elements)
+    return filename
 
 
 def generar_pdf_ventas(target_date=None, sucursal=None, output_path=None):

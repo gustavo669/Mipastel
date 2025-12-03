@@ -30,6 +30,8 @@ logger = logging.getLogger(__name__)
 @router.get("/", response_class=HTMLResponse)
 async def vista_admin(
         request: Request,
+        fecha_inicio: str = Query(None, description="Fecha inicio en formato YYYY-MM-DD"),
+        fecha_fin: str = Query(None, description="Fecha fin en formato YYYY-MM-DD"),
         user_data: dict = Depends(requiere_autenticacion)
 ):
     try:
@@ -37,10 +39,24 @@ async def vista_admin(
         hoy = datetime.now().date()
         fecha_str = hoy.isoformat()
 
+        # Usar las fechas proporcionadas o la fecha actual
+
+
+        fecha_inicio_filtro = fecha_inicio if fecha_inicio else fecha_str
+
+
+        fecha_fin_filtro = fecha_fin if fecha_fin else fecha_str
+
+
+
         sucursal_filtro = user_data["sucursal"] if user_data["rol"] != "admin" else None
 
-        normales = db.obtener_pasteles_normales(fecha_inicio=fecha_str, sucursal=sucursal_filtro)
-        clientes = db.obtener_pedidos_clientes(fecha_inicio=fecha_str, sucursal=sucursal_filtro)
+
+
+        normales = db.obtener_pasteles_normales(fecha_inicio=fecha_inicio_filtro, fecha_fin=fecha_fin_filtro, sucursal=sucursal_filtro)
+
+
+        clientes = db.obtener_pedidos_clientes(fecha_inicio=fecha_inicio_filtro, fecha_fin=fecha_fin_filtro, sucursal=sucursal_filtro)
         precios = db.obtener_precios()
 
         return templates.TemplateResponse("admin.html", {
@@ -67,7 +83,8 @@ async def vista_admin(
 @router.get("/normales")
 async def obtener_normales(
         request: Request,
-        fecha: str = Query(None, description="Fecha en formato YYYY-MM-DD"),
+        fecha_inicio: str = Query(None, description="Fecha inicio en formato YYYY-MM-DD"),
+        fecha_fin: str = Query(None, description="Fecha fin en formato YYYY-MM-DD"),
         sucursal: str = Query(None, description="Nombre de la sucursal"),
         user_data: dict = Depends(requiere_autenticacion)
 ):
@@ -78,7 +95,7 @@ async def obtener_normales(
         if user_data["rol"] != "admin" and not sucursal:
             sucursal_filtro = user_data["sucursal"]
 
-        normales = db.obtener_pasteles_normales(fecha_inicio=fecha, sucursal=sucursal_filtro)
+        normales = db.obtener_pasteles_normales(fecha_inicio=fecha_inicio, fecha_fin=fecha_fin, sucursal=sucursal_filtro)
         return {"normales": normales}
     except Exception as e:
         logger.error(f"Error en /admin/normales: {e}", exc_info=True)
@@ -157,7 +174,8 @@ async def eliminar_normal(
 @router.get("/clientes")
 async def obtener_clientes(
         request: Request,
-        fecha: str = Query(None, description="Fecha en formato YYYY-MM-DD"),
+        fecha_inicio: str = Query(None, description="Fecha inicio en formato YYYY-MM-DD"),
+        fecha_fin: str = Query(None, description="Fecha fin en formato YYYY-MM-DD"),
         sucursal: str = Query(None, description="Nombre de la sucursal"),
         user_data: dict = Depends(requiere_autenticacion)
 ):
@@ -168,7 +186,7 @@ async def obtener_clientes(
         if user_data["rol"] != "admin" and not sucursal:
             sucursal_filtro = user_data["sucursal"]
 
-        clientes = db.obtener_pedidos_clientes(fecha_inicio=fecha, sucursal=sucursal_filtro)
+        clientes = db.obtener_pedidos_clientes(fecha_inicio=fecha_inicio, fecha_fin=fecha_fin, sucursal=sucursal_filtro)
         return {"clientes": clientes}
     except Exception as e:
         logger.error(f"Error en /admin/clientes: {e}", exc_info=True)

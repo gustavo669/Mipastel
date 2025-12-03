@@ -11,7 +11,7 @@ from PySide6.QtWidgets import (
     QMainWindow, QWidget, QTabWidget, QVBoxLayout, QTableWidget,
     QTableWidgetItem, QPushButton, QLabel, QHBoxLayout, QComboBox, QDateEdit,
     QFileDialog, QAbstractItemView, QHeaderView, QGridLayout, QMenu,
-    QApplication, QDialog, QDialogButtonBox
+    QApplication, QDialog, QDialogButtonBox, QRadioButton
 )
 from PySide6.QtCore import QDate, Qt, Slot
 from PySide6.QtGui import QFont, QKeyEvent, QPixmap
@@ -338,6 +338,24 @@ QGroupBox::title {
     left: 10px;
     padding: 0 8px 0 8px;
     color: #2b1b3a;
+}
+
+QRadioButton {
+    color: #2b1b3a;
+    font-size: 11pt;
+    padding: 5px;
+}
+
+QRadioButton::indicator {
+    width: 18px;
+    height: 18px;
+    border-radius: 9px;
+    border: 2px solid #8e44ad;
+}
+
+QRadioButton::indicator:checked {
+    background-color: #8e44ad;
+    border: 2px solid #6f2f86;
 }
 """
 
@@ -1043,9 +1061,10 @@ class AdminApp(QMainWindow):
                 )
                 dialogo_error.exec()
 
-    def generar_reporte_listas(self):
-        """Genera el reporte de listas de producción y pedidos"""
+    def generar_reporte_ventas(self):
+        """Genera el reporte de ventas"""
         tab_actual = self.tabs.currentIndex()
+
         if tab_actual == 0:
             fecha = self.date_clientes.date().toPython()
             sucursal = self.cmb_sucursal_clientes.currentText()
@@ -1055,40 +1074,149 @@ class AdminApp(QMainWindow):
         else:
             return
 
+        # Diálogo para seleccionar tipo de reporte
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Generar Reporte de Ventas")
+        dialog.resize(450, 250)
+        dialog.setStyleSheet(DARK_STYLE)
+
+        layout = QVBoxLayout(dialog)
+        layout.setSpacing(15)
+        layout.setContentsMargins(20, 20, 20, 20)
+
+        titulo = QLabel("Seleccione el tipo de reporte:")
+        titulo.setStyleSheet("font-size: 15pt; margin-bottom: 10px;")
+        layout.addWidget(titulo)
+
+        # Radio buttons
+        radio_layout = QVBoxLayout()
+        radio_fecha = QRadioButton("Reporte de una fecha específica")
+        radio_rango = QRadioButton("Reporte por rango de fechas")
+        radio_fecha.setChecked(True)
+        radio_layout.addWidget(radio_fecha)
+        radio_layout.addWidget(radio_rango)
+        layout.addLayout(radio_layout)
+
+        # Sección rango de fechas
+        rango_widget = QWidget()
+        rango_layout = QVBoxLayout(rango_widget)
+
+        fecha_inicio_layout = QHBoxLayout()
+        fecha_inicio_layout.addWidget(QLabel("Fecha Inicio:"))
+        date_inicio = QDateEdit(calendarPopup=True)
+        date_inicio.setDate(QDate.currentDate())
+        date_inicio.setMaximumWidth(150)
+        fecha_inicio_layout.addWidget(date_inicio)
+        fecha_inicio_layout.addStretch()
+        rango_layout.addLayout(fecha_inicio_layout)
+
+        fecha_fin_layout = QHBoxLayout()
+        fecha_fin_layout.addWidget(QLabel("Fecha Fin:"))
+        date_fin = QDateEdit(calendarPopup=True)
+        date_fin.setDate(QDate.currentDate())
+        date_fin.setMaximumWidth(150)
+        fecha_fin_layout.addWidget(date_fin)
+        fecha_fin_layout.addStretch()
+        rango_layout.addLayout(fecha_fin_layout)
+
+        rango_widget.setVisible(False)
+        layout.addWidget(rango_widget)
+
+        # Mostrar/ocultar rango
+        radio_fecha.toggled.connect(lambda checked: rango_widget.setVisible(not checked))
+
+        layout.addStretch()
+
+        buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        buttons.button(QDialogButtonBox.Ok).setText("Generar")
+        buttons.button(QDialogButtonBox.Cancel).setText("Cancelar")
+        buttons.accepted.connect(dialog.accept)
+        buttons.rejected.connect(dialog.reject)
+        buttons.setCenterButtons(True)
+        layout.addWidget(buttons)
+
+        if dialog.exec() != QDialog.Accepted:
+            return
+
+        from pdf_reportes import generar_pdf_ventas, generar_pdf_ventas_rango
+
         if sucursal == "Todas":
             sucursal = None
 
-        ruta = "reportes"
-        os.makedirs(ruta, exist_ok=True)
-        default_name = f"{ruta}/Listas_{fecha.strftime('%Y-%m-%d')}_{sucursal or 'TODAS'}.pdf"
-        nombre_pdf, _ = QFileDialog.getSaveFileName(
-            self, "Guardar Reporte de Listas", default_name, "PDF Files (*.pdf)"
-        )
-
-        if not nombre_pdf:
-            self.statusBar().showMessage("Generación de reporte cancelada")
-            return
-
         try:
-            from pdf_reportes import generar_pdf_listas
+            # Reporte fecha única
+            if radio_fecha.isChecked():
+                ruta = "reportes"
+                os.makedirs(ruta, exist_ok=True)
+                default_name = f"{ruta}/Ventas_{fecha.strftime('%Y-%m-%d')}_{sucursal or 'TODAS'}.pdf"
 
-            self.statusBar().showMessage("Generando reporte de listas...")
-            generar_pdf_listas(
-                target_date=fecha,
-                sucursal=sucursal,
-                output_path=nombre_pdf
-            )
+                nombre_pdf, _ = QFileDialog.getSaveFileName(
+                    self, "Guardar Reporte de Ventas", default_name, "PDF Files (*.pdf)"
+                )
 
+                if not nombre_pdf:
+                    self.statusBar().showMessage("Generación de reporte cancelada")
+                    return
+
+                self.statusBar().showMessage("Generando reporte de ventas...")
+
+                generar_pdf_ventas(
+                    target_date=fecha,
+                    sucursal=sucursal,
+                    output_path=nombre_pdf
+                )
+
+            # Reporte por rango
+            else:
+                fecha_inicio = date_inicio.date().toPython()
+                fecha_fin = date_fin.date().toPython()
+
+                if fecha_fin < fecha_inicio:
+                    dialogo_error = DialogoConfirmacionMejorado(
+                        self,
+                        "Error de Fechas",
+                        "La fecha fin debe ser posterior a la fecha inicio",
+                        "error"
+                    )
+                    dialogo_error.exec()
+                    return
+
+                ruta = "reportes"
+                os.makedirs(ruta, exist_ok=True)
+                default_name = (
+                    f"{ruta}/Ventas_{fecha_inicio.strftime('%Y-%m-%d')}"
+                    f"_a_{fecha_fin.strftime('%Y-%m-%d')}_{sucursal or 'TODAS'}.pdf"
+                )
+
+                nombre_pdf, _ = QFileDialog.getSaveFileName(
+                    self, "Guardar Reporte de Ventas", default_name, "PDF Files (*.pdf)"
+                )
+
+                if not nombre_pdf:
+                    self.statusBar().showMessage("Generación de reporte cancelada")
+                    return
+
+                self.statusBar().showMessage("Generando reporte de rango...")
+
+                generar_pdf_ventas_rango(
+                    fecha_inicio=fecha_inicio,
+                    fecha_fin=fecha_fin,
+                    sucursal=sucursal,
+                    output_path=nombre_pdf
+                )
+
+            # Confirmación
             dialogo = DialogoConfirmacionMejorado(
                 self,
                 "Reporte Generado",
-                f"El reporte de listas se ha generado exitosamente:\n\n{nombre_pdf}",
+                f"El reporte de ventas se ha generado exitosamente:\n\n{nombre_pdf}",
                 "success"
             )
             dialogo.exec()
 
-            self.statusBar().showMessage("Reporte de listas generado exitosamente", 5000)
+            self.statusBar().showMessage("Reporte de ventas generado exitosamente", 5000)
 
+            # Abrir PDF automáticamente
             try:
                 if os.name == 'nt':
                     os.startfile(os.path.realpath(nombre_pdf))
@@ -1096,7 +1224,185 @@ class AdminApp(QMainWindow):
                     import subprocess
                     if os.uname().sysname == 'Darwin':
                         subprocess.call(['open', nombre_pdf])
-                    else:  # Linux
+                    else:
+                        subprocess.call(['xdg-open', nombre_pdf])
+            except Exception as e:
+                logger.warning(f"No se pudo abrir el PDF automáticamente: {e}")
+
+        except Exception as e:
+            logger.error(f"ERROR DETALLADO (generar_reporte_ventas): {e}", exc_info=True)
+            dialogo = DialogoConfirmacionMejorado(
+                self,
+                "Error al Generar Reporte",
+                f"No se pudo generar el reporte de ventas:\n\n{str(e)}",
+                "error"
+            )
+            dialogo.exec()
+
+    def generar_reporte_listas(self):
+        """Genera el reporte de listas de producción y pedidos"""
+        tab_actual = self.tabs.currentIndex()
+
+        if tab_actual == 0:
+            fecha = self.date_clientes.date().toPython()
+            sucursal = self.cmb_sucursal_clientes.currentText()
+        elif tab_actual == 1:
+            fecha = self.date_normales.date().toPython()
+            sucursal = self.cmb_sucursal_normales.currentText()
+        else:
+            return
+
+        # Diálogo para seleccionar tipo de reporte
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Generar Reporte de Listas")
+        dialog.resize(450, 250)
+        dialog.setStyleSheet(DARK_STYLE)
+
+        layout = QVBoxLayout(dialog)
+        layout.setSpacing(15)
+        layout.setContentsMargins(20, 20, 20, 20)
+
+        titulo = QLabel("Seleccione el tipo de reporte:")
+        titulo.setStyleSheet("font-size: 15pt; margin-bottom: 10px;")
+        layout.addWidget(titulo)
+
+        # Radio buttons
+        radio_layout = QVBoxLayout()
+        radio_fecha = QRadioButton("Reporte de una fecha específica")
+        radio_rango = QRadioButton("Reporte por rango de fechas")
+        radio_fecha.setChecked(True)
+        radio_layout.addWidget(radio_fecha)
+        radio_layout.addWidget(radio_rango)
+        layout.addLayout(radio_layout)
+
+        # Sección rango de fechas
+        rango_widget = QWidget()
+        rango_layout = QVBoxLayout(rango_widget)
+
+        fecha_inicio_layout = QHBoxLayout()
+        fecha_inicio_layout.addWidget(QLabel("Fecha Inicio:"))
+        date_inicio = QDateEdit(calendarPopup=True)
+        date_inicio.setDate(QDate.currentDate())
+        date_inicio.setMaximumWidth(150)
+        fecha_inicio_layout.addWidget(date_inicio)
+        fecha_inicio_layout.addStretch()
+        rango_layout.addLayout(fecha_inicio_layout)
+
+        fecha_fin_layout = QHBoxLayout()
+        fecha_fin_layout.addWidget(QLabel("Fecha Fin:"))
+        date_fin = QDateEdit(calendarPopup=True)
+        date_fin.setDate(QDate.currentDate())
+        date_fin.setMaximumWidth(150)
+        fecha_fin_layout.addWidget(date_fin)
+        fecha_fin_layout.addStretch()
+        rango_layout.addLayout(fecha_fin_layout)
+
+        rango_widget.setVisible(False)
+        layout.addWidget(rango_widget)
+
+        # Mostrar/ocultar rango
+        radio_fecha.toggled.connect(lambda checked: rango_widget.setVisible(not checked))
+
+        layout.addStretch()
+
+        buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        buttons.button(QDialogButtonBox.Ok).setText("Generar")
+        buttons.button(QDialogButtonBox.Cancel).setText("Cancelar")
+        buttons.accepted.connect(dialog.accept)
+        buttons.rejected.connect(dialog.reject)
+        buttons.setCenterButtons(True)
+        layout.addWidget(buttons)
+
+        if dialog.exec() != QDialog.Accepted:
+            return
+
+        from pdf_reportes import generar_pdf_listas, generar_pdf_rango_fechas
+
+        if sucursal == "Todas":
+            sucursal = None
+
+        try:
+            # Reporte fecha única
+            if radio_fecha.isChecked():
+                ruta = "reportes"
+                os.makedirs(ruta, exist_ok=True)
+                default_name = f"{ruta}/Listas_{fecha.strftime('%Y-%m-%d')}_{sucursal or 'TODAS'}.pdf"
+
+                nombre_pdf, _ = QFileDialog.getSaveFileName(
+                    self, "Guardar Reporte de Listas", default_name, "PDF Files (*.pdf)"
+                )
+
+                if not nombre_pdf:
+                    self.statusBar().showMessage("Generación de reporte cancelada")
+                    return
+
+                self.statusBar().showMessage("Generando reporte de listas...")
+
+                generar_pdf_listas(
+                    target_date=fecha,
+                    sucursal=sucursal,
+                    output_path=nombre_pdf
+                )
+
+            # Reporte por rango
+            else:
+                fecha_inicio = date_inicio.date().toPython()
+                fecha_fin = date_fin.date().toPython()
+
+                if fecha_fin < fecha_inicio:
+                    dialogo_error = DialogoConfirmacionMejorado(
+                        self,
+                        "Error de Fechas",
+                        "La fecha fin debe ser posterior a la fecha inicio",
+                        "error"
+                    )
+                    dialogo_error.exec()
+                    return
+
+                ruta = "reportes"
+                os.makedirs(ruta, exist_ok=True)
+                default_name = (
+                    f"{ruta}/Listas_{fecha_inicio.strftime('%Y-%m-%d')}"
+                    f"_a_{fecha_fin.strftime('%Y-%m-%d')}_{sucursal or 'TODAS'}.pdf"
+                )
+
+                nombre_pdf, _ = QFileDialog.getSaveFileName(
+                    self, "Guardar Reporte de Listas", default_name, "PDF Files (*.pdf)"
+                )
+
+                if not nombre_pdf:
+                    self.statusBar().showMessage("Generación de reporte cancelada")
+                    return
+
+                self.statusBar().showMessage("Generando reporte de rango...")
+
+                generar_pdf_rango_fechas(
+                    fecha_inicio=fecha_inicio,
+                    fecha_fin=fecha_fin,
+                    sucursal=sucursal,
+                    output_path=nombre_pdf
+                )
+
+            # Confirmación
+            dialogo = DialogoConfirmacionMejorado(
+                self,
+                "Reporte Generado",
+                f"El reporte se ha generado exitosamente:\n\n{nombre_pdf}",
+                "success"
+            )
+            dialogo.exec()
+
+            self.statusBar().showMessage("Reporte generado exitosamente", 5000)
+
+            # Abrir PDF automáticamente
+            try:
+                if os.name == 'nt':
+                    os.startfile(os.path.realpath(nombre_pdf))
+                elif os.name == 'posix':
+                    import subprocess
+                    if os.uname().sysname == 'Darwin':
+                        subprocess.call(['open', nombre_pdf])
+                    else:
                         subprocess.call(['xdg-open', nombre_pdf])
             except Exception as e:
                 logger.warning(f"No se pudo abrir el PDF automáticamente: {e}")
@@ -1106,98 +1412,7 @@ class AdminApp(QMainWindow):
             dialogo = DialogoConfirmacionMejorado(
                 self,
                 "Error al Generar Reporte",
-                f"No se pudo generar el reporte de listas:\n\n{str(e)}",
+                f"No se pudo generar el reporte:\n\n{str(e)}",
                 "error"
             )
             dialogo.exec()
-
-    def generar_reporte_ventas(self):
-        """Genera el reporte de ventas con selector de fecha y sucursal"""
-        dialog = QDialog(self)
-        dialog.setWindowTitle("Generar Reporte de Ventas")
-        dialog.resize(400, 180)
-        dialog.setStyleSheet(DARK_STYLE)
-
-        layout = QVBoxLayout(dialog)
-        layout.setSpacing(15)
-        layout.setContentsMargins(20, 20, 20, 20)
-
-        titulo = QLabel("Seleccione:")
-        titulo.setStyleSheet("font-size: 15pt; margin-bottom: 10px;")
-        layout.addWidget(titulo)
-
-        fecha_layout = QHBoxLayout()
-        fecha_layout.addStretch()
-        fecha_layout.addWidget(QLabel("Fecha:"))
-        date_selector = QDateEdit(calendarPopup=True)
-        date_selector.setDate(QDate.currentDate())
-        date_selector.setMaximumWidth(150)
-        fecha_layout.addWidget(date_selector)
-        fecha_layout.addStretch()
-        layout.addLayout(fecha_layout)
-
-        sucursal_layout = QHBoxLayout()
-        sucursal_layout.addStretch()
-        sucursal_layout.addWidget(QLabel("Sucursal:"))
-        sucursal_combo = QComboBox()
-        sucursal_combo.addItems(SUCURSALES_FILTRO)
-        sucursal_combo.setMaximumWidth(150)
-        sucursal_layout.addWidget(sucursal_combo)
-        sucursal_layout.addStretch()
-        layout.addLayout(sucursal_layout)
-
-        layout.addStretch()
-        buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
-        buttons.button(QDialogButtonBox.Ok).setText("Generar")
-        buttons.button(QDialogButtonBox.Cancel).setText("Cancelar")
-        buttons.accepted.connect(dialog.accept)
-        buttons.rejected.connect(dialog.reject)
-        buttons.setCenterButtons(True)
-        layout.addWidget(buttons)
-
-        if dialog.exec() == QDialog.Accepted:
-            from pdf_reportes import generar_pdf_ventas
-
-            fecha_py = date_selector.date().toPython()
-            sucursal_sel = sucursal_combo.currentText()
-            sucursal_filtro = None if sucursal_sel == "Todas" else sucursal_sel
-
-            ruta = "reportes"
-            os.makedirs(ruta, exist_ok=True)
-            filename = f"{ruta}/Ventas_{fecha_py.strftime('%Y-%m-%d')}_{sucursal_filtro or 'TODAS'}.pdf"
-
-            try:
-                self.statusBar().showMessage("Generando reporte de ventas...")
-                generar_pdf_ventas(fecha_py, sucursal_filtro, filename)
-
-                dialogo = DialogoConfirmacionMejorado(
-                    self,
-                    "Reporte Generado",
-                    f"El reporte de ventas se ha generado exitosamente:\n\n{filename}",
-                    "success"
-                )
-                dialogo.exec()
-
-                self.statusBar().showMessage("Reporte de ventas generado exitosamente", 5000)
-
-                try:
-                    if os.name == 'nt':
-                        os.startfile(os.path.realpath(filename))
-                    elif os.name == 'posix':
-                        import subprocess
-                        if os.uname().sysname == 'Darwin':
-                            subprocess.call(['open', filename])
-                        else:
-                            subprocess.call(['xdg-open', filename])
-                except Exception as e:
-                    logger.warning(f"No se pudo abrir el PDF automáticamente: {e}")
-
-            except Exception as e:
-                logger.error(f"ERROR DETALLADO (generar_reporte_ventas): {e}", exc_info=True)
-                dialogo = DialogoConfirmacionMejorado(
-                    self,
-                    "Error al Generar Reporte",
-                    f"No se pudo generar el reporte de ventas:\n\n{str(e)}",
-                    "error"
-                )
-                dialogo.exec()

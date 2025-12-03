@@ -28,13 +28,19 @@ class MiPastelLauncherNgrok:
             print(f"\nIniciando servidor web...")
             os.chdir(BASE_DIR)
 
+            # Configurar variables de entorno para UTF-8
+            env = os.environ.copy()
+            env["PYTHONIOENCODING"] = "utf-8"
+            env["PYTHONUTF8"] = "1"
+            
             proceso = subprocess.Popen(
                 [sys.executable, "app.py"],
                 stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                universal_newlines=True,
-                encoding="utf-8",
-                bufsize=1
+                stderr=subprocess.STDOUT,  # Combinar stderr con stdout
+                text=True,
+                bufsize=1,
+                env=env,
+                errors='replace'  # Reemplazar caracteres problemáticos en lugar de fallar
             )
 
             self.servidor_proceso = proceso

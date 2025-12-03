@@ -193,7 +193,6 @@ def registrar_pedido_cliente_db(data: Dict[str, Any]) -> bool:
 
 
 def actualizar_pedido_cliente_db(pedido_id: int, data: Dict[str, Any]) -> bool:
-    """Actualizar pedido de cliente - CORREGIDO"""
     precio = data.get('precio')
     if precio and precio <= 0:
         raise ValueError("El precio debe ser mayor a 0")
@@ -303,11 +302,29 @@ class DatabaseManager:
             })
         return precios
 
+    def obtener_precio_por_sabor_tamano(self, sabor: str, tamano: str) -> float:
+        return obtener_precio_db(sabor, tamano)
+
     def actualizar_precios(self, lista_precios: List[Dict[str, Any]]) -> bool:
         return actualizar_precios_db(lista_precios)
 
     def registrar_pastel_normal(self, data: Dict[str, Any]) -> bool:
         return registrar_pastel_normal_db(data)
+
+    def insertar_pastel_normal(self, data: Dict[str, Any]) -> int:
+        registrar_pastel_normal_db(data)
+        conn = get_conn_normales()
+        cursor = conn.cursor()
+        cursor.execute("SELECT @@IDENTITY")
+        new_id = cursor.fetchone()[0]
+        conn.close()
+        return int(new_id)
+
+    def crear_pastel_normal(self, data: Dict[str, Any]) -> int:
+        return self.insertar_pastel_normal(data)
+
+    def guardar_pastel_normal(self, data: Dict[str, Any]) -> int:
+        return self.insertar_pastel_normal(data)
 
     def obtener_pasteles_normales(self, fecha_inicio: str = None, fecha_fin: str = None, sucursal: str = None) -> List[Dict[str, Any]]:
         query = "SELECT id, sabor, tamano, precio, cantidad, sucursal, fecha, fecha_entrega, detalles, sabor_personalizado FROM PastelesNormales WHERE 1=1"
@@ -319,8 +336,7 @@ class DatabaseManager:
         if fecha_inicio and fecha_fin:
             query += " AND CAST(fecha AS DATE) BETWEEN ? AND ?"
             params.extend([fecha_inicio, fecha_fin])
-
-        if not fecha_inicio:
+        elif not fecha_inicio:
             query += " AND CAST(fecha AS DATE) = CAST(GETDATE() AS DATE)"
 
         if sucursal:
@@ -354,6 +370,21 @@ class DatabaseManager:
 
     def registrar_pedido_cliente(self, data: Dict[str, Any]) -> bool:
         return registrar_pedido_cliente_db(data)
+
+    def insertar_pedido_cliente(self, data: Dict[str, Any]) -> int:
+        registrar_pedido_cliente_db(data)
+        conn = get_conn_clientes()
+        cursor = conn.cursor()
+        cursor.execute("SELECT @@IDENTITY")
+        new_id = cursor.fetchone()[0]
+        conn.close()
+        return int(new_id)
+
+    def crear_pedido_cliente(self, data: Dict[str, Any]) -> int:
+        return self.insertar_pedido_cliente(data)
+
+    def guardar_pedido_cliente(self, data: Dict[str, Any]) -> int:
+        return self.insertar_pedido_cliente(data)
 
     def obtener_pedidos_clientes(self, fecha_inicio: str = None, fecha_fin: str = None, sucursal: str = None) -> List[Dict[str, Any]]:
         query = ("SELECT id, color, sabor, tamano, cantidad, precio, total, sucursal, fecha, "

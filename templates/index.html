@@ -10,1244 +10,1252 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
     <style>
-    /* ===============================================
-    VARIABLES & ROOT CONFIGURATION
-    =============================================== */
-    :root {
-    --primary-purple: #8e44ad;
-    --dark-purple: #6f2f86;
-    --light-purple: #b65fae;
-    --pink: #ff88b8;
-    --light-pink: #fff5fb;
-    --border-pink: #f0d6ec;
-    --text-dark: #2b1b3a;
-    --success-green: #48c774;
-    --danger-red: #ff6fa3;
-    }
-
-    body {
-    background: linear-gradient(135deg, #fff0f6 0%, #fffaf6 100%);
-    font-family: 'Segoe UI', 'Open Sans', 'Lato', sans-serif;
-    color: var(--text-dark);
-    min-height: 100vh;
-    }
-
-    h1, h2, h3, h4, h5, h6 {
-    color: var(--primary-purple);
-    }
-
-    .text-primary { color: var(--primary-purple) !important; }
-    .text-success { color: var(--success-green) !important; }
-
-    /* ===============================================
-    NAVBAR
-    =============================================== */
-    .navbar {
-    background: linear-gradient(135deg, #ffffff 0%, #fff5fb 100%) !important;
-    border-bottom: 3px solid var(--border-pink);
-    box-shadow: 0 2px 10px rgba(142, 68, 173, 0.1);
-    }
-
-    .navbar-brand {
-    font-family: 'Great Vibes', cursive;
-    color: var(--dark-purple) !important;
-    font-size: 2.5rem;
-    font-weight: bold;
-    text-shadow: 2px 2px 4px rgba(111, 47, 134, 0.1);
-    }
-
-    /* ===============================================
-    HERO & SECTIONS
-    =============================================== */
-    .hero-section {
-    background: linear-gradient(135deg, #fff0f6 0%, #fffaf6 100%);
-    border-radius: 15px;
-    padding: 2rem;
-    margin: 2rem 0;
-    border: 2px solid var(--border-pink);
-    box-shadow: 0 4px 15px rgba(142, 68, 173, 0.1);
-    }
-
-    /* ===============================================
-    BUTTONS (Unified Gradients)
-    =============================================== */
-    /* Primary */
-    .btn-primary {
-    background: linear-gradient(180deg, #9b59b6 0%, #7d3c98 100%);
-    border: none;
-    border-radius: 25px;
-    padding: 12px 30px;
-    font-weight: 600;
-    color: white;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(142, 68, 173, 0.2);
-    }
-
-    .btn-primary:hover {
-    background: linear-gradient(180deg, #a66bbf 0%, #6e3288 100%);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(142, 68, 173, 0.4);
-    color: white;
-    }
-
-    /* Success */
-    .btn-success {
-    background: linear-gradient(180deg, #48c774 0%, #2e8b57 100%);
-    border: none;
-    border-radius: 25px;
-    padding: 12px 30px;
-    font-weight: 600;
-    color: white;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(72, 199, 116, 0.2);
-    }
-
-    .btn-success:hover {
-    background: linear-gradient(180deg, #3fb868 0%, #256b46 100%);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(72, 199, 116, 0.4);
-    color: white;
-    }
-
-    /* Danger */
-    .btn-danger {
-    background: linear-gradient(180deg, var(--danger-red) 0%, #ff5f97 100%);
-    border: none;
-    border-radius: 25px;
-    padding: 12px 30px;
-    font-weight: 600;
-    color: white;
-    transition: all 0.3s ease;
-    }
-
-    .btn-danger:hover {
-    background: linear-gradient(180deg, #ff5f97 0%, #ff4f87 100%);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(255, 111, 163, 0.4);
-    }
-
-    /* Outlines */
-    .btn-outline-danger {
-    border: 2px solid var(--danger-red);
-    color: var(--danger-red);
-    border-radius: 20px;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    background: transparent;
-    }
-
-    .btn-outline-danger:hover {
-    background: var(--danger-red);
-    color: white;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(255, 111, 163, 0.3);
-    }
-
-    .btn-outline-primary {
-    border: 2px solid var(--primary-purple);
-    color: var(--primary-purple);
-    border-radius: 20px;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    background: transparent;
-    }
-
-    .btn-outline-primary:hover {
-    background: var(--primary-purple);
-    color: white;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(142, 68, 173, 0.3);
-    }
-
-    /* ===============================================
-    FORMS
-    =============================================== */
-    .form-section {
-    background: white;
-    border-radius: 15px;
-    padding: 2rem;
-    margin: 1rem 0;
-    box-shadow: 0 4px 15px rgba(142, 68, 173, 0.1);
-    border: 2px solid var(--border-pink);
-    transition: all 0.3s ease;
-    }
-
-    .form-section:hover {
-    box-shadow: 0 6px 20px rgba(142, 68, 173, 0.15);
-    }
-
-    .form-section h4 {
-    color: var(--primary-purple);
-    font-weight: bold;
-    margin-bottom: 1.5rem;
-    }
-
-    .form-control, .form-select {
-    border: 2px solid var(--border-pink);
-    border-radius: 8px;
-    padding: 10px 15px;
-    transition: all 0.3s ease;
-    }
-
-    .form-control:focus, .form-select:focus {
-    border-color: var(--light-purple);
-    box-shadow: 0 0 0 0.2rem rgba(142, 68, 173, 0.25);
-    outline: none;
-    }
-
-    .form-label {
-    color: var(--text-dark);
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-    }
-
-    /* Date Filter Section (from Code 1) */
-    .date-filter-section {
-    background: white;
-    padding: 2rem;
-    border-radius: 15px;
-    box-shadow: 0 4px 15px rgba(142, 68, 173, 0.1);
-    margin-bottom: 2rem;
-    border: 2px solid var(--border-pink);
-    }
-
-    .quick-filter-btn {
-    margin: 5px;
-    border-radius: 20px;
-    padding: 10px 20px;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    }
-
-    /* ===============================================
-    TABS & NAVIGATION
-    =============================================== */
-    /* Standard Nav Tabs */
-    .nav-tabs {
-    border-bottom: 2px solid var(--border-pink);
-    }
-
-    .nav-tabs .nav-link {
-    color: var(--text-dark);
-    font-weight: 600;
-    border-radius: 15px 15px 0 0;
-    padding: 12px 24px;
-    margin: 0 5px;
-    transition: all 0.3s ease;
-    border: none;
-    background: transparent;
-    }
-
-    .nav-tabs .nav-link:hover {
-    background: var(--light-pink);
-    transform: translateY(-2px);
-    }
-
-    .nav-tabs .nav-link.active {
-    background: linear-gradient(135deg, #9b59b6 0%, #7d3c98 100%);
-    color: #fff !important;
-    font-weight: 600;
-    box-shadow: 0 4px 12px rgba(142, 68, 173, 0.3);
-    transform: translateY(-2px);
-    }
-
-    /* Nav Pills (from Code 2) */
-    .nav-pills .nav-link {
-    color: var(--text-dark);
-    font-weight: 600;
-    border-radius: 20px;
-    padding: 12px 24px;
-    margin: 0 5px;
-    transition: all 0.3s ease;
-    border: 2px solid var(--border-pink);
-    background: white;
-    }
-
-    .nav-pills .nav-link:hover {
-    background: var(--light-pink);
-    border-color: var(--light-purple);
-    transform: translateY(-2px);
-    }
-
-    .nav-pills .nav-link.active {
-    background: linear-gradient(135deg, #9b59b6 0%, #7d3c98 100%) !important;
-    color: #fff !important;
-    border: 2px solid var(--dark-purple);
-    box-shadow: 0 4px 12px rgba(142, 68, 173, 0.3);
-    }
-
-    /* ===============================================
-    CARDS & STATS
-    =============================================== */
-    .stats-card {
-    background: white;
-    border-left: 5px solid var(--primary-purple);
-    border-radius: 15px;
-    padding: 1.5rem;
-    box-shadow: 0 4px 15px rgba(142, 68, 173, 0.1);
-    transition: all 0.3s ease;
-    border: 2px solid var(--border-pink);
-    }
-
-    .stats-card:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 10px 25px rgba(142, 68, 173, 0.2);
-    }
-
-    .stats-card h5 {
-    color: var(--text-dark);
-    font-weight: 600;
-    margin-bottom: 1rem;
-    }
-
-    .stats-card h2 {
-    color: var(--primary-purple);
-    font-weight: bold;
-    }
-
-    /* Success Card */
-    .success-card {
-    background: white;
-    border-radius: 20px;
-    box-shadow: 0 10px 30px rgba(214, 51, 132, 0.1);
-    border: none;
-    max-width: 500px;
-    }
-
-    .success-icon {
-    font-size: 4rem;
-    color: #28a745;
-    margin-bottom: 1rem;
-    }
-
-    /* ===============================================
-    TABLES
-    =============================================== */
-    .table-container {
-    background: white;
-    border-radius: 15px;
-    padding: 1.5rem;
-    margin: 1rem 0;
-    box-shadow: 0 4px 15px rgba(142, 68, 173, 0.1);
-    border: 2px solid var(--border-pink);
-    }
-
-    .table {
-    background-color: white;
-    border: 2px solid var(--border-pink);
-    border-radius: 8px;
-    overflow: hidden;
-    }
-
-    .table thead {
-    background: linear-gradient(135deg, var(--primary-purple) 0%, var(--dark-purple) 100%);
-    color: white;
-    }
-
-    .table thead th {
-    border: none;
-    padding: 12px;
-    font-weight: 600;
-    }
-
-    .table tbody tr {
-    transition: all 0.2s ease;
-    }
-
-    .table tbody tr:nth-child(even) {
-    background-color: var(--light-pink);
-    }
-
-    .table tbody tr:hover {
-    background-color: #ffe6f5;
-    transform: scale(1.01);
-    box-shadow: 0 2px 8px rgba(142, 68, 173, 0.1);
-    }
-
-    .table tbody td {
-    padding: 10px;
-    border-color: var(--border-pink);
-    }
-
-    /* ===============================================
-    ELEMENTS: Badges, Alerts, Price, Cart
-    =============================================== */
-    .badge {
-    background: linear-gradient(135deg, var(--primary-purple) 0%, var(--dark-purple) 100%);
-    border-radius: 20px;
-    padding: 6px 12px;
-    font-weight: 600;
-    }
-
-    .badge-color {
-    padding: 5px 10px;
-    border-radius: 8px;
-    color: #000;
-    font-weight: 600;
-    }
-
-    .alert {
-    border-radius: 10px;
-    border: 2px solid var(--border-pink);
-    }
-
-    .alert-info {
-    background-color: var(--light-pink);
-    border-color: var(--light-purple);
-    color: var(--dark-purple);
-    }
-
-    /* Price Display */
-    .price-display {
-    background: var(--light-pink);
-    border-radius: 10px;
-    padding: 15px;
-    margin: 10px 0;
-    border-left: 4px solid var(--primary-purple);
-    box-shadow: 0 2px 8px rgba(142, 68, 173, 0.1);
-    }
-
-    .price-display strong {
-    color: var(--dark-purple);
-    }
-
-    /* Cart Items */
-    .cart-item {
-    background: var(--light-pink);
-    border-left: 4px solid var(--primary-purple);
-    padding: 15px;
-    margin: 10px 0;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(142, 68, 173, 0.1);
-    transition: all 0.3s ease;
-    }
-
-    .cart-item:hover {
-    transform: translateX(5px);
-    box-shadow: 0 4px 12px rgba(142, 68, 173, 0.2);
-    }
-
-    .cart-badge {
-    position: relative;
-    top: -10px;
-    right: -5px;
-    background: linear-gradient(135deg, var(--danger-red), #ff5f97);
-    color: white;
-    border-radius: 50%;
-    padding: 4px 10px;
-    font-size: 12px;
-    font-weight: bold;
-    box-shadow: 0 2px 6px rgba(255, 111, 163, 0.4);
-    }
-
-    /* Banner */
-    .banner-container {
-    width: 100%;
-    height: 300px;
-    overflow: hidden;
-    border-radius: 15px;
-    margin: 1rem 0;
-    box-shadow: 0 4px 15px rgba(142, 68, 173, 0.15);
-    border: 3px solid var(--border-pink);
-    }
-
-    .banner-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.3s ease;
-    }
-
-    .banner-container:hover .banner-img {
-    transform: scale(1.05);
-    }
-
-    /* ===============================================
-    MODALS & FOOTER
-    =============================================== */
-    .modal-header {
-    background: linear-gradient(135deg, #9b59b6 0%, #7d3c98 100%);
-    color: white;
-    border: none;
-    }
-
-    .modal-header .btn-close {
-    filter: brightness(0) invert(1);
-    }
-
-    footer {
-    background: linear-gradient(135deg, #ffffff 0%, #fff5fb 100%);
-    border-top: 3px solid var(--border-pink);
-    color: var(--text-dark);
-    font-weight: 500;
-    padding: 1.5rem 0;
-    }
-
-    /* ===============================================
-    ANIMATIONS
-    =============================================== */
-    @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-    }
-
-    .fade-in, .tab-pane {
-    animation: fadeIn 0.5s ease;
-    }
-
-    /* ===============================================
-    RESPONSIVE
-    =============================================== */
-    @media (max-width: 768px) {
-    .navbar-brand {
-    font-size: 1.8rem;
-    }
-
-    .btn-primary, .btn-success, .btn-danger {
-    padding: 10px 20px;
-    font-size: 14px;
-    }
-
-    .form-section, .date-filter-section {
-    padding: 1.5rem;
-    }
-    }
+        /* ===============================================
+        VARIABLES & ROOT CONFIGURATION
+        =============================================== */
+        :root {
+            --primary-purple: #8e44ad;
+            --dark-purple: #6f2f86;
+            --light-purple: #b65fae;
+            --pink: #ff88b8;
+            --light-pink: #fff5fb;
+            --hover-pink: #fceef8;
+            --border-pink: #f0d6ec;
+            --text-dark: #2b1b3a;
+            --text-muted: #6c5a7a;
+            --success-green: #48c774;
+            --danger-red: #ff6fa3;
+            --shadow-soft: 0 10px 30px rgba(142, 68, 173, 0.08);
+            --shadow-hover: 0 15px 35px rgba(142, 68, 173, 0.15);
+        }
+
+        body {
+            background: linear-gradient(135deg, #fff0f6 0%, #fffaf6 100%);
+            font-family: 'Segoe UI', 'Open Sans', 'Lato', sans-serif;
+            color: var(--text-dark);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased; /* Texto más nítido */
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            color: var(--primary-purple);
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .text-primary { color: var(--primary-purple) !important; }
+        .text-success { color: var(--success-green) !important; }
+
+        /* ===============================================
+        NAVBAR
+        =============================================== */
+        .navbar {
+            background: rgba(255, 255, 255, 0.95) !important;
+            backdrop-filter: blur(10px); /* Efecto vidrio */
+            border-bottom: 1px solid var(--border-pink);
+            box-shadow: 0 4px 20px rgba(142, 68, 173, 0.05);
+        }
+
+        .navbar-brand {
+            font-family: 'Great Vibes', cursive;
+            color: var(--dark-purple) !important;
+            font-size: 2.8rem;
+            font-weight: bold;
+            text-shadow: 2px 2px 0px rgba(240, 214, 236, 0.5);
+        }
+
+        /* ===============================================
+        HERO & SECTIONS
+        =============================================== */
+        .hero-section {
+            background: linear-gradient(135deg, #fff0f6 0%, #fffaf6 100%);
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+            border: 2px solid var(--border-pink);
+            box-shadow: 0 4px 15px rgba(142, 68, 173, 0.1);
+        }
+
+        /* ===============================================
+        BUTTONS (Unified Gradients)
+        =============================================== */
+        /* Primary */
+        .btn-primary {
+            background: linear-gradient(180deg, #9b59b6 0%, #7d3c98 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 12px 30px;
+            font-weight: 600;
+            color: white;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(142, 68, 173, 0.2);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(180deg, #a66bbf 0%, #6e3288 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(142, 68, 173, 0.4);
+            color: white;
+        }
+
+        /* Success */
+        .btn-success {
+            background: linear-gradient(180deg, #48c774 0%, #2e8b57 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 12px 30px;
+            font-weight: 600;
+            color: white;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(72, 199, 116, 0.2);
+        }
+
+        .btn-success:hover {
+            background: linear-gradient(180deg, #3fb868 0%, #256b46 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(72, 199, 116, 0.4);
+            color: white;
+        }
+
+        /* Danger */
+        .btn-danger {
+            background: linear-gradient(180deg, var(--danger-red) 0%, #ff5f97 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 12px 30px;
+            font-weight: 600;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .btn-danger:hover {
+            background: linear-gradient(180deg, #ff5f97 0%, #ff4f87 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 111, 163, 0.4);
+        }
+
+        /* Outlines */
+        .btn-outline-danger {
+            border: 2px solid var(--danger-red);
+            color: var(--danger-red);
+            border-radius: 20px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            background: transparent;
+        }
+
+        .btn-outline-danger:hover {
+            background: var(--danger-red);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(255, 111, 163, 0.3);
+        }
+
+        .btn-outline-primary {
+            border: 2px solid var(--primary-purple);
+            color: var(--primary-purple);
+            border-radius: 20px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            background: transparent;
+        }
+
+        .btn-outline-primary:hover {
+            background: var(--primary-purple);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(142, 68, 173, 0.3);
+        }
+
+        /* ===============================================
+        FORMS
+        =============================================== */
+        .form-section {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 1rem 0;
+            box-shadow: 0 4px 15px rgba(142, 68, 173, 0.1);
+            border: 2px solid var(--border-pink);
+            transition: all 0.3s ease;
+        }
+
+        .form-section:hover {
+            box-shadow: 0 6px 20px rgba(142, 68, 173, 0.15);
+        }
+
+        .form-section h4 {
+            color: var(--primary-purple);
+            font-weight: bold;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-control, .form-select {
+            border: 2px solid var(--border-pink);
+            border-radius: 8px;
+            padding: 10px 15px;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--light-purple);
+            box-shadow: 0 0 0 0.2rem rgba(142, 68, 173, 0.25);
+            outline: none;
+        }
+
+        .form-label {
+            color: var(--text-dark);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Date Filter Section (from Code 1) */
+        .date-filter-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(142, 68, 173, 0.1);
+            margin-bottom: 2rem;
+            border: 2px solid var(--border-pink);
+        }
+
+        .quick-filter-btn {
+            margin: 5px;
+            border-radius: 20px;
+            padding: 10px 20px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        /* ===============================================
+        TABS & NAVIGATION
+        =============================================== */
+        /* Standard Nav Tabs */
+        .nav-tabs {
+            border-bottom: 2px solid var(--border-pink);
+        }
+
+        .nav-tabs .nav-link {
+            color: var(--text-dark);
+            font-weight: 600;
+            border-radius: 15px 15px 0 0;
+            padding: 12px 24px;
+            margin: 0 5px;
+            transition: all 0.3s ease;
+            border: none;
+            background: transparent;
+        }
+
+        .nav-tabs .nav-link:hover {
+            background: var(--light-pink);
+            transform: translateY(-2px);
+        }
+
+        .nav-tabs .nav-link.active {
+            background: linear-gradient(135deg, #9b59b6 0%, #7d3c98 100%);
+            color: #fff !important;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(142, 68, 173, 0.3);
+            transform: translateY(-2px);
+        }
+
+        /* Nav Pills (from Code 2) */
+        .nav-pills .nav-link {
+            color: var(--text-dark);
+            font-weight: 600;
+            border-radius: 20px;
+            padding: 12px 24px;
+            margin: 0 5px;
+            transition: all 0.3s ease;
+            border: 2px solid var(--border-pink);
+            background: white;
+        }
+
+        .nav-pills .nav-link:hover {
+            background: var(--light-pink);
+            border-color: var(--light-purple);
+            transform: translateY(-2px);
+        }
+
+        .nav-pills .nav-link.active {
+            background: linear-gradient(135deg, #9b59b6 0%, #7d3c98 100%) !important;
+            color: #fff !important;
+            border: 2px solid var(--dark-purple);
+            box-shadow: 0 4px 12px rgba(142, 68, 173, 0.3);
+        }
+
+        /* ===============================================
+        CARDS & STATS
+        =============================================== */
+        .stats-card {
+            background: white;
+            border-left: 5px solid var(--primary-purple);
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px rgba(142, 68, 173, 0.1);
+            transition: all 0.3s ease;
+            border: 2px solid var(--border-pink);
+        }
+
+        .stats-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 10px 25px rgba(142, 68, 173, 0.2);
+        }
+
+        .stats-card h5 {
+            color: var(--text-dark);
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .stats-card h2 {
+            color: var(--primary-purple);
+            font-weight: bold;
+        }
+
+        /* Success Card */
+        .success-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(214, 51, 132, 0.1);
+            border: none;
+            max-width: 500px;
+        }
+
+        .success-icon {
+            font-size: 4rem;
+            color: #28a745;
+            margin-bottom: 1rem;
+        }
+
+        /* ===============================================
+        TABLES
+        =============================================== */
+        .table-container {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            box-shadow: 0 4px 15px rgba(142, 68, 173, 0.1);
+            border: 2px solid var(--border-pink);
+        }
+
+        .table {
+            background-color: white;
+            border: 2px solid var(--border-pink);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .table thead {
+            background: linear-gradient(135deg, var(--primary-purple) 0%, var(--dark-purple) 100%);
+            color: white;
+        }
+
+        .table thead th {
+            border: none;
+            padding: 12px;
+            font-weight: 600;
+        }
+
+        .table tbody tr {
+            transition: all 0.2s ease;
+        }
+
+        .table tbody tr:nth-child(even) {
+            background-color: var(--light-pink);
+        }
+
+        .table tbody tr:hover {
+            background-color: #ffe6f5;
+            transform: scale(1.01);
+            box-shadow: 0 2px 8px rgba(142, 68, 173, 0.1);
+        }
+
+        .table tbody td {
+            padding: 10px;
+            border-color: var(--border-pink);
+        }
+
+        /* ===============================================
+        ELEMENTS: Badges, Alerts, Price, Cart
+        =============================================== */
+        .badge {
+            background: linear-gradient(135deg, var(--primary-purple) 0%, var(--dark-purple) 100%);
+            border-radius: 20px;
+            padding: 6px 12px;
+            font-weight: 600;
+        }
+
+        .badge-color {
+            padding: 5px 10px;
+            border-radius: 8px;
+            color: #000;
+            font-weight: 600;
+        }
+
+        .alert {
+            border-radius: 10px;
+            border: 2px solid var(--border-pink);
+        }
+
+        .alert-info {
+            background-color: var(--light-pink);
+            border-color: var(--light-purple);
+            color: var(--dark-purple);
+        }
+
+        /* Price Display */
+        .price-display {
+            background: var(--light-pink);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary-purple);
+            box-shadow: 0 2px 8px rgba(142, 68, 173, 0.1);
+        }
+
+        .price-display strong {
+            color: var(--dark-purple);
+        }
+
+        /* Cart Items */
+        .cart-item {
+            background: var(--light-pink);
+            border-left: 4px solid var(--primary-purple);
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(142, 68, 173, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .cart-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 12px rgba(142, 68, 173, 0.2);
+        }
+
+        .cart-badge {
+            position: relative;
+            top: -10px;
+            right: -5px;
+            background: linear-gradient(135deg, var(--danger-red), #ff5f97);
+            color: white;
+            border-radius: 50%;
+            padding: 4px 10px;
+            font-size: 12px;
+            font-weight: bold;
+            box-shadow: 0 2px 6px rgba(255, 111, 163, 0.4);
+        }
+
+        /* Banner */
+        .banner-container {
+            width: 100%;
+            height: 300px;
+            overflow: hidden;
+            border-radius: 15px;
+            margin: 1rem 0;
+            box-shadow: 0 4px 15px rgba(142, 68, 173, 0.15);
+            border: 3px solid var(--border-pink);
+        }
+
+        .banner-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .banner-container:hover .banner-img {
+            transform: scale(1.05);
+        }
+
+        /* ===============================================
+        MODALS & FOOTER
+        =============================================== */
+        .modal-header {
+            background: linear-gradient(135deg, #9b59b6 0%, #7d3c98 100%);
+            color: white;
+            border: none;
+        }
+
+        .modal-header .btn-close {
+            filter: brightness(0) invert(1);
+        }
+
+        footer {
+            background: linear-gradient(135deg, #ffffff 0%, #fff5fb 100%);
+            border-top: 3px solid var(--border-pink);
+            color: var(--text-dark);
+            font-weight: 500;
+            padding: 1.5rem 0;
+        }
+
+        /* ===============================================
+        ANIMATIONS
+        =============================================== */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in, .tab-pane {
+            animation: fadeIn 0.5s ease;
+        }
+
+        /* ===============================================
+        RESPONSIVE
+        =============================================== */
+        @media (max-width: 768px) {
+            .navbar-brand {
+                font-size: 1.8rem;
+            }
+
+            .btn-primary, .btn-success, .btn-danger {
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+
+            .form-section, .date-filter-section {
+                padding: 1.5rem;
+            }
+        }
     </style>
 </head>
 <body>
 
 <nav class="navbar navbar-expand-lg navbar-light" style="background-color:#fff0f6;">
-        <div class="container">
-            <a class="navbar-brand" href="/">Mi Pastel</a>
-            <div class="navbar-nav ms-auto">
+    <div class="container">
+        <a class="navbar-brand" href="/">Mi Pastel</a>
+        <div class="navbar-nav ms-auto">
                 <span class="navbar-text me-3">
                     <strong style="color: #690f73;">{{ user_data.sucursal }}</strong>
                 </span>
-                <a class="btn btn-sm btn-outline-primary" href="/admin">
-                    <i class="fas fa-chart-bar"></i> Panel Admin
-                </a>
-                <a class="btn btn-sm btn-outline-danger ms-2" href="/logout">
-                    <i class="fas fa-sign-out-alt"></i> Salir
-                </a>
-            </div>
-        </div>
-    </nav>
-
-    <div class="container">
-        <div class="banner-container">
-            <img src="/static/uploads/logo.jpg" alt="Banner Mi Pastel" class="banner-img">
+            <a class="btn btn-sm btn-outline-primary" href="/admin">
+                <i class="fas fa-chart-bar"></i> Panel Admin
+            </a>
+            <a class="btn btn-sm btn-outline-danger ms-2" href="/logout">
+                <i class="fas fa-sign-out-alt"></i> Salir
+            </a>
         </div>
     </div>
+</nav>
 
-    <div class="container">
-        <div class="hero-section text-center">
-            <p class="lead"
-                style="color:#690f73; font-size:35px; font-weight: 550; font-family: 'Great Vibes', cursive;">
-                Sistema de Registro de Pedidos
-            </p>
-            <p style="color:#860bb8; font-size:18px;">Sucursal: <strong>{{ user_data.sucursal }}</strong></p>
-        </div>
+<div class="container">
+    <div class="banner-container">
+        <img src="/static/uploads/logo.jpg" alt="Banner Mi Pastel" class="banner-img">
+    </div>
+</div>
 
-        <ul class="nav nav-pills nav-justified mb-4" id="myTab">
-            <li class="nav-item">
-                <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#normales">
-                    Tienda
-                </button>
-            </li>
-            <li class="nav-item">
-                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#clientes">
-                    Cliente
-                </button>
-            </li>
-            <li class="nav-item">
-                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#pedidos">
-                    Lista <span class="cart-badge" id="cartBadge">0</span>
-                </button>
-            </li>
-            <li class="nav-item">
-                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#registrados"
+<div class="container">
+    <div class="hero-section text-center">
+        <p class="lead"
+           style="color:#690f73; font-size:35px; font-weight: 550; font-family: 'Great Vibes', cursive;">
+            Sistema de Registro de Pedidos
+        </p>
+        <p style="color:#860bb8; font-size:18px;">Sucursal: <strong>{{ user_data.sucursal }}</strong></p>
+    </div>
+
+    <ul class="nav nav-pills nav-justified mb-4" id="myTab">
+        <li class="nav-item">
+            <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#normales">
+                Tienda
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#clientes">
+                Cliente
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#pedidos">
+                Lista <span class="cart-badge" id="cartBadge">0</span>
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#registrados"
                     onclick="cargarPedidosRegistrados()">
-                    Pedidos Registrados
-                </button>
-            </li>
-        </ul>
+                Pedidos Registrados
+            </button>
+        </li>
+    </ul>
 
-        <div class="tab-content">
-            <div class="tab-pane fade show active" id="normales">
-                <div class="form-section">
-                    <h4 class="mb-4" style="color:#d63384;">Pedido de Tienda</h4>
-                    <form id="formNormal">
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label class="form-label">Sabor</label>
-                                <select class="form-select" id="saborNormal" required>
-                                    <option value="">Seleccionar...</option>
-                                    {% for sabor in sabores_normales %}
-                                    <option value="{{ sabor }}">{{ sabor }}</option>
-                                    {% endfor %}
-                                    <option value="Otro">Otro</option>
-                                </select>
-                                <input type="text" class="form-control mt-2 d-none" id="saborOtroNormal"
-                                    placeholder="Sabor personalizado">
-                            </div>
-
-                            <div class="col-md-6">
-                                <label class="form-label">Tamaño</label>
-                                <select class="form-select" id="tamanoNormal" required>
-                                    <option value="">Seleccionar...</option>
-                                    {% for tamano in tamanos_normales %}
-                                    <option value="{{ tamano }}">{{ tamano }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-
-                            <div class="col-md-4">
-                                <label class="form-label">Cantidad</label>
-                                <input type="number" class="form-control" id="cantidadNormal" value="1" min="1"
-                                    required>
-                            </div>
-
-                            <div class="col-md-4">
-                                <label class="form-label">Fecha de Entrega</label>
-                                <input type="date" class="form-control" id="fechaEntregaNormal" required>
-                            </div>
+    <div class="tab-content">
+        <div class="tab-pane fade show active" id="normales">
+            <div class="form-section">
+                <h4 class="mb-4" style="color:#d63384;">Pedido de Tienda</h4>
+                <form id="formNormal">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Sabor</label>
+                            <select class="form-select" id="saborNormal" required>
+                                <option value="">Seleccionar...</option>
+                                {% for sabor in sabores_normales %}
+                                <option value="{{ sabor }}">{{ sabor }}</option>
+                                {% endfor %}
+                                <option value="Otro">Otro</option>
+                            </select>
+                            <input type="text" class="form-control mt-2 d-none" id="saborOtroNormal"
+                                   placeholder="Sabor personalizado">
                         </div>
 
-                        <div class="price-display mt-3">
-                            <div class="row">
-                                <div class="col-md-6"><strong>Precio unitario:</strong> <span
-                                        id="precioUnitarioNormal">Q0.00</span></div>
-                                <div class="col-md-6"><strong>Total:</strong> <span id="precioTotalNormal"
-                                        style="color:#d63384; font-weight:bold;">Q0.00</span></div>
-                            </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Tamaño</label>
+                            <select class="form-select" id="tamanoNormal" required>
+                                <option value="">Seleccionar...</option>
+                                {% for tamano in tamanos_normales %}
+                                <option value="{{ tamano }}">{{ tamano }}</option>
+                                {% endfor %}
+                            </select>
                         </div>
 
-                        <div class="mt-4 d-flex gap-2">
-                            <button type="button" class="btn btn-success flex-fill"
-                                onclick="agregarAlCarrito('normal')">
-                                <i class="fas fa-cart-plus"></i> Agregar
-                            </button>
-                            <button type="button" class="btn btn-primary flex-fill"
-                                onclick="registrarDirecto('normal')">
-                                <i class="fas fa-save"></i> Registrar
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            <div class="tab-pane fade" id="clientes">
-                <div class="form-section">
-                    <h4 class="mb-4" style="color:#d63384;">Pedido de Cliente</h4>
-                    <form id="formCliente">
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label class="form-label">Sabor</label>
-                                <select class="form-select" id="saborCliente" required>
-                                    <option value="">Seleccionar...</option>
-                                    {% for sabor in sabores_clientes %}
-                                    <option value="{{ sabor }}">{{ sabor }}</option>
-                                    {% endfor %}
-                                    <option value="Otro">Otro</option>
-                                </select>
-                                <input type="text" class="form-control mt-2 d-none" id="saborOtroCliente"
-                                    placeholder="Sabor personalizado">
-                            </div>
-
-                            <div class="col-md-6">
-                                <label class="form-label">Tamaño</label>
-                                <select class="form-select" id="tamanoCliente" required>
-                                    <option value="">Seleccionar...</option>
-                                    {% for tamano in tamanos_clientes %}
-                                    <option value="{{ tamano }}">{{ tamano }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-
-                            <div class="col-md-4">
-                                <label class="form-label">Cantidad</label>
-                                <input type="number" class="form-control" id="cantidadCliente" value="1" min="1"
-                                    required>
-                            </div>
-
-                            <div class="col-md-4">
-                                <label class="form-label">Fecha de Entrega</label>
-                                <input type="date" class="form-control" id="fechaEntregaCliente">
-                            </div>
-
-                            <div class="col-md-4">
-                                <label class="form-label">Color (Opcional)</label>
-                                <input type="text" class="form-control" id="colorCliente" placeholder="Ej: Rosado">
-                            </div>
-
-                            <div class="col-md-12">
-                                <label class="form-label">Dedicatoria (Opcional)</label>
-                                <textarea class="form-control" id="dedicatoriaCliente" rows="2"></textarea>
-                            </div>
-
-                            <div class="col-md-12">
-                                <label class="form-label">Detalles (Opcional)</label>
-                                <textarea class="form-control" id="detallesCliente" rows="2"></textarea>
-                            </div>
-
-                            <div class="col-md-12">
-                                <label class="form-label"><i class="fas fa-image"></i> Foto
-                                    (Opcional)</label>
-                                <input type="file" class="form-control" id="fotoCliente" accept="image/*">
-                                <small class="text-muted">Formatos: JPG, PNG, GIF (Máx. 5MB)</small>
-                            </div>
-                        </div>
-
-                        <div class="price-display mt-3">
-                            <div class="row">
-                                <div class="col-md-6"><strong>Precio unitario:</strong> <span
-                                        id="precioUnitarioCliente">Q0.00</span></div>
-                                <div class="col-md-6"><strong>Total:</strong> <span id="precioTotalCliente"
-                                        style="color:#d63384; font-weight:bold;">Q0.00</span></div>
-                            </div>
-                        </div>
-
-                        <div class="mt-4 d-flex gap-2">
-                            <button type="button" class="btn btn-success flex-fill"
-                                onclick="agregarAlCarrito('cliente')">
-                                <i class="fas fa-cart-plus"></i> Agregar
-                            </button>
-                            <button type="button" class="btn btn-primary flex-fill"
-                                onclick="registrarDirecto('cliente')">
-                                <i class="fas fa-save"></i> Registrar
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            <div class="tab-pane fade" id="pedidos">
-                <div class="form-section">
-                    <h4 class="mb-4" style="color:#d63384;">Mi Lista de Pedidos</h4>
-
-                    <div class="mb-4">
-                        <h5>Pasteles de Tienda (<span id="countNormalesLista">0</span>)</h5>
-                        <div id="listaNormales"></div>
-                    </div>
-
-                    <div class="mb-4">
-                        <h5>Pasteles de Clientes (<span id="countClientesLista">0</span>)</h5>
-                        <div id="listaClientes"></div>
-                    </div>
-
-                    <div class="d-flex gap-2 mt-4">
-                        <button class="btn btn-danger btn-lg flex-fill" onclick="limpiarLista()">
-                            <i class="fas fa-trash"></i> Limpiar Lista
-                        </button>
-                        <button class="btn btn-primary btn-lg flex-fill" onclick="registrarTodos()">
-                            <i class="fas fa-check-circle"></i> Registrar Todos
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="tab-pane fade" id="registrados">
-                <div class="table-container">
-                    <h4 class="mb-4" style="color:#d63384;">
-                        <i class="fas fa-list-alt"></i> Pedidos Registrados
-                        <button class="btn btn-sm btn-outline-primary float-end" onclick="cargarPedidosRegistrados()">
-                            <i class="fas fa-sync"></i> Actualizar
-                        </button>
-                    </h4>
-
-                    <div class="row mb-4">
                         <div class="col-md-4">
-                            <label class="form-label"><i class="fas fa-calendar"></i> Buscar por Fecha</label>
-                            <input type="date" class="form-control" id="fechaBusqueda">
+                            <label class="form-label">Cantidad</label>
+                            <input type="number" class="form-control" id="cantidadNormal" value="1" min="1"
+                                   required>
                         </div>
-                        <div class="col-md-2 d-flex align-items-end">
-                            <button class="btn btn-primary" onclick="cargarPedidosRegistrados()">
-                                <i class="fas fa-search"></i> Buscar
-                            </button>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Fecha de Entrega</label>
+                            <input type="date" class="form-control" id="fechaEntregaNormal" required>
                         </div>
                     </div>
 
-                    <h5 class="mt-4 mb-3">Pasteles de Tienda</h5>
-                    <div class="table-responsive">
-                        <table class="table table-hover table-bordered">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Sabor</th>
-                                    <th>Tamaño</th>
-                                    <th>Cantidad</th>
-                                    <th>Precio Unit.</th>
-                                    <th>Total</th>
-                                    <th>Fecha Entrega</th>
-                                    <th>Detalles</th>
-                                    <th>Estado</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tablaNormalesRegistrados">
-                                <tr>
-                                    <td colspan="10" class="text-center">Cargando...</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <div class="price-display mt-3">
+                        <div class="row">
+                            <div class="col-md-6"><strong>Precio unitario:</strong> <span
+                                    id="precioUnitarioNormal">Q0.00</span></div>
+                            <div class="col-md-6"><strong>Total:</strong> <span id="precioTotalNormal"
+                                                                                style="color:#d63384; font-weight:bold;">Q0.00</span></div>
+                        </div>
                     </div>
 
-                    <h5 class="mt-5 mb-3">Pasteles de Clientes</h5>
-                    <div class="table-responsive">
-                        <table class="table table-hover table-bordered">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Sabor</th>
-                                    <th>Tamaño</th>
-                                    <th>Cantidad</th>
-                                    <th>Precio Unit.</th>
-                                    <th>Total</th>
-                                    <th>Fecha Entrega</th>
-                                    <th>Color</th>
-                                    <th>Dedicatoria</th>
-                                    <th>Detalles</th>
-                                    <th>Estado</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tablaClientesRegistrados">
-                                <tr>
-                                    <td colspan="12" class="text-center">Cargando...</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <div class="mt-4 d-flex gap-2">
+                        <button type="button" class="btn btn-success flex-fill"
+                                onclick="agregarAlCarrito('normal')">
+                            <i class="fas fa-cart-plus"></i> Agregar
+                        </button>
+                        <button type="button" class="btn btn-primary flex-fill"
+                                onclick="registrarDirecto('normal')">
+                            <i class="fas fa-save"></i> Registrar
+                        </button>
                     </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="clientes">
+            <div class="form-section">
+                <h4 class="mb-4" style="color:#d63384;">Pedido de Cliente</h4>
+                <form id="formCliente">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Sabor</label>
+                            <select class="form-select" id="saborCliente" required>
+                                <option value="">Seleccionar...</option>
+                                {% for sabor in sabores_clientes %}
+                                <option value="{{ sabor }}">{{ sabor }}</option>
+                                {% endfor %}
+                                <option value="Otro">Otro</option>
+                            </select>
+                            <input type="text" class="form-control mt-2 d-none" id="saborOtroCliente"
+                                   placeholder="Sabor personalizado">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Tamaño</label>
+                            <select class="form-select" id="tamanoCliente" required>
+                                <option value="">Seleccionar...</option>
+                                {% for tamano in tamanos_clientes %}
+                                <option value="{{ tamano }}">{{ tamano }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Cantidad</label>
+                            <input type="number" class="form-control" id="cantidadCliente" value="1" min="1"
+                                   required>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Fecha de Entrega</label>
+                            <input type="date" class="form-control" id="fechaEntregaCliente">
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Color (Opcional)</label>
+                            <input type="text" class="form-control" id="colorCliente" placeholder="Ej: Rosado">
+                        </div>
+
+                        <div class="col-md-12">
+                            <label class="form-label">Dedicatoria (Opcional)</label>
+                            <textarea class="form-control" id="dedicatoriaCliente" rows="2"></textarea>
+                        </div>
+
+                        <div class="col-md-12">
+                            <label class="form-label">Detalles (Opcional)</label>
+                            <textarea class="form-control" id="detallesCliente" rows="2"></textarea>
+                        </div>
+
+                        <div class="col-md-12">
+                            <label class="form-label"><i class="fas fa-image"></i> Foto
+                                (Opcional)</label>
+                            <input type="file" class="form-control" id="fotoCliente" accept="image/*">
+                            <small class="text-muted">Formatos: JPG, PNG, GIF (Máx. 5MB)</small>
+                        </div>
+                    </div>
+
+                    <div class="price-display mt-3">
+                        <div class="row">
+                            <div class="col-md-6"><strong>Precio unitario:</strong> <span
+                                    id="precioUnitarioCliente">Q0.00</span></div>
+                            <div class="col-md-6"><strong>Total:</strong> <span id="precioTotalCliente"
+                                                                                style="color:#d63384; font-weight:bold;">Q0.00</span></div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 d-flex gap-2">
+                        <button type="button" class="btn btn-success flex-fill"
+                                onclick="agregarAlCarrito('cliente')">
+                            <i class="fas fa-cart-plus"></i> Agregar
+                        </button>
+                        <button type="button" class="btn btn-primary flex-fill"
+                                onclick="registrarDirecto('cliente')">
+                            <i class="fas fa-save"></i> Registrar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="pedidos">
+            <div class="form-section">
+                <h4 class="mb-4" style="color:#d63384;">Mi Lista de Pedidos</h4>
+
+                <div class="mb-4">
+                    <h5>Pasteles de Tienda (<span id="countNormalesLista">0</span>)</h5>
+                    <div id="listaNormales"></div>
+                </div>
+
+                <div class="mb-4">
+                    <h5>Pasteles de Clientes (<span id="countClientesLista">0</span>)</h5>
+                    <div id="listaClientes"></div>
+                </div>
+
+                <div class="d-flex gap-2 mt-4">
+                    <button class="btn btn-danger btn-lg flex-fill" onclick="limpiarLista()">
+                        <i class="fas fa-trash"></i> Limpiar Lista
+                    </button>
+                    <button class="btn btn-primary btn-lg flex-fill" onclick="registrarTodos()">
+                        <i class="fas fa-check-circle"></i> Registrar Todos
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="registrados">
+            <div class="table-container">
+                <h4 class="mb-4" style="color:#d63384;">
+                    <i class="fas fa-list-alt"></i> Pedidos Registrados
+                    <button class="btn btn-sm btn-outline-primary float-end" onclick="cargarPedidosRegistrados()">
+                        <i class="fas fa-sync"></i> Actualizar
+                    </button>
+                </h4>
+
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <label class="form-label"><i class="fas fa-calendar"></i> Buscar por Fecha</label>
+                        <input type="date" class="form-control" id="fechaBusqueda">
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button class="btn btn-primary" onclick="cargarPedidosRegistrados()">
+                            <i class="fas fa-search"></i> Buscar
+                        </button>
+                    </div>
+                </div>
+
+                <h5 class="mt-4 mb-3">Pasteles de Tienda</h5>
+                <div class="table-responsive">
+                    <table class="table table-hover table-bordered">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Sabor</th>
+                            <th>Tamaño</th>
+                            <th>Cantidad</th>
+                            <th>Precio Unit.</th>
+                            <th>Total</th>
+                            <th>Fecha Entrega</th>
+                            <th>Detalles</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                        </thead>
+                        <tbody id="tablaNormalesRegistrados">
+                        <tr>
+                            <td colspan="10" class="text-center">Cargando...</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h5 class="mt-5 mb-3">Pasteles de Clientes</h5>
+                <div class="table-responsive">
+                    <table class="table table-hover table-bordered">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Sabor</th>
+                            <th>Tamaño</th>
+                            <th>Cantidad</th>
+                            <th>Precio Unit.</th>
+                            <th>Total</th>
+                            <th>Fecha Entrega</th>
+                            <th>Color</th>
+                            <th>Dedicatoria</th>
+                            <th>Detalles</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                        </thead>
+                        <tbody id="tablaClientesRegistrados">
+                        <tr>
+                            <td colspan="12" class="text-center">Cargando...</td>
+                        </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <div class="modal fade" id="modalEditarNormal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header" style="background: linear-gradient(135deg, #ff66b2, #d63384); color: white;">
-                    <h5 class="modal-title">Editar Pedido de Tienda</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+<div class="modal fade" id="modalEditarNormal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header" style="background: linear-gradient(135deg, #ff66b2, #d63384); color: white;">
+                <h5 class="modal-title">Editar Pedido de Tienda</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editIdNormal">
+                <div class="mb-3">
+                    <label class="form-label">Sabor</label>
+                    <input type="text" class="form-control" id="editSaborNormal" readonly>
                 </div>
-                <div class="modal-body">
-                    <input type="hidden" id="editIdNormal">
-                    <div class="mb-3">
-                        <label class="form-label">Sabor</label>
-                        <input type="text" class="form-control" id="editSaborNormal" readonly>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Tamaño</label>
-                        <input type="text" class="form-control" id="editTamanoNormal" readonly>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Cantidad</label>
-                        <input type="number" class="form-control" id="editCantidadNormal" min="1">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Fecha de Entrega</label>
-                        <input type="date" class="form-control" id="editFechaNormal">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Detalles</label>
-                        <input type="text" class="form-control" id="editDetallesNormal">
-                    </div>
+                <div class="mb-3">
+                    <label class="form-label">Tamaño</label>
+                    <input type="text" class="form-control" id="editTamanoNormal" readonly>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary" onclick="guardarEdicionNormal()">Guardar
-                        Cambios</button>
+                <div class="mb-3">
+                    <label class="form-label">Cantidad</label>
+                    <input type="number" class="form-control" id="editCantidadNormal" min="1">
                 </div>
+                <div class="mb-3">
+                    <label class="form-label">Fecha de Entrega</label>
+                    <input type="date" class="form-control" id="editFechaNormal">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Detalles</label>
+                    <input type="text" class="form-control" id="editDetallesNormal">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="guardarEdicionNormal()">Guardar
+                    Cambios</button>
             </div>
         </div>
     </div>
+</div>
 
-    <div class="modal fade" id="modalEditarCliente" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header" style="background: linear-gradient(135deg, #ff66b2, #d63384); color: white;">
-                    <h5 class="modal-title">Editar Pedido de Cliente</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+<div class="modal fade" id="modalEditarCliente" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header" style="background: linear-gradient(135deg, #ff66b2, #d63384); color: white;">
+                <h5 class="modal-title">Editar Pedido de Cliente</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editIdCliente">
+                <div class="mb-3">
+                    <label class="form-label">Sabor</label>
+                    <input type="text" class="form-control" id="editSaborCliente" readonly>
                 </div>
-                <div class="modal-body">
-                    <input type="hidden" id="editIdCliente">
-                    <div class="mb-3">
-                        <label class="form-label">Sabor</label>
-                        <input type="text" class="form-control" id="editSaborCliente" readonly>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Tamaño</label>
-                        <input type="text" class="form-control" id="editTamanoCliente" readonly>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Cantidad</label>
-                        <input type="number" class="form-control" id="editCantidadCliente" min="1">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Fecha de Entrega</label>
-                        <input type="date" class="form-control" id="editFechaCliente">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Color</label>
-                        <input type="text" class="form-control" id="editColorCliente">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Dedicatoria</label>
-                        <textarea class="form-control" id="editDedicatoriaCliente" rows="2"></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Detalles</label>
-                        <textarea class="form-control" id="editDetallesCliente" rows="2"></textarea>
-                    </div>
+                <div class="mb-3">
+                    <label class="form-label">Tamaño</label>
+                    <input type="text" class="form-control" id="editTamanoCliente" readonly>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary" onclick="guardarEdicionCliente()">Guardar
-                        Cambios</button>
+                <div class="mb-3">
+                    <label class="form-label">Cantidad</label>
+                    <input type="number" class="form-control" id="editCantidadCliente" min="1">
                 </div>
+                <div class="mb-3">
+                    <label class="form-label">Fecha de Entrega</label>
+                    <input type="date" class="form-control" id="editFechaCliente">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Color</label>
+                    <input type="text" class="form-control" id="editColorCliente">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Dedicatoria</label>
+                    <textarea class="form-control" id="editDedicatoriaCliente" rows="2"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Detalles</label>
+                    <textarea class="form-control" id="editDetallesCliente" rows="2"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="guardarEdicionCliente()">Guardar
+                    Cambios</button>
             </div>
         </div>
     </div>
+</div>
 
-    <footer class="bg-light text-center py-4 mt-5">
-        <p class="mb-0" style="color:#666;"><i class="fas fa-cake"></i> Mi Pastel - {{ user_data.sucursal }}</p>
-    </footer>
+<footer class="bg-light text-center py-4 mt-5">
+    <p class="mb-0" style="color:#666;"><i class="fas fa-cake"></i> Mi Pastel - {{ user_data.sucursal }}</p>
+</footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        const SUCURSAL = "{{ user_data.sucursal }}";
-        let cartaNormales = [];
-        let cartaClientes = [];
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const SUCURSAL = "{{ user_data.sucursal }}";
+    let cartaNormales = [];
+    let cartaClientes = [];
 
-        function obtenerFechas() {
-            const hoy = new Date();
-            const manana = new Date(hoy);
-            manana.setDate(manana.getDate() + 1);
+    function obtenerFechas() {
+        const hoy = new Date();
+        const manana = new Date(hoy);
+        manana.setDate(manana.getDate() + 1);
 
-            const formatoFecha = (fecha) => fecha.toISOString().split('T')[0];
+        const formatoFecha = (fecha) => fecha.toISOString().split('T')[0];
+
+        return {
+            hoy: formatoFecha(hoy),
+            manana: formatoFecha(manana)
+        };
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const fechas = obtenerFechas();
+
+        document.getElementById('fechaEntregaNormal').value = fechas.manana;
+        document.getElementById('fechaEntregaNormal').min = fechas.manana;
+
+        document.getElementById('fechaEntregaCliente').value = fechas.manana;
+        document.getElementById('fechaEntregaCliente').min = fechas.manana;
+
+        document.getElementById('fechaBusqueda').value = fechas.hoy;
+
+        document.getElementById('saborNormal').addEventListener('change', () => {
+            toggleOtro('saborNormal', 'saborOtroNormal');
+            actualizarPrecio('normal');
+        });
+        document.getElementById('tamanoNormal').addEventListener('change', () => actualizarPrecio('normal'));
+        document.getElementById('cantidadNormal').addEventListener('input', () => actualizarPrecio('normal'));
+
+        document.getElementById('saborCliente').addEventListener('change', () => {
+            toggleOtro('saborCliente', 'saborOtroCliente');
+            actualizarPrecio('cliente');
+        });
+        document.getElementById('tamanoCliente').addEventListener('change', () => actualizarPrecio('cliente'));
+        document.getElementById('cantidadCliente').addEventListener('input', () => actualizarPrecio('cliente'));
+    });
+
+    function toggleOtro(selectId, inputId) {
+        const select = document.getElementById(selectId);
+        const input = document.getElementById(inputId);
+
+        if (select.value === 'Otro') {
+            input.classList.remove('d-none');
+            input.required = true;
+        } else {
+            input.classList.add('d-none');
+            input.required = false;
+            input.value = '';
+        }
+    }
+
+    async function actualizarPrecio(tipo) {
+        const sabor = document.getElementById(`sabor${tipo === 'normal' ? 'Normal' : 'Cliente'}`).value;
+        const tamano = document.getElementById(`tamano${tipo === 'normal' ? 'Normal' : 'Cliente'}`).value;
+        const cantidad = parseInt(document.getElementById(`cantidad${tipo === 'normal' ? 'Normal' : 'Cliente'}`).value) || 1;
+
+        const precioUnitEl = document.getElementById(`precioUnitario${tipo === 'normal' ? 'Normal' : 'Cliente'}`);
+        const precioTotalEl = document.getElementById(`precioTotal${tipo === 'normal' ? 'Normal' : 'Cliente'}`);
+
+        if (!sabor || !tamano || sabor === 'Otro') {
+            precioUnitEl.textContent = 'Q0.00';
+            precioTotalEl.textContent = 'Q0.00';
+            return;
+        }
+
+        try {
+            const resp = await fetch(`/api/obtener-precio?sabor=${encodeURIComponent(sabor)}&tamano=${encodeURIComponent(tamano)}`);
+            const data = await resp.json();
+
+            if (data.encontrado && data.precio > 0) {
+                precioUnitEl.textContent = `Q${data.precio.toFixed(2)}`;
+                precioTotalEl.textContent = `Q${(data.precio * cantidad).toFixed(2)}`;
+            } else {
+                precioUnitEl.textContent = 'Q0.00 (No encontrado)';
+                precioTotalEl.textContent = 'Q0.00';
+            }
+        } catch (error) {
+            console.error('Error al obtener precio:', error);
+            precioUnitEl.textContent = 'Q0.00 (Error)';
+            precioTotalEl.textContent = 'Q0.00';
+        }
+    }
+
+    function obtenerDatosFormulario(tipo) {
+        if (tipo === 'normal') {
+            const sabor = document.getElementById('saborNormal').value;
+            const saborOtro = document.getElementById('saborOtroNormal').value;
+            const precioText = document.getElementById('precioUnitarioNormal').textContent
+                .replace('Q', '')
+                .replace(' (No encontrado)', '')
+                .replace(' (Error)', '')
+                .trim();
 
             return {
-                hoy: formatoFecha(hoy),
-                manana: formatoFecha(manana)
+                sabor: sabor === 'Otro' ? saborOtro : sabor,
+                tamano: document.getElementById('tamanoNormal').value,
+                cantidad: parseInt(document.getElementById('cantidadNormal').value),
+                fecha_entrega: document.getElementById('fechaEntregaNormal').value,
+                precio: parseFloat(precioText) || 0,
+                sabor_personalizado: sabor === 'Otro' ? saborOtro : null
+            };
+        } else {
+            const sabor = document.getElementById('saborCliente').value;
+            const saborOtro = document.getElementById('saborOtroCliente').value;
+            const precioText = document.getElementById('precioUnitarioCliente').textContent
+                .replace('Q', '')
+                .replace(' (No encontrado)', '')
+                .replace(' (Error)', '')
+                .trim();
+
+            return {
+                sabor: sabor === 'Otro' ? saborOtro : sabor,
+                tamano: document.getElementById('tamanoCliente').value,
+                cantidad: parseInt(document.getElementById('cantidadCliente').value),
+                fecha_entrega: document.getElementById('fechaEntregaCliente').value,
+                color: document.getElementById('colorCliente').value,
+                dedicatoria: document.getElementById('dedicatoriaCliente').value,
+                detalles: document.getElementById('detallesCliente').value,
+                precio: parseFloat(precioText) || 0,
+                sabor_personalizado: sabor === 'Otro' ? saborOtro : null
             };
         }
+    }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            const fechas = obtenerFechas();
+    function validarFormulario(datos, tipo) {
+        if (!datos.sabor || !datos.tamano || !datos.cantidad || !datos.fecha_entrega) {
+            alert('Por favor completa todos los campos requeridos');
+            return false;
+        }
 
+        if (datos.precio <= 0 || isNaN(datos.precio)) {
+            alert('El precio no es válido. Verifica que el sabor y tamaño tengan precio configurado.');
+            return false;
+        }
+
+        return true;
+    }
+
+    function limpiarFormulario(tipo) {
+        const fechas = obtenerFechas();
+
+        if (tipo === 'normal') {
+            document.getElementById('saborNormal').value = '';
+            document.getElementById('tamanoNormal').value = '';
+            document.getElementById('cantidadNormal').value = '1';
+            document.getElementById('saborOtroNormal').classList.add('d-none');
             document.getElementById('fechaEntregaNormal').value = fechas.manana;
-            document.getElementById('fechaEntregaNormal').min = fechas.manana;
-
+            document.getElementById('precioUnitarioNormal').textContent = 'Q0.00';
+            document.getElementById('precioTotalNormal').textContent = 'Q0.00';
+        } else {
+            document.getElementById('saborCliente').value = '';
+            document.getElementById('tamanoCliente').value = '';
+            document.getElementById('cantidadCliente').value = '1';
+            document.getElementById('colorCliente').value = '';
+            document.getElementById('dedicatoriaCliente').value = '';
+            document.getElementById('detallesCliente').value = '';
+            document.getElementById('saborOtroCliente').classList.add('d-none');
             document.getElementById('fechaEntregaCliente').value = fechas.manana;
-            document.getElementById('fechaEntregaCliente').min = fechas.manana;
+            document.getElementById('precioUnitarioCliente').textContent = 'Q0.00';
+            document.getElementById('precioTotalCliente').textContent = 'Q0.00';
+        }
+    }
 
-            document.getElementById('fechaBusqueda').value = fechas.hoy;
+    function agregarAlCarrito(tipo) {
+        const datos = obtenerDatosFormulario(tipo);
 
-            document.getElementById('saborNormal').addEventListener('change', () => {
-                toggleOtro('saborNormal', 'saborOtroNormal');
-                actualizarPrecio('normal');
+        if (!validarFormulario(datos, tipo)) return;
+
+        if (tipo === 'normal') {
+            cartaNormales.push(datos);
+        } else {
+            cartaClientes.push(datos);
+        }
+
+        actualizarVista();
+        limpiarFormulario(tipo);
+
+        const tab = new bootstrap.Tab(document.querySelector('[data-bs-target="#pedidos"]'));
+        tab.show();
+
+        alert('Pedido agregado a la lista');
+    }
+
+    function eliminarDeLista(tipo, index) {
+        if (tipo === 'normal') {
+            cartaNormales.splice(index, 1);
+        } else {
+            cartaClientes.splice(index, 1);
+        }
+        actualizarVista();
+    }
+
+    function limpiarLista() {
+        if (!confirm('¿Limpiar toda la lista?')) return;
+        cartaNormales = [];
+        cartaClientes = [];
+        actualizarVista();
+    }
+
+    async function registrarDirecto(tipo) {
+        const form = tipo === 'normal' ? document.getElementById('formNormal') : document.getElementById('formCliente');
+        const formData = new FormData(form);
+
+        formData.append('sucursal', SUCURSAL);
+
+        const endpoint = tipo === 'normal' ? '/normales/registrar' : '/clientes/registrar';
+
+        try {
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                body: formData
             });
-            document.getElementById('tamanoNormal').addEventListener('change', () => actualizarPrecio('normal'));
-            document.getElementById('cantidadNormal').addEventListener('input', () => actualizarPrecio('normal'));
 
-            document.getElementById('saborCliente').addEventListener('change', () => {
-                toggleOtro('saborCliente', 'saborOtroCliente');
-                actualizarPrecio('cliente');
-            });
-            document.getElementById('tamanoCliente').addEventListener('change', () => actualizarPrecio('cliente'));
-            document.getElementById('cantidadCliente').addEventListener('input', () => actualizarPrecio('cliente'));
-        });
-
-        function toggleOtro(selectId, inputId) {
-            const select = document.getElementById(selectId);
-            const input = document.getElementById(inputId);
-
-            if (select.value === 'Otro') {
-                input.classList.remove('d-none');
-                input.required = true;
+            if (response.ok) {
+                limpiarFormulario(tipo);
+                alert('✓ Pedido registrado exitosamente');
+                cargarPedidosRegistrados();
+                const tab = new bootstrap.Tab(document.querySelector('[data-bs-target="#registrados"]'));
+                tab.show();
             } else {
-                input.classList.add('d-none');
-                input.required = false;
-                input.value = '';
+                const error = await response.json();
+                alert('Error: ' + (error.detail || 'No se pudo registrar'));
             }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error al registrar pedido: ' + error.message);
+        }
+    }
+
+    async function registrarTodos() {
+        if (cartaNormales.length === 0 && cartaClientes.length === 0) {
+            alert('No hay pedidos en la lista');
+            return;
         }
 
-        async function actualizarPrecio(tipo) {
-            const sabor = document.getElementById(`sabor${tipo === 'normal' ? 'Normal' : 'Cliente'}`).value;
-            const tamano = document.getElementById(`tamano${tipo === 'normal' ? 'Normal' : 'Cliente'}`).value;
-            const cantidad = parseInt(document.getElementById(`cantidad${tipo === 'normal' ? 'Normal' : 'Cliente'}`).value) || 1;
+        if (!confirm('¿Registrar todos los pedidos?')) {
+            return;
+        }
 
-            const precioUnitEl = document.getElementById(`precioUnitario${tipo === 'normal' ? 'Normal' : 'Cliente'}`);
-            const precioTotalEl = document.getElementById(`precioTotal${tipo === 'normal' ? 'Normal' : 'Cliente'}`);
+        let exitosos = 0;
+        let fallidos = 0;
 
-            if (!sabor || !tamano || sabor === 'Otro') {
-                precioUnitEl.textContent = 'Q0.00';
-                precioTotalEl.textContent = 'Q0.00';
-                return;
-            }
+        try {
+            for (const pedido of cartaNormales) {
+                const formData = new FormData();
+                formData.append('sabor', pedido.sabor);
+                formData.append('tamano', pedido.tamano);
+                formData.append('cantidad', pedido.cantidad);
+                formData.append('sucursal', SUCURSAL);
+                formData.append('fecha_entrega', pedido.fecha_entrega);
+                formData.append('detalles', pedido.detalles || '');
+                formData.append('sabor_personalizado', pedido.sabor_personalizado || '');
+                formData.append('precio', pedido.precio);
 
-            try {
-                const resp = await fetch(`/api/obtener-precio?sabor=${encodeURIComponent(sabor)}&tamano=${encodeURIComponent(tamano)}`);
-                const data = await resp.json();
-
-                if (data.encontrado && data.precio > 0) {
-                    precioUnitEl.textContent = `Q${data.precio.toFixed(2)}`;
-                    precioTotalEl.textContent = `Q${(data.precio * cantidad).toFixed(2)}`;
-                } else {
-                    precioUnitEl.textContent = 'Q0.00 (No encontrado)';
-                    precioTotalEl.textContent = 'Q0.00';
+                try {
+                    const resp = await fetch('/normales/registrar', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    if (resp.ok) exitosos++;
+                    else fallidos++;
+                } catch (e) {
+                    fallidos++;
                 }
-            } catch (error) {
-                console.error('Error al obtener precio:', error);
-                precioUnitEl.textContent = 'Q0.00 (Error)';
-                precioTotalEl.textContent = 'Q0.00';
             }
-        }
 
-        function obtenerDatosFormulario(tipo) {
-            if (tipo === 'normal') {
-                const sabor = document.getElementById('saborNormal').value;
-                const saborOtro = document.getElementById('saborOtroNormal').value;
-                const precioText = document.getElementById('precioUnitarioNormal').textContent
-                    .replace('Q', '')
-                    .replace(' (No encontrado)', '')
-                    .replace(' (Error)', '')
-                    .trim();
+            for (const pedido of cartaClientes) {
+                const formData = new FormData();
+                formData.append('sabor', pedido.sabor);
+                formData.append('tamano', pedido.tamano);
+                formData.append('cantidad', pedido.cantidad);
+                formData.append('sucursal', SUCURSAL);
+                formData.append('fecha_entrega', pedido.fecha_entrega);
+                formData.append('color', pedido.color || '');
+                formData.append('dedicatoria', pedido.dedicatoria || '');
+                formData.append('detalles', pedido.detalles || '');
+                formData.append('sabor_personalizado', pedido.sabor_personalizado || '');
+                formData.append('precio', pedido.precio);
 
-                return {
-                    sabor: sabor === 'Otro' ? saborOtro : sabor,
-                    tamano: document.getElementById('tamanoNormal').value,
-                    cantidad: parseInt(document.getElementById('cantidadNormal').value),
-                    fecha_entrega: document.getElementById('fechaEntregaNormal').value,
-                    precio: parseFloat(precioText) || 0,
-                    sabor_personalizado: sabor === 'Otro' ? saborOtro : null
-                };
+                try {
+                    const resp = await fetch('/clientes/registrar', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    if (resp.ok) exitosos++;
+                    else fallidos++;
+                } catch (e) {
+                    fallidos++;
+                }
+            }
+
+            if (exitosos > 0) {
+                cartaNormales = [];
+                cartaClientes = [];
+                actualizarVista();
+                alert(`✓ ${exitosos} pedido(s) registrado(s) exitosamente${fallidos > 0 ? '. ' + fallidos + ' fallaron.' : ''}`);
+                cargarPedidosRegistrados();
+                const tab = new bootstrap.Tab(document.querySelector('[data-bs-target="#registrados"]'));
+                tab.show();
             } else {
-                const sabor = document.getElementById('saborCliente').value;
-                const saborOtro = document.getElementById('saborOtroCliente').value;
-                const precioText = document.getElementById('precioUnitarioCliente').textContent
-                    .replace('Q', '')
-                    .replace(' (No encontrado)', '')
-                    .replace(' (Error)', '')
-                    .trim();
-
-                return {
-                    sabor: sabor === 'Otro' ? saborOtro : sabor,
-                    tamano: document.getElementById('tamanoCliente').value,
-                    cantidad: parseInt(document.getElementById('cantidadCliente').value),
-                    fecha_entrega: document.getElementById('fechaEntregaCliente').value,
-                    color: document.getElementById('colorCliente').value,
-                    dedicatoria: document.getElementById('dedicatoriaCliente').value,
-                    detalles: document.getElementById('detallesCliente').value,
-                    precio: parseFloat(precioText) || 0,
-                    sabor_personalizado: sabor === 'Otro' ? saborOtro : null
-                };
+                alert('Error al registrar pedidos');
             }
+
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error al registrar pedidos: ' + error.message);
         }
+    }
 
-        function validarFormulario(datos, tipo) {
-            if (!datos.sabor || !datos.tamano || !datos.cantidad || !datos.fecha_entrega) {
-                alert('Por favor completa todos los campos requeridos');
-                return false;
-            }
+    function actualizarVista() {
+        const total = cartaNormales.length + cartaClientes.length;
+        const badge = document.getElementById('cartBadge');
+        badge.textContent = total;
+        badge.style.display = total > 0 ? 'inline' : 'none';
 
-            if (datos.precio <= 0 || isNaN(datos.precio)) {
-                alert('El precio no es válido. Verifica que el sabor y tamaño tengan precio configurado.');
-                return false;
-            }
+        document.getElementById('countNormalesLista').textContent = cartaNormales.length;
+        document.getElementById('countClientesLista').textContent = cartaClientes.length;
 
-            return true;
-        }
+        const listaNorm = document.getElementById('listaNormales');
+        const listaCli = document.getElementById('listaClientes');
 
-        function limpiarFormulario(tipo) {
-            const fechas = obtenerFechas();
+        listaNorm.innerHTML = cartaNormales.length === 0
+            ? '<p class="text-muted">No hay pedidos de tienda</p>'
+            : '';
 
-            if (tipo === 'normal') {
-                document.getElementById('saborNormal').value = '';
-                document.getElementById('tamanoNormal').value = '';
-                document.getElementById('cantidadNormal').value = '1';
-                document.getElementById('saborOtroNormal').classList.add('d-none');
-                document.getElementById('fechaEntregaNormal').value = fechas.manana;
-                document.getElementById('precioUnitarioNormal').textContent = 'Q0.00';
-                document.getElementById('precioTotalNormal').textContent = 'Q0.00';
-            } else {
-                document.getElementById('saborCliente').value = '';
-                document.getElementById('tamanoCliente').value = '';
-                document.getElementById('cantidadCliente').value = '1';
-                document.getElementById('colorCliente').value = '';
-                document.getElementById('dedicatoriaCliente').value = '';
-                document.getElementById('detallesCliente').value = '';
-                document.getElementById('saborOtroCliente').classList.add('d-none');
-                document.getElementById('fechaEntregaCliente').value = fechas.manana;
-                document.getElementById('precioUnitarioCliente').textContent = 'Q0.00';
-                document.getElementById('precioTotalCliente').textContent = 'Q0.00';
-            }
-        }
-
-        function agregarAlCarrito(tipo) {
-            const datos = obtenerDatosFormulario(tipo);
-
-            if (!validarFormulario(datos, tipo)) return;
-
-            if (tipo === 'normal') {
-                cartaNormales.push(datos);
-            } else {
-                cartaClientes.push(datos);
-            }
-
-            actualizarVista();
-            limpiarFormulario(tipo);
-
-            const tab = new bootstrap.Tab(document.querySelector('[data-bs-target="#pedidos"]'));
-            tab.show();
-
-            alert('Pedido agregado a la lista');
-        }
-
-        function eliminarDeLista(tipo, index) {
-            if (tipo === 'normal') {
-                cartaNormales.splice(index, 1);
-            } else {
-                cartaClientes.splice(index, 1);
-            }
-            actualizarVista();
-        }
-
-        function limpiarLista() {
-            if (!confirm('¿Limpiar toda la lista?')) return;
-            cartaNormales = [];
-            cartaClientes = [];
-            actualizarVista();
-        }
-
-        async function registrarDirecto(tipo) {
-            const form = tipo === 'normal' ? document.getElementById('formNormal') : document.getElementById('formCliente');
-            const formData = new FormData(form);
-
-            formData.append('sucursal', SUCURSAL);
-
-            const endpoint = tipo === 'normal' ? '/normales/registrar' : '/clientes/registrar';
-
-            try {
-                const response = await fetch(endpoint, {
-                    method: 'POST',
-                    body: formData
-                });
-
-                if (response.ok) {
-                    limpiarFormulario(tipo);
-                    alert('✓ Pedido registrado exitosamente');
-                    cargarPedidosRegistrados();
-                    const tab = new bootstrap.Tab(document.querySelector('[data-bs-target="#registrados"]'));
-                    tab.show();
-                } else {
-                    const error = await response.json();
-                    alert('Error: ' + (error.detail || 'No se pudo registrar'));
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Error al registrar pedido: ' + error.message);
-            }
-        }
-
-        async function registrarTodos() {
-            if (cartaNormales.length === 0 && cartaClientes.length === 0) {
-                alert('No hay pedidos en la lista');
-                return;
-            }
-
-            if (!confirm('¿Registrar todos los pedidos?')) {
-                return;
-            }
-
-            let exitosos = 0;
-            let fallidos = 0;
-
-            try {
-                for (const pedido of cartaNormales) {
-                    const formData = new FormData();
-                    formData.append('sabor', pedido.sabor);
-                    formData.append('tamano', pedido.tamano);
-                    formData.append('cantidad', pedido.cantidad);
-                    formData.append('sucursal', SUCURSAL);
-                    formData.append('fecha_entrega', pedido.fecha_entrega);
-                    formData.append('detalles', pedido.detalles || '');
-                    formData.append('sabor_personalizado', pedido.sabor_personalizado || '');
-                    formData.append('precio', pedido.precio);
-
-                    try {
-                        const resp = await fetch('/normales/registrar', {
-                            method: 'POST',
-                            body: formData
-                        });
-                        if (resp.ok) exitosos++;
-                        else fallidos++;
-                    } catch (e) {
-                        fallidos++;
-                    }
-                }
-
-                for (const pedido of cartaClientes) {
-                    const formData = new FormData();
-                    formData.append('sabor', pedido.sabor);
-                    formData.append('tamano', pedido.tamano);
-                    formData.append('cantidad', pedido.cantidad);
-                    formData.append('sucursal', SUCURSAL);
-                    formData.append('fecha_entrega', pedido.fecha_entrega);
-                    formData.append('color', pedido.color || '');
-                    formData.append('dedicatoria', pedido.dedicatoria || '');
-                    formData.append('detalles', pedido.detalles || '');
-                    formData.append('sabor_personalizado', pedido.sabor_personalizado || '');
-                    formData.append('precio', pedido.precio);
-
-                    try {
-                        const resp = await fetch('/clientes/registrar', {
-                            method: 'POST',
-                            body: formData
-                        });
-                        if (resp.ok) exitosos++;
-                        else fallidos++;
-                    } catch (e) {
-                        fallidos++;
-                    }
-                }
-
-                if (exitosos > 0) {
-                    cartaNormales = [];
-                    cartaClientes = [];
-                    actualizarVista();
-                    alert(`✓ ${exitosos} pedido(s) registrado(s) exitosamente${fallidos > 0 ? '. ' + fallidos + ' fallaron.' : ''}`);
-                    cargarPedidosRegistrados();
-                    const tab = new bootstrap.Tab(document.querySelector('[data-bs-target="#registrados"]'));
-                    tab.show();
-                } else {
-                    alert('Error al registrar pedidos');
-                }
-
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Error al registrar pedidos: ' + error.message);
-            }
-        }
-
-        function actualizarVista() {
-            const total = cartaNormales.length + cartaClientes.length;
-            const badge = document.getElementById('cartBadge');
-            badge.textContent = total;
-            badge.style.display = total > 0 ? 'inline' : 'none';
-
-            document.getElementById('countNormalesLista').textContent = cartaNormales.length;
-            document.getElementById('countClientesLista').textContent = cartaClientes.length;
-
-            const listaNorm = document.getElementById('listaNormales');
-            const listaCli = document.getElementById('listaClientes');
-
-            listaNorm.innerHTML = cartaNormales.length === 0
-                ? '<p class="text-muted">No hay pedidos de tienda</p>'
-                : '';
-
-            cartaNormales.forEach((p, i) => {
-                listaNorm.innerHTML += `
+        cartaNormales.forEach((p, i) => {
+            listaNorm.innerHTML += `
             <div class="cart-item">
                 <div class="d-flex justify-content-between">
                     <div>
@@ -1260,14 +1268,14 @@
                 </div>
             </div>
         `;
-            });
+        });
 
-            listaCli.innerHTML = cartaClientes.length === 0
-                ? '<p class="text-muted">No hay pedidos de clientes</p>'
-                : '';
+        listaCli.innerHTML = cartaClientes.length === 0
+            ? '<p class="text-muted">No hay pedidos de clientes</p>'
+            : '';
 
-            cartaClientes.forEach((p, i) => {
-                listaCli.innerHTML += `
+        cartaClientes.forEach((p, i) => {
+            listaCli.innerHTML += `
             <div class="cart-item">
                 <div class="d-flex justify-content-between">
                     <div>
@@ -1281,11 +1289,11 @@
                 </div>
             </div>
         `;
-            });
-        }
+        });
+    }
 
-    </script>
-    <script src="/static/js/pedidos_table.js"></script>
+</script>
+<script src="/static/js/pedidos_table.js"></script>
 </body>
 
 </html>

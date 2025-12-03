@@ -18,32 +18,41 @@
         .success-card {
             background: white;
             border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(214, 51, 132, 0.1);
-            border: none;
+            box-shadow: 0 10px 30px rgba(142, 68, 173, 0.15);
+            border: 2px solid #f0d6ec;
             max-width: 500px;
         }
 
         .success-icon {
             font-size: 4rem;
-            color: #28a745;
+            color: #48c774;
             margin-bottom: 1rem;
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #ff66b2, #d63384);
+            background: linear-gradient(180deg, #9b59b6 0%, #7d3c98 100%);
             border: none;
             border-radius: 25px;
             padding: 12px 30px;
-            font-weight: bold;
+            font-weight: 600;
+            color: white;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(142, 68, 173, 0.2);
         }
 
         .btn-primary:hover {
-            background: linear-gradient(135deg, #ff88c4, #e04595);
+            background: linear-gradient(180deg, #a66bbf 0%, #6e3288 100%);
             transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(214, 51, 132, 0.3);
+            box-shadow: 0 4px 12px rgba(142, 68, 173, 0.4);
+            color: white;
+        }
+
+        h2 {
+            color: #8e44ad;
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <div class="row justify-content-center">
@@ -53,7 +62,7 @@
                         <div class="success-icon">
                             <i class="fas fa-check-circle"></i>
                         </div>
-                        <h2 class="card-title mb-3" style="color: #d63384;">¡Pedido Registrado!</h2>
+                        <h2 class="card-title mb-3">¡Pedido Registrado!</h2>
                         <p class="card-text mb-3">{{ mensaje }}</p>
                         <div class="alert alert-info border" style="background-color: #fff5fb; border-color: #f0d6ec;">
                             <strong><i class="fas fa-cake"></i> Tipo de Pedido:</strong> {{ tipo }}

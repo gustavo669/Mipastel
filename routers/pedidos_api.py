@@ -32,7 +32,11 @@ def parse_fecha_entrega(fecha_str):
 
 
 @router.get("/normales")
-async def get_pedidos_normales(request: Request, fecha: Optional[str] = None):
+async def get_pedidos_normales(
+    request: Request, 
+    fecha_inicio: Optional[str] = None,
+    fecha_fin: Optional[str] = None
+):
     from auth import verificar_sesion
 
     user_data = verificar_sesion(request)
@@ -43,12 +47,14 @@ async def get_pedidos_normales(request: Request, fecha: Optional[str] = None):
         from database import DatabaseManager
         db = DatabaseManager()
 
-        if not fecha:
-            fecha = date.today().isoformat()
+        if not fecha_inicio:
+            fecha_inicio = date.today().isoformat()
+        if not fecha_fin:
+            fecha_fin = fecha_inicio
 
         pedidos = db.obtener_pasteles_normales(
-            fecha_inicio=fecha,
-            fecha_fin=fecha,
+            fecha_inicio=fecha_inicio,
+            fecha_fin=fecha_fin,
             sucursal=user_data['sucursal']
         )
 
@@ -67,7 +73,11 @@ async def get_pedidos_normales(request: Request, fecha: Optional[str] = None):
 
 
 @router.get("/clientes")
-async def get_pedidos_clientes(request: Request, fecha: Optional[str] = None):
+async def get_pedidos_clientes(
+    request: Request,
+    fecha_inicio: Optional[str] = None,
+    fecha_fin: Optional[str] = None
+):
     from auth import verificar_sesion
 
     user_data = verificar_sesion(request)
@@ -78,12 +88,14 @@ async def get_pedidos_clientes(request: Request, fecha: Optional[str] = None):
         from database import DatabaseManager
         db = DatabaseManager()
 
-        if not fecha:
-            fecha = date.today().isoformat()
+        if not fecha_inicio:
+            fecha_inicio = date.today().isoformat()
+        if not fecha_fin:
+            fecha_fin = fecha_inicio
 
         pedidos = db.obtener_pedidos_clientes(
-            fecha_inicio=fecha,
-            fecha_fin=fecha,
+            fecha_inicio=fecha_inicio,
+            fecha_fin=fecha_fin,
             sucursal=user_data['sucursal']
         )
 

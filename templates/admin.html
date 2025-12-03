@@ -14,10 +14,14 @@
             --light-purple: #b65fae;
             --pink: #ff88b8;
             --light-pink: #fff5fb;
+            --hover-pink: #fceef8;
             --border-pink: #f0d6ec;
             --text-dark: #2b1b3a;
+            --text-muted: #6c5a7a;
             --success-green: #48c774;
             --danger-red: #ff6fa3;
+            --shadow-soft: 0 10px 30px rgba(142, 68, 173, 0.08);
+            --shadow-hover: 0 15px 35px rgba(142, 68, 173, 0.15);
         }
 
         body {
@@ -25,273 +29,260 @@
             font-family: 'Segoe UI', 'Open Sans', 'Lato', sans-serif;
             color: var(--text-dark);
             min-height: 100vh;
+            -webkit-font-smoothing: antialiased; /* Texto más nítido */
         }
 
         h1, h2, h3, h4, h5, h6 {
             color: var(--primary-purple);
+            font-weight: 700;
+            letter-spacing: -0.5px;
         }
 
-        .text-primary { color: var(--primary-purple) !important; }
-        .text-success { color: var(--success-green) !important; }
-
+        /* --- NAVBAR MEJORADA --- */
         .navbar {
-            background: linear-gradient(135deg, #fff0f6 0%, #ffffff 100%) !important;
-            border-bottom: 3px solid var(--border-pink);
-            box-shadow: 0 2px 10px rgba(142, 68, 173, 0.1);
+            background: rgba(255, 255, 255, 0.95) !important;
+            backdrop-filter: blur(10px); /* Efecto vidrio */
+            border-bottom: 1px solid var(--border-pink);
+            box-shadow: 0 4px 20px rgba(142, 68, 173, 0.05);
         }
 
         .navbar-brand {
             font-family: 'Great Vibes', cursive;
             color: var(--dark-purple) !important;
-            font-size: 2.5rem;
+            font-size: 2.8rem;
             font-weight: bold;
-            text-shadow: 2px 2px 4px rgba(111, 47, 134, 0.1);
+            text-shadow: 2px 2px 0px rgba(240, 214, 236, 0.5);
         }
 
-        .hero-section {
-            background: linear-gradient(135deg, #fff0f6 0%, #fffaf6 100%);
-            border-radius: 15px;
-            padding: 2rem;
-            margin: 2rem 0;
-            border: 2px solid var(--border-pink);
-            box-shadow: 0 4px 15px rgba(142, 68, 173, 0.1);
-        }
-
-        .btn-primary {
-            background: linear-gradient(180deg, #9b59b6 0%, #7d3c98 100%);
+        /* --- BOTONES CON GRADIENTES SUAVES --- */
+        .btn {
             border: none;
-            border-radius: 25px;
-            padding: 12px 30px;
+            border-radius: 50px;
+            padding: 10px 25px;
             font-weight: 600;
-            color: white;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 8px rgba(142, 68, 173, 0.2);
+            letter-spacing: 0.5px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         }
 
-        .btn-primary:hover {
-            background: linear-gradient(180deg, #a66bbf 0%, #6e3288 100%);
+        .btn-primary, .btn-secondary, .btn-ventas, .btn-rango {
+            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+            color: white;
+        }
+
+        .btn-primary:hover, .btn-secondary:hover, .btn-ventas:hover, .btn-rango:hover {
+            background: linear-gradient(135deg, #a66bbf 0%, #9b59b6 100%);
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(142, 68, 173, 0.4);
+            box-shadow: 0 8px 15px rgba(142, 68, 173, 0.25);
             color: white;
         }
 
         .btn-success {
-            background: linear-gradient(180deg, #48c774 0%, #2e8b57 100%);
-            border: none;
-            border-radius: 25px;
-            padding: 12px 30px;
-            font-weight: 600;
+            background: linear-gradient(135deg, #48c774 0%, #36b562 100%);
             color: white;
-            transition: all 0.3s ease;
         }
 
         .btn-success:hover {
-            background: linear-gradient(180deg, #3fb868 0%, #256b46 100%);
+            background: linear-gradient(135deg, #5ddba2 0%, #48c774 100%);
             transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(72, 199, 116, 0.25);
             color: white;
         }
 
         .btn-danger {
-            background: linear-gradient(180deg, var(--danger-red) 0%, #ff5f97 100%);
-            border: none;
-            border-radius: 25px;
-            padding: 12px 30px;
+            background: linear-gradient(135deg, var(--danger-red) 0%, #ff4f87 100%);
             color: white;
-            font-weight: 600;
-            transition: all 0.3s ease;
         }
 
         .btn-danger:hover {
-            background: linear-gradient(180deg, #ff5f97 0%, #ff4f87 100%);
             transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(255, 111, 163, 0.3);
             color: white;
         }
 
-        .btn-outline-danger {
-            border: 2px solid var(--danger-red);
-            color: var(--danger-red);
-            border-radius: 20px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            background: transparent;
-        }
-
-        .btn-outline-danger:hover {
-            background: var(--danger-red);
-            color: white;
-        }
-
-        .btn-outline-primary {
-            border: 2px solid var(--primary-purple);
-            color: var(--primary-purple);
-            border-radius: 20px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            background: transparent;
-        }
-
-        .btn-outline-primary:hover {
-            background: var(--primary-purple);
-            color: white;
-        }
-
-        .form-section {
+        /* --- TARJETAS Y CONTENEDORES --- */
+        .hero-section, .form-section, .date-filter-section, .table-container, .stats-card {
             background: white;
-            border-radius: 15px;
+            border-radius: 20px;
+            border: 1px solid var(--border-pink); /* Borde más sutil */
+            box-shadow: var(--shadow-soft);
             padding: 2rem;
-            margin: 1rem 0;
-            box-shadow: 0 4px 15px rgba(142, 68, 173, 0.1);
-            border: 2px solid var(--border-pink);
+            margin-bottom: 2rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
+        .stats-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+            border-color: var(--light-purple);
+        }
+
+        .stats-card {
+            border-left: 6px solid var(--primary-purple);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* --- FORMS --- */
         .form-control, .form-select {
             border: 2px solid var(--border-pink);
-            border-radius: 8px;
-            padding: 10px 15px;
-            transition: all 0.3s ease;
+            border-radius: 12px;
+            padding: 12px 18px;
+            background-color: #fcfcfc;
+            color: var(--text-dark);
         }
 
         .form-control:focus, .form-select:focus {
-            border-color: var(--light-purple);
-            box-shadow: 0 0 0 0.2rem rgba(142, 68, 173, 0.25);
+            background-color: white;
+            border-color: var(--primary-purple);
+            box-shadow: 0 0 0 4px rgba(142, 68, 173, 0.1);
         }
 
-        .date-filter-section {
-            background: white;
-            padding: 2rem;
-            border-radius: 15px;
-            border: 2px solid var(--border-pink);
-            box-shadow: 0 4px 15px rgba(142, 68, 173, 0.1);
-            margin-bottom: 2rem;
-        }
-
-        .quick-filter-btn {
-            margin: 5px;
+        /* --- MEJORAS PRINCIPALES EN TABLAS --- */
+        .table-responsive {
             border-radius: 20px;
-            padding: 10px 20px;
-            font-weight: 600;
+            overflow: hidden; /* Importante para bordes redondeados */
+            box-shadow: var(--shadow-soft);
         }
 
+        .table {
+            margin-bottom: 0;
+            border-collapse: separate;
+            border-spacing: 0;
+            width: 100%;
+            background: white;
+        }
+
+        .table thead {
+            background: linear-gradient(135deg, var(--primary-purple) 0%, var(--dark-purple) 100%);
+        }
+
+        .table thead th {
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            padding: 18px 15px;
+            border: none;
+            white-space: nowrap;
+        }
+
+        /* Sticky Header (opcional, útil para listas largas) */
+        .table thead th {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .table tbody tr {
+            transition: all 0.2s ease;
+            background-color: white;
+        }
+
+        /* Alternancia de colores muy sutil */
+        .table tbody tr:nth-child(even) {
+            background-color: rgba(255, 245, 251, 0.4);
+        }
+
+        .table tbody td {
+            padding: 16px 15px;
+            vertical-align: middle;
+            color: var(--text-dark);
+            border-bottom: 1px solid var(--border-pink);
+            font-size: 0.95rem;
+        }
+
+        /* Efecto Hover Profesional en Filas */
+        .table tbody tr:hover {
+            background-color: var(--light-pink);
+            /* En lugar de scale, usamos una sombra y un borde lateral */
+            box-shadow: inset 4px 0 0 var(--primary-purple), 0 5px 15px rgba(142, 68, 173, 0.05);
+            transform: none; /* Quitamos el scale para evitar movimiento brusco */
+            z-index: 2;
+            position: relative;
+        }
+
+        /* Estilo para la primera celda (ID o Nombre) */
+        .table tbody td:first-child {
+            font-weight: 600;
+            color: var(--dark-purple);
+        }
+
+        /* Ultima fila sin borde abajo */
+        .table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Badges dentro de tablas */
+        .badge-status {
+            padding: 6px 12px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .badge-success { background: rgba(72, 199, 116, 0.15); color: #257942; }
+        .badge-warning { background: rgba(255, 221, 87, 0.2); color: #947600; }
+        .badge-danger { background: rgba(255, 111, 163, 0.15); color: #b00b3e; }
+
+        /* --- TABS --- */
         .nav-tabs {
             border-bottom: 2px solid var(--border-pink);
+            gap: 10px;
         }
 
         .nav-tabs .nav-link {
-            color: var(--text-dark);
-            border-radius: 15px 15px 0 0;
-            padding: 12px 24px;
-            transition: 0.3s;
+            border: none;
+            color: var(--text-muted);
+            font-weight: 600;
+            padding: 12px 25px;
+            border-radius: 30px; /* Tabs redondeados */
+            background: transparent;
+            transition: all 0.3s;
+        }
+
+        .nav-tabs .nav-link:hover {
+            background-color: rgba(142, 68, 173, 0.05);
+            color: var(--primary-purple);
         }
 
         .nav-tabs .nav-link.active {
             background: linear-gradient(135deg, #9b59b6 0%, #7d3c98 100%);
             color: #fff;
-            box-shadow: 0 4px 12px rgba(142, 68, 173, 0.3);
+            box-shadow: 0 4px 10px rgba(142, 68, 173, 0.3);
         }
 
-        .stats-card {
-            background: white;
-            border-left: 5px solid var(--primary-purple);
-            border-radius: 15px;
-            padding: 1.5rem;
-            border: 2px solid var(--border-pink);
-            box-shadow: 0 4px 15px rgba(142, 68, 173, 0.1);
-            transition: 0.3s;
-        }
-
-        .stats-card:hover {
-            transform: translateY(-6px);
-        }
-
-        .table-container {
-            background: white;
-            border-radius: 15px;
-            padding: 1.5rem;
-            border: 2px solid var(--border-pink);
-            box-shadow: 0 4px 15px rgba(142, 68, 173, 0.1);
-        }
-
-        .table {
-            border: 2px solid var(--border-pink);
-        }
-
-        .table thead {
-            background: linear-gradient(135deg, var(--primary-purple), var(--dark-purple));
-            color: white;
-        }
-
-        .table tbody tr:nth-child(even) {
-            background-color: var(--light-pink);
-        }
-
-        .table tbody tr:hover {
-            background-color: #ffe6f5;
-            transform: scale(1.01);
-        }
-
-        .badge-color {
-            padding: 5px 10px;
-            border-radius: 8px;
-            font-weight: 600;
-        }
-
-        .modal-header {
-            background: linear-gradient(135deg, #9b59b6, #7d3c98);
-            color: white;
-        }
-
-        .modal-header .btn-close {
-            filter: brightness(0) invert(1);
-        }
-
+        /* --- FOOTER --- */
         footer {
-            background: linear-gradient(135deg, #ffffff, #fff5fb);
-            border-top: 3px solid var(--border-pink);
-            padding: 1.5rem 0;
+            background: white;
+            border-top: 1px solid var(--border-pink);
+            padding: 2rem 0;
+            margin-top: 3rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
         }
 
-        .btn-secondary,
-        .btn-ventas,
-        .btn-rango {
-            background: linear-gradient(180deg, #9b59b6 0%, #7d3c98 100%);
-            border: none;
-            border-radius: 25px;
-            padding: 12px 30px;
-            font-weight: 600;
-            color: white;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 8px rgba(142, 68, 173, 0.2);
-        }
-
-        .btn-secondary:hover,
-        .btn-ventas:hover,
-        .btn-rango:hover {
-            background: linear-gradient(180deg, #a66bbf 0%, #6e3288 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(142, 68, 173, 0.4);
-            color: white;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px);}
+        /* --- ANIMACIONES --- */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px);}
             to   { opacity: 1; transform: translateY(0);}
         }
 
-        .fade-in, .tab-pane {
-            animation: fadeIn 0.5s ease;
+        .fade-in {
+            animation: fadeInUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
 
+        /* --- RESPONSIVE --- */
         @media (max-width: 768px) {
-            .navbar-brand { font-size: 1.8rem; }
-            .btn-primary, .btn-success, .btn-danger {
-                padding: 10px 20px;
-                font-size: 14px;
-            }
-            .form-section, .date-filter-section {
-                padding: 1.5rem;
-            }
-        }
-    </style>
+            .navbar-brand { font-size: 2rem; }
+            .table thead { display: none; } /* En móviles a veces es mejor ocultar header y hacer tarjetas */
+
+            /* O simplemente ajustar padding para móviles si prefieres tabla clásica */
+            .table td, .table th { padding: 10px; }
+
+            .stats-card { margin-bottom: 1rem; }
+        }</style>
 </head>
 <body>
 
@@ -417,7 +408,6 @@
     <div class="tab-content">
         <!-- Tab Pedidos Normales -->
         <div class="tab-pane fade show active" id="normales">
-            {% if normales %}
             <div class="table-responsive">
                 <table class="table table-hover">
                     <thead>
@@ -434,42 +424,44 @@
                     </tr>
                     </thead>
                     <tbody>
-                    {% for pedido in normales %}
-                    <tr>
-                        <td>{{ pedido.id }}</td>
-                        <td>{{ pedido.sabor }}</td>
-                        <td>{{ pedido.tamano }}</td>
-                        <td>Q{{ "%.2f"|format(pedido.precio) }}</td>
-                        <td>{{ pedido.cantidad }}</td>
-                        <td><strong>Q{{ "%.2f"|format(pedido.precio * pedido.cantidad) }}</strong></td>
-                        <td><span class="badge bg-primary">{{ pedido.sucursal }}</span></td>
-                        <td>
-                            {% if pedido.fecha_entrega %}
-                            {{ pedido.fecha_entrega[8:10] }}/{{ pedido.fecha_entrega[5:7] }}/{{ pedido.fecha_entrega[:4] }}
-                            {% else %}
-                            -
-                            {% endif %}
-                        </td>
-                        <td>
-                            {{ pedido.fecha[8:10] }}/{{ pedido.fecha[5:7] }}/{{ pedido.fecha[:4] }}
-                            {{ pedido.fecha[11:16] if pedido.fecha|length > 10 else '' }}
-                        </td>
-                    </tr>
-                    {% endfor %}
+                    {% if normales %}
+                        {% for pedido in normales %}
+                        <tr>
+                            <td>{{ pedido.id }}</td>
+                            <td>{{ pedido.sabor }}</td>
+                            <td>{{ pedido.tamano }}</td>
+                            <td>Q{{ "%.2f"|format(pedido.precio) }}</td>
+                            <td>{{ pedido.cantidad }}</td>
+                            <td><strong>Q{{ "%.2f"|format(pedido.precio * pedido.cantidad) }}</strong></td>
+                            <td><span class="badge bg-primary">{{ pedido.sucursal }}</span></td>
+                            <td>
+                                {% if pedido.fecha_entrega %}
+                                {{ pedido.fecha_entrega[8:10] }}/{{ pedido.fecha_entrega[5:7] }}/{{ pedido.fecha_entrega[:4] }}
+                                {% else %}
+                                -
+                                {% endif %}
+                            </td>
+                            <td>
+                                {{ pedido.fecha[8:10] }}/{{ pedido.fecha[5:7] }}/{{ pedido.fecha[:4] }}
+                                {{ pedido.fecha[11:16] if pedido.fecha|length > 10 else '' }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="9" class="text-center text-muted py-5">
+                                <i class="fas fa-cake fa-3x mb-3 d-block"></i>
+                                No hay pasteles de tienda registrados
+                            </td>
+                        </tr>
+                    {% endif %}
                     </tbody>
                 </table>
             </div>
-            {% else %}
-            <div class="text-center py-5">
-                <i class="fas fa-cake fa-3x text-muted mb-3"></i>
-                <h4 class="text-muted">No hay pasteles de tienda registrados</h4>
-            </div>
-            {% endif %}
         </div>
 
         <!-- Tab Pedidos Clientes -->
         <div class="tab-pane fade" id="clientes">
-            {% if clientes %}
             <div class="table-responsive">
                 <table class="table table-hover">
                     <thead>
@@ -489,49 +481,51 @@
                     </tr>
                     </thead>
                     <tbody>
-                    {% for pedido in clientes %}
-                    <tr>
-                        <td>{{ pedido.id }}</td>
-                        <td>
-                            {% if pedido.color %}
-                            <span class="badge-color" style="background-color
-                             {{ pedido.color }}; color: #000;">
-                                {{ pedido.color }}
-                            </span>
-                            {% else %}
-                            <span class="text-muted">-</span>
-                            {% endif %}
-                        </td>
-                        <td>{{ pedido.sabor }}</td>
-                        <td>{{ pedido.tamano }}</td>
-                        <td>{{ pedido.cantidad }}</td>
-                        <td>Q{{ "%.2f"|format(pedido.precio) }}</td>
-                        <td><strong>Q{{ "%.2f"|format(pedido.total) }}</strong></td>
-                        <td><span class="badge bg-primary">{{ pedido.sucursal }}</span></td>
-                        <td>
-                            {{ pedido.fecha[8:10] }}/{{ pedido.fecha[5:7] }}/{{ pedido.fecha[:4] }}
-                            {{ pedido.fecha[11:16] if pedido.fecha|length > 10 else '' }}
-                        </td>
-                        <td>
-                            {% if pedido.fecha_entrega %}
-                            {{ pedido.fecha_entrega[8:10] }}/{{ pedido.fecha_entrega[5:7] }}/{{ pedido.fecha_entrega[:4] }}
-                            {% else %}
-                            -
-                            {% endif %}
-                        </td>
-                        <td>{{ pedido.dedicatoria if pedido.dedicatoria else '-' }}</td>
-                        <td>{{ pedido.detalles if pedido.detalles else '-' }}</td>
-                    </tr>
-                    {% endfor %}
+                    {% if clientes %}
+                        {% for pedido in clientes %}
+                        <tr>
+                            <td>{{ pedido.id }}</td>
+                            <td>
+                                {% if pedido.color %}
+                                <span class="badge-color" style="background-color: {{ pedido.color }}; color: #000; padding: 5px 10px; border-radius: 8px; font-weight: 600;">
+                                    {{ pedido.color }}
+                                </span>
+                                {% else %}
+                                <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ pedido.sabor }}</td>
+                            <td>{{ pedido.tamano }}</td>
+                            <td>{{ pedido.cantidad }}</td>
+                            <td>Q{{ "%.2f"|format(pedido.precio) }}</td>
+                            <td><strong>Q{{ "%.2f"|format(pedido.total) }}</strong></td>
+                            <td><span class="badge bg-primary">{{ pedido.sucursal }}</span></td>
+                            <td>
+                                {{ pedido.fecha[8:10] }}/{{ pedido.fecha[5:7] }}/{{ pedido.fecha[:4] }}
+                                {{ pedido.fecha[11:16] if pedido.fecha|length > 10 else '' }}
+                            </td>
+                            <td>
+                                {% if pedido.fecha_entrega %}
+                                {{ pedido.fecha_entrega[8:10] }}/{{ pedido.fecha_entrega[5:7] }}/{{ pedido.fecha_entrega[:4] }}
+                                {% else %}
+                                -
+                                {% endif %}
+                            </td>
+                            <td>{{ pedido.dedicatoria if pedido.dedicatoria else '-' }}</td>
+                            <td>{{ pedido.detalles if pedido.detalles else '-' }}</td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="12" class="text-center text-muted py-5">
+                                <i class="fas fa-star fa-3x mb-3 d-block"></i>
+                                No hay pedidos de clientes registrados
+                            </td>
+                        </tr>
+                    {% endif %}
                     </tbody>
                 </table>
             </div>
-            {% else %}
-            <div class="text-center py-5">
-                <i class="fas fa-star fa-3x text-muted mb-3"></i>
-                <h4 class="text-muted">No hay pedidos de clientes registrados</h4>
-            </div>
-            {% endif %}
         </div>
     </div>
 
@@ -639,8 +633,8 @@
         document.getElementById('fechaFin').value = fin.toISOString().split('T')[0];
     }
 
-    // Aplicar filtro (recargar página con nuevas fechas)
-    function aplicarFiltro() {
+    // Aplicar filtro (actualizar dinámicamente sin recargar página)
+    async function aplicarFiltro() {
         const fechaInicio = document.getElementById('fechaInicio').value;
         const fechaFin = document.getElementById('fechaFin').value;
 
@@ -654,7 +648,145 @@
             return;
         }
 
-        window.location.href = `/admin?fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}`;
+        try {
+            // Mostrar indicador de carga (opcional)
+            document.body.style.cursor = 'wait';
+
+            // Obtener pedidos normales
+            const respNormales = await fetch(`/admin/normales?fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}`);
+            const dataNormales = await respNormales.json();
+
+            // Obtener pedidos de clientes
+            const respClientes = await fetch(`/admin/clientes?fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}`);
+            const dataClientes = await respClientes.json();
+
+            // Actualizar tablas
+            actualizarTablaNormales(dataNormales.normales || []);
+            actualizarTablaClientes(dataClientes.clientes || []);
+
+            // Actualizar estadísticas
+            actualizarEstadisticas(dataNormales.normales || [], dataClientes.clientes || []);
+
+            // Restaurar cursor
+            document.body.style.cursor = 'default';
+        } catch (error) {
+            console.error('Error al aplicar filtro:', error);
+            alert('Error al cargar los datos. Por favor intenta de nuevo.');
+            document.body.style.cursor = 'default';
+        }
+    }
+
+    // Actualizar tabla de pedidos normales
+    function actualizarTablaNormales(pedidos) {
+        const tbody = document.querySelector('#normales table tbody');
+        if (!tbody) return;
+
+        if (pedidos.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="9" class="text-center text-muted py-5"><i class="fas fa-cake fa-3x mb-3 d-block"></i>No hay pasteles de tienda registrados</td></tr>';
+            document.getElementById('countNormales').textContent = '0';
+            return;
+        }
+
+        tbody.innerHTML = '';
+        pedidos.forEach(pedido => {
+            const row = document.createElement('tr');
+            const total = (pedido.precio || 0) * (pedido.cantidad || 0);
+            row.innerHTML = `
+                <td>${pedido.id || ''}</td>
+                <td>${pedido.sabor || ''}</td>
+                <td>${pedido.tamano || ''}</td>
+                <td>Q${(pedido.precio || 0).toFixed(2)}</td>
+                <td>${pedido.cantidad || 0}</td>
+                <td><strong>Q${total.toFixed(2)}</strong></td>
+                <td><span class="badge bg-primary">${pedido.sucursal || ''}</span></td>
+                <td>${formatearFechaSolo(pedido.fecha_entrega)}</td>
+                <td>${formatearFechaHora(pedido.fecha)}</td>
+            `;
+            tbody.appendChild(row);
+        });
+
+        document.getElementById('countNormales').textContent = pedidos.length;
+    }
+
+    // Actualizar tabla de pedidos de clientes
+    function actualizarTablaClientes(pedidos) {
+        const tbody = document.querySelector('#clientes table tbody');
+        if (!tbody) return;
+
+        if (pedidos.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="12" class="text-center text-muted py-5"><i class="fas fa-star fa-3x mb-3 d-block"></i>No hay pedidos de clientes registrados</td></tr>';
+            document.getElementById('countClientes').textContent = '0';
+            return;
+        }
+
+        tbody.innerHTML = '';
+        pedidos.forEach(pedido => {
+            const row = document.createElement('tr');
+            const colorBadge = pedido.color 
+                ? `<span class="badge-color" style="background-color: ${pedido.color}; color: #000; padding: 5px 10px; border-radius: 8px; font-weight: 600;">${pedido.color}</span>`
+                : '<span class="text-muted">-</span>';
+            
+            row.innerHTML = `
+                <td>${pedido.id || ''}</td>
+                <td>${colorBadge}</td>
+                <td>${pedido.sabor || ''}</td>
+                <td>${pedido.tamano || ''}</td>
+                <td>${pedido.cantidad || 0}</td>
+                <td>Q${(pedido.precio || 0).toFixed(2)}</td>
+                <td><strong>Q${(pedido.total || 0).toFixed(2)}</strong></td>
+                <td><span class="badge bg-primary">${pedido.sucursal || ''}</span></td>
+                <td>${formatearFechaHora(pedido.fecha)}</td>
+                <td>${formatearFechaSolo(pedido.fecha_entrega)}</td>
+                <td>${pedido.dedicatoria || '-'}</td>
+                <td>${pedido.detalles || '-'}</td>
+            `;
+            tbody.appendChild(row);
+        });
+
+        document.getElementById('countClientes').textContent = pedidos.length;
+    }
+
+    // Actualizar estadísticas
+    function actualizarEstadisticas(normales, clientes) {
+        // Calcular totales
+        const totalNormales = normales.reduce((sum, p) => sum + (p.precio * p.cantidad), 0);
+        const totalClientes = clientes.reduce((sum, p) => sum + (p.total || 0), 0);
+
+        // Actualizar contadores
+        document.getElementById('statTiendas').textContent = normales.length;
+        document.getElementById('statClientes').textContent = clientes.length;
+        document.getElementById('statIngresosTiendas').textContent = 'Q' + totalNormales.toFixed(2);
+        document.getElementById('statIngresosClientes').textContent = 'Q' + totalClientes.toFixed(2);
+    }
+
+    // Formatear fecha solo (DD/MM/YYYY)
+    function formatearFechaSolo(fecha) {
+        if (!fecha) return '-';
+        try {
+            const f = new Date(fecha);
+            const dia = String(f.getDate()).padStart(2, '0');
+            const mes = String(f.getMonth() + 1).padStart(2, '0');
+            const anio = f.getFullYear();
+            return `${dia}/${mes}/${anio}`;
+        } catch {
+            return '-';
+        }
+    }
+
+    // Formatear fecha con hora (DD/MM/YYYY HH:MM)
+    function formatearFechaHora(fecha) {
+        if (!fecha) return '-';
+        try {
+            const f = new Date(fecha);
+            const dia = String(f.getDate()).padStart(2, '0');
+            const mes = String(f.getMonth() + 1).padStart(2, '0');
+            const anio = f.getFullYear();
+            const hora = String(f.getHours()).padStart(2, '0');
+            const min = String(f.getMinutes()).padStart(2, '0');
+            return `${dia}/${mes}/${anio} ${hora}:${min}`;
+        } catch {
+            return '-';
+        }
     }
 
     // Generar reporte de ventas
