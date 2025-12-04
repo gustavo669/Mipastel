@@ -23,12 +23,10 @@ class MiPastelLauncherNgrok:
         self.usar_ngrok = usar_ngrok and NGROK_AVAILABLE
 
     def start_fastapi(self):
-        """Inicia el servidor FastAPI"""
         try:
             print(f"\nIniciando servidor web...")
             os.chdir(BASE_DIR)
 
-            # Configurar variables de entorno para UTF-8
             env = os.environ.copy()
             env["PYTHONIOENCODING"] = "utf-8"
             env["PYTHONUTF8"] = "1"
@@ -36,11 +34,11 @@ class MiPastelLauncherNgrok:
             proceso = subprocess.Popen(
                 [sys.executable, "app.py"],
                 stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT,  # Combinar stderr con stdout
+                stderr=subprocess.STDOUT,
                 text=True,
                 bufsize=1,
                 env=env,
-                errors='replace'  # Reemplazar caracteres problemáticos en lugar de fallar
+                errors='replace'
             )
 
             self.servidor_proceso = proceso
@@ -80,7 +78,6 @@ class MiPastelLauncherNgrok:
             return False
 
     def start_ngrok(self):
-        """Inicia el túnel de ngrok usando el ngrok.yml configurado en el sistema"""
         try:
             try:
                 activos = ngrok.get_tunnels()
@@ -102,7 +99,6 @@ class MiPastelLauncherNgrok:
             return None
 
     def start_admin_app(self):
-        """Inicia la aplicación de administración"""
         try:
             print("\nIniciando aplicación de administración...")
 
@@ -135,7 +131,6 @@ class MiPastelLauncherNgrok:
             return None, None
 
     def run(self):
-        """Ejecuta el lanzador principal"""
         print("=" * 60)
         print("Mi Pastel - Sistema de Gestión")
         print("=" * 60)
@@ -168,7 +163,6 @@ class MiPastelLauncherNgrok:
         sys.exit(exit_code)
 
     def stop_fastapi(self):
-        """Detiene el servidor FastAPI"""
         if self.servidor_proceso and self.servidor_activo:
             print("\nDeteniendo servidor web...")
             self.servidor_proceso.terminate()
@@ -181,7 +175,6 @@ class MiPastelLauncherNgrok:
             self.servidor_activo = False
 
     def stop_ngrok(self):
-        """Detiene el túnel ngrok"""
         try:
             activos = ngrok.get_tunnels()
             for t in activos:
@@ -192,7 +185,6 @@ class MiPastelLauncherNgrok:
         self.ngrok_tunnel = None
 
     def cleanup(self):
-        """Limpia recursos"""
         print("\nLimpiando recursos...")
         self.stop_ngrok()
         self.stop_fastapi()
@@ -221,4 +213,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

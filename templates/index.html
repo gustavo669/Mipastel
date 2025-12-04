@@ -635,10 +635,6 @@
                                 onclick="agregarAlCarrito('normal')">
                             <i class="fas fa-cart-plus"></i> Agregar
                         </button>
-                        <button type="button" class="btn btn-primary flex-fill"
-                                onclick="registrarDirecto('normal')">
-                            <i class="fas fa-save"></i> Registrar
-                        </button>
                     </div>
                 </form>
             </div>
@@ -719,10 +715,6 @@
                         <button type="button" class="btn btn-success flex-fill"
                                 onclick="agregarAlCarrito('cliente')">
                             <i class="fas fa-cart-plus"></i> Agregar
-                        </button>
-                        <button type="button" class="btn btn-primary flex-fill"
-                                onclick="registrarDirecto('cliente')">
-                            <i class="fas fa-save"></i> Registrar
                         </button>
                     </div>
                 </form>
@@ -1224,10 +1216,7 @@
                 cartaNormales = [];
                 cartaClientes = [];
                 actualizarVista();
-                alert(`✓ ${exitosos} pedido(s) registrado(s) exitosamente${fallidos > 0 ? '. ' + fallidos + ' fallaron.' : ''}`);
-                cargarPedidosRegistrados();
-                const tab = new bootstrap.Tab(document.querySelector('[data-bs-target="#registrados"]'));
-                tab.show();
+                window.location.href = '/static/exito.html';
             } else {
                 alert('Error al registrar pedidos');
             }
