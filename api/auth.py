@@ -4,111 +4,143 @@ from fastapi import HTTPException, status, Request
 from typing import Optional
 from datetime import datetime, timedelta
 from config.settings import settings
+import os
+import json
 
 SECRET_KEY = settings.SECRET_KEY
 SESSION_DURATION = timedelta(hours=settings.SESSION_DURATION_HOURS)
 
-USERS_DB = {
-    "jutiapa1": {
-        "password_hash": "$2b$12$KQF8vX5zJ5YqZ8vX5zJ5YuOqZ8vX5zJ5YqZ8vX5zJ5YqZ8vX5zJ5Yu",
-        "nombre": "Jutiapa 1",
-        "sucursal": "Jutiapa 1",
-        "rol": "sucursal",
-        "password_plain": "jut1pass"
-    },
-    "jutiapa2": {
-        "password_hash": "$2b$12$LQF8vX5zJ5YqZ8vX5zJ5YuOqZ8vX5zJ5YqZ8vX5zJ5YqZ8vX5zJ5Yu",
-        "nombre": "Jutiapa 2",
-        "sucursal": "Jutiapa 2",
-        "rol": "sucursal",
-        "password_plain": "jut2pass"
-    },
-    "jutiapa3": {
-        "password_hash": "$2b$12$MQF8vX5zJ5YqZ8vX5zJ5YuOqZ8vX5zJ5YqZ8vX5zJ5YqZ8vX5zJ5Yu",
-        "nombre": "Jutiapa 3",
-        "sucursal": "Jutiapa 3",
-        "rol": "sucursal",
-        "password_plain": "jut3pass"
-    },
-    "progreso": {
-        "password_hash": "$2b$12$NQF8vX5zJ5YqZ8vX5zJ5YuOqZ8vX5zJ5YqZ8vX5zJ5YqZ8vX5zJ5Yu",
-        "nombre": "Progreso",
-        "sucursal": "Progreso",
-        "rol": "sucursal",
-        "password_plain": "progpass"
-    },
-    "quesada": {
-        "password_hash": "$2b$12$OQF8vX5zJ5YqZ8vX5zJ5YuOqZ8vX5zJ5YqZ8vX5zJ5YqZ8vX5zJ5Yu",
-        "nombre": "Quesada",
-        "sucursal": "Quesada",
-        "rol": "sucursal",
-        "password_plain": "quespass"
-    },
-    "acatempa": {
-        "password_hash": "$2b$12$PQF8vX5zJ5YqZ8vX5zJ5YuOqZ8vX5zJ5YqZ8vX5zJ5YqZ8vX5zJ5Yu",
-        "nombre": "Acatempa",
-        "sucursal": "Acatempa",
-        "rol": "sucursal",
-        "password_plain": "acatpass"
-    },
-    "yupiltepeque": {
-        "password_hash": "$2b$12$QQF8vX5zJ5YqZ8vX5zJ5YuOqZ8vX5zJ5YqZ8vX5zJ5YqZ8vX5zJ5Yu",
-        "nombre": "Yupiltepeque",
-        "sucursal": "Yupiltepeque",
-        "rol": "sucursal",
-        "password_plain": "yupepass"
-    },
-    "atescatempa": {
-        "password_hash": "$2b$12$RQF8vX5zJ5YqZ8vX5zJ5YuOqZ8vX5zJ5YqZ8vX5zJ5YqZ8vX5zJ5Yu",
-        "nombre": "Atescatempa",
-        "sucursal": "Atescatempa",
-        "rol": "sucursal",
-        "password_plain": "atespass"
-    },
-    "adelanto": {
-        "password_hash": "$2b$12$SQF8vX5zJ5YqZ8vX5zJ5YuOqZ8vX5zJ5YqZ8vX5zJ5YqZ8vX5zJ5Yu",
-        "nombre": "Adelanto",
-        "sucursal": "Adelanto",
-        "rol": "sucursal",
-        "password_plain": "adelpass"
-    },
-    "jerez": {
-        "password_hash": "$2b$12$TQF8vX5zJ5YqZ8vX5zJ5YuOqZ8vX5zJ5YqZ8vX5zJ5YqZ8vX5zJ5Yu",
-        "nombre": "Jeréz",
-        "sucursal": "Jeréz",
-        "rol": "sucursal",
-        "password_plain": "jerpass"
-    },
-    "comapa": {
-        "password_hash": "$2b$12$UQF8vX5zJ5YqZ8vX5zJ5YuOqZ8vX5zJ5YqZ8vX5zJ5YqZ8vX5zJ5Yu",
-        "nombre": "Comapa",
-        "sucursal": "Comapa",
-        "rol": "sucursal",
-        "password_plain": "comapass"
-    },
-    "carina": {
-        "password_hash": "$2b$12$VQF8vX5zJ5YqZ8vX5zJ5YuOqZ8vX5zJ5YqZ8vX5zJ5YqZ8vX5zJ5Yu",
-        "nombre": "Carina",
-        "sucursal": "Carina",
-        "rol": "sucursal",
-        "password_plain": "caripass"
-    },
-    "admin": {
-        "password_hash": "$2b$12$WQF8vX5zJ5YqZ8vX5zJ5YuOqZ8vX5zJ5YqZ8vX5zJ5YqZ8vX5zJ5Yu",
-        "nombre": "Administrador",
-        "sucursal": None,
-        "rol": "admin",
-        "password_plain": "admin123"
-    }
+# Archivo para guardar los hashes generados
+HASHES_FILE = os.path.join(os.path.dirname(__file__), ".password_hashes.json")
+
+# Contraseñas por defecto (solo se usan para generar hashes la primera vez)
+DEFAULT_PASSWORDS = {
+    "jutiapa1": "jut1pass",
+    "jutiapa2": "jut2pass",
+    "jutiapa3": "jut3pass",
+    "progreso": "progpass",
+    "quesada": "quespass",
+    "acatempa": "acatpass",
+    "yupiltepeque": "yupepass",
+    "atescatempa": "atespass",
+    "adelanto": "adelpass",
+    "jerez": "jerpass",
+    "comapa": "comapass",
+    "carina": "caripass",
+    "admin": "admin123"
 }
 
-def _initialize_passwords():
-    """Initialize password hashes on first import"""
-    for username, user_data in USERS_DB.items():
-        if 'password_plain' in user_data:
-            user_data['password_hash'] = bcrypt.hashpw(user_data['password_plain'].encode(), bcrypt.gensalt()).decode()
+def _load_or_generate_hashes():
+    """Cargar hashes existentes o generar nuevos si no existen"""
+    if os.path.exists(HASHES_FILE):
+        try:
+            with open(HASHES_FILE, 'r') as f:
+                return json.load(f)
+        except:
+            pass
+    
+    # Generar nuevos hashes
+    print("Generando hashes de contraseñas por primera vez...")
+    hashes = {}
+    for username, password in DEFAULT_PASSWORDS.items():
+        hash_value = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt(rounds=12)).decode('utf-8')
+        hashes[username] = hash_value
+        print(f"  {username}: OK")
+    
+    # Guardar para uso futuro
+    try:
+        with open(HASHES_FILE, 'w') as f:
+            json.dump(hashes, f, indent=2)
+        print(f"Hashes guardados en {HASHES_FILE}")
+    except Exception as e:
+        print(f"No se pudieron guardar los hashes: {e}")
+    
+    return hashes
 
-_initialize_passwords()
+# Cargar o generar hashes
+_PASSWORD_HASHES = _load_or_generate_hashes()
+
+# Base de datos de usuarios
+USERS_DB = {
+    "jutiapa1": {
+        "password_hash": _PASSWORD_HASHES.get("jutiapa1"),
+        "nombre": "Jutiapa 1",
+        "sucursal": "Jutiapa 1",
+        "rol": "sucursal"
+    },
+    "jutiapa2": {
+        "password_hash": _PASSWORD_HASHES.get("jutiapa2"),
+        "nombre": "Jutiapa 2",
+        "sucursal": "Jutiapa 2",
+        "rol": "sucursal"
+    },
+    "jutiapa3": {
+        "password_hash": _PASSWORD_HASHES.get("jutiapa3"),
+        "nombre": "Jutiapa 3",
+        "sucursal": "Jutiapa 3",
+        "rol": "sucursal"
+    },
+    "progreso": {
+        "password_hash": _PASSWORD_HASHES.get("progreso"),
+        "nombre": "Progreso",
+        "sucursal": "Progreso",
+        "rol": "sucursal"
+    },
+    "quesada": {
+        "password_hash": _PASSWORD_HASHES.get("quesada"),
+        "nombre": "Quesada",
+        "sucursal": "Quesada",
+        "rol": "sucursal"
+    },
+    "acatempa": {
+        "password_hash": _PASSWORD_HASHES.get("acatempa"),
+        "nombre": "Acatempa",
+        "sucursal": "Acatempa",
+        "rol": "sucursal"
+    },
+    "yupiltepeque": {
+        "password_hash": _PASSWORD_HASHES.get("yupiltepeque"),
+        "nombre": "Yupiltepeque",
+        "sucursal": "Yupiltepeque",
+        "rol": "sucursal"
+    },
+    "atescatempa": {
+        "password_hash": _PASSWORD_HASHES.get("atescatempa"),
+        "nombre": "Atescatempa",
+        "sucursal": "Atescatempa",
+        "rol": "sucursal"
+    },
+    "adelanto": {
+        "password_hash": _PASSWORD_HASHES.get("adelanto"),
+        "nombre": "Adelanto",
+        "sucursal": "Adelanto",
+        "rol": "sucursal"
+    },
+    "jerez": {
+        "password_hash": _PASSWORD_HASHES.get("jerez"),
+        "nombre": "Jeréz",
+        "sucursal": "Jeréz",
+        "rol": "sucursal"
+    },
+    "comapa": {
+        "password_hash": _PASSWORD_HASHES.get("comapa"),
+        "nombre": "Comapa",
+        "sucursal": "Comapa",
+        "rol": "sucursal"
+    },
+    "carina": {
+        "password_hash": _PASSWORD_HASHES.get("carina"),
+        "nombre": "Carina",
+        "sucursal": "Carina",
+        "rol": "sucursal"
+    },
+    "admin": {
+        "password_hash": _PASSWORD_HASHES.get("admin"),
+        "nombre": "Administrador",
+        "sucursal": None,
+        "rol": "admin"
+    }
+}
 
 class LoginAttempts:
     def __init__(self):
@@ -134,7 +166,11 @@ def hash_password(password: str) -> str:
     return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
 
 def verify_password(password: str, hashed: str) -> bool:
-    return bcrypt.checkpw(password.encode(), hashed.encode())
+    try:
+        return bcrypt.checkpw(password.encode(), hashed.encode())
+    except Exception as e:
+        print(f"Error verifying password: {e}")
+        return False
 
 def verificar_credenciales(username: str, password: str) -> Optional[dict]:
     if not login_attempts.check_attempt(username):
@@ -177,6 +213,18 @@ def verificar_sesion(request: Request) -> Optional[dict]:
     }
 
 def requiere_autenticacion(request: Request) -> dict:
+    """
+    Dependency to require authentication for endpoints.
+    
+    Args:
+        request: FastAPI request object
+        
+    Returns:
+        dict: User data containing username, sucursal, and rol
+        
+    Raises:
+        HTTPException: 401 if user is not authenticated
+    """
     user_data = verificar_sesion(request)
     if not user_data:
         raise HTTPException(
@@ -185,6 +233,43 @@ def requiere_autenticacion(request: Request) -> dict:
             headers={"WWW-Authenticate": "Bearer"},
         )
     return user_data
+
+def verificar_permiso_sucursal(user_data: dict, sucursal_requerida: str) -> bool:
+    """
+    Verify if user has permission to access data from a specific branch.
+    
+    Args:
+        user_data: User data from authentication
+        sucursal_requerida: Branch name that needs to be accessed
+        
+    Returns:
+        bool: True if user has permission, False otherwise
+        
+    Note:
+        - Admin users can access all branches
+        - Regular users can only access their assigned branch
+    """
+    if user_data.get("rol") == "admin":
+        return True
+    
+    return user_data.get("sucursal") == sucursal_requerida
+
+def requiere_permiso_sucursal(user_data: dict, sucursal: str) -> None:
+    """
+    Dependency to require branch permission for endpoints.
+    
+    Args:
+        user_data: User data from authentication
+        sucursal: Branch name to check permission for
+        
+    Raises:
+        HTTPException: 403 if user doesn't have permission for the branch
+    """
+    if not verificar_permiso_sucursal(user_data, sucursal):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"No tiene permiso para acceder a datos de la sucursal '{sucursal}'"
+        )
 
 def crear_respuesta_con_sesion(response, user_data: dict):
     session_token = hash_session(user_data["username"])

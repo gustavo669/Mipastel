@@ -27,7 +27,7 @@ class Settings:
         self.ALLOWED_ORIGINS = [origin.strip() for origin in allowed_origins_str.split(",")]
         
         self.SESSION_DURATION_HOURS = int(os.getenv("SESSION_DURATION_HOURS", "8"))
-        self.MAX_LOGIN_ATTEMPTS = int(os.getenv("MAX_LOGIN_ATTEMPTS", "5"))
+        self.MAX_LOGIN_ATTEMPTS = int(os.getenv("MAX_LOGIN_ATTEMPTS", "999"))  # Aumentado para desarrollo
         self.LOGIN_TIMEOUT_SECONDS = int(os.getenv("LOGIN_TIMEOUT_SECONDS", "300"))
         
         self.BASE_DIR = Path(__file__).parent.parent.absolute()

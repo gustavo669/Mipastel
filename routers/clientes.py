@@ -26,6 +26,12 @@ def validar_imagen(file: UploadFile) -> bool:
 
 @router.get("/formulario")
 async def mostrar_formulario_clientes(request: Request):
+    """
+    Display the client orders form.
+    
+    PUBLIC ENDPOINT - No authentication required.
+    This allows customers to place orders from their phones.
+    """
     try:
         return templates.TemplateResponse("formulario_clientes.html", {
             "request": request,
@@ -53,6 +59,12 @@ async def registrar_pedido_cliente(
         sabor_personalizado: Optional[str] = Form(None),
         foto: Optional[UploadFile] = File(None)
 ):
+    """
+    Register a client order.
+    
+    PUBLIC ENDPOINT - No authentication required.
+    This allows customers to place orders from their phones.
+    """
     try:
         if fecha_entrega:
             try:

@@ -334,54 +334,6 @@ body {
     color: var(--primary-purple);
     font-weight: bold;
 }
-
-/* ===============================================
-   TABLES - ADMIN STYLE
-   =============================================== */
-
-.table {
-    background-color: white;
-    border: 2px solid var(--border-pink);
-    border-radius: 8px;
-    overflow: hidden;
-}
-
-.table thead {
-    background: linear-gradient(135deg, var(--primary-purple) 0%, var(--dark-purple) 100%);
-    color: white;
-}
-
-.table thead th {
-    border: none;
-    padding: 12px;
-    font-weight: 600;
-    color: white;
-}
-
-.table tbody tr {
-    transition: all 0.2s ease;
-}
-
-.table tbody tr:nth-child(even) {
-    background-color: var(--light-pink);
-}
-
-.table tbody tr:hover {
-    background-color: #ffe6f5;
-    transform: scale(1.01);
-    box-shadow: 0 2px 8px rgba(142, 68, 173, 0.1);
-}
-
-.table tbody td {
-    padding: 10px;
-    border-color: var(--border-pink);
-    color: var(--text-dark);
-}
-
-/* ===============================================
-   BADGE
-   =============================================== */
-
 .badge {
     background: linear-gradient(135deg, var(--primary-purple) 0%, var(--dark-purple) 100%);
     border-radius: 20px;

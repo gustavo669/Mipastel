@@ -24,13 +24,13 @@ class MiPastelLauncherNgrok:
 
     def start_fastapi(self):
         try:
-            print(f"\nIniciando servidor web...")
+            print("Iniciando servidor web...")
             os.chdir(BASE_DIR)
 
             env = os.environ.copy()
             env["PYTHONIOENCODING"] = "utf-8"
             env["PYTHONUTF8"] = "1"
-            
+
             proceso = subprocess.Popen(
                 [sys.executable, "app.py"],
                 stdout=subprocess.PIPE,
@@ -89,18 +89,38 @@ class MiPastelLauncherNgrok:
             self.ngrok_tunnel = ngrok.connect(5000, bind_tls=True)
             url_publica = self.ngrok_tunnel.public_url
 
-            print(f"URL Pública: {url_publica}")
-            print(f"URL Local:   http://127.0.0.1:5000")
+            print("\n" + "=" * 60)
+            print("URLs DE ACCESO")
+            print("=" * 60)
+            print(f"Desde tu teléfono (Internet): {url_publica}")
+            print(f"Desde esta computadora: http://127.0.0.1:5000")
+            print(f"Desde tu red local: http://{self.get_local_ip()}:5000")
+            print("=" * 60 + "\n")
 
             return url_publica
 
         except Exception as e:
             print(f"Error al iniciar ngrok: {e}")
+            print("Para usar ngrok necesitas:")
+            print("1. Instalar: pip install pyngrok")
+            print("2. Configurar authtoken: ngrok config add-authtoken TU_TOKEN")
+            print("3. Obtener token gratis en: https://dashboard.ngrok.com/signup")
             return None
+
+    def get_local_ip(self):
+        try:
+            import socket
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            s.connect(("8.8.8.8", 80))
+            ip = s.getsockname()[0]
+            s.close()
+            return ip
+        except:
+            return "TU_IP_LOCAL"
 
     def start_admin_app(self):
         try:
-            print("\nIniciando aplicación de administración...")
+            print("Iniciando aplicación de administración...")
 
             sys.path.insert(0, str(BASE_DIR))
 
@@ -142,6 +162,16 @@ class MiPastelLauncherNgrok:
         url_publica = None
         if self.usar_ngrok:
             url_publica = self.start_ngrok()
+        else:
+            print("\n" + "=" * 60)
+            print("URLs DE ACCESO (Solo red local)")
+            print("=" * 60)
+            print(f"Desde esta computadora: http://127.0.0.1:5000")
+            print(f"Desde tu red local: http://{self.get_local_ip()}:5000")
+            print("=" * 60)
+            print("\nPara acceso desde Internet, instala ngrok:")
+            print("pip install pyngrok")
+            print("=" * 60 + "\n")
 
         app, ventana = self.start_admin_app()
         if app is None or ventana is None:
@@ -151,7 +181,7 @@ class MiPastelLauncherNgrok:
         try:
             exit_code = app.exec()
         except KeyboardInterrupt:
-            print("\nInterrupción por usuario")
+            print("Interrupción por usuario")
             exit_code = 0
         except Exception as e:
             print(f"Error en la aplicación: {e}")
@@ -159,12 +189,12 @@ class MiPastelLauncherNgrok:
         finally:
             self.cleanup()
 
-        print("\n¡Hasta pronto! - Mi Pastel Administración")
+        print("Hasta pronto - Mi Pastel Administración")
         sys.exit(exit_code)
 
     def stop_fastapi(self):
         if self.servidor_proceso and self.servidor_activo:
-            print("\nDeteniendo servidor web...")
+            print("Deteniendo servidor web...")
             self.servidor_proceso.terminate()
             try:
                 self.servidor_proceso.wait(timeout=5)
@@ -185,21 +215,20 @@ class MiPastelLauncherNgrok:
         self.ngrok_tunnel = None
 
     def cleanup(self):
-        print("\nLimpiando recursos...")
+        print("Limpiando recursos...")
         self.stop_ngrok()
         self.stop_fastapi()
 
 
 def main():
-
     if not NGROK_AVAILABLE:
-        print("\nngrok no está disponible")
+        print("ngrok no está disponible")
         print("Para instalar: pip install pyngrok")
-        print("\n¿Deseas continuar sin ngrok? (solo acceso local)")
+        print("¿Deseas continuar sin ngrok? (solo acceso local)")
         respuesta = input("Continuar [s/N]: ").strip().lower()
 
         if respuesta not in ['s', 'si', 'y', 'yes']:
-            print("\nInstalación cancelada")
+            print("Instalación cancelada")
             print("Ejecuta: pip install pyngrok")
             return
 

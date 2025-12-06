@@ -48,8 +48,75 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="Mi Pastel - Sistema de Gestión",
+    description="""
+    ## Sistema de Gestión de Pedidos para Mi Pastel
+    
+    Este API permite gestionar pedidos de pasteles normales y personalizados para clientes.
+    
+    ### Características principales:
+    
+    * **Autenticación**: Sistema de sesiones basado en cookies
+    * **Gestión de Pedidos**: Crear, leer, actualizar y eliminar pedidos
+    * **Control de Sucursales**: Permisos basados en sucursales
+    * **Reportes**: Generación de PDFs con listas y ventas
+    * **Auditoría**: Registro completo de todas las operaciones
+    
+    ### Autenticación
+    
+    La mayoría de los endpoints requieren autenticación. Primero debe iniciar sesión en `/login`
+    para obtener una sesión válida. Las credenciales se verifican contra la base de datos de usuarios.
+    
+    ### Permisos
+    
+    * **Admin**: Acceso completo a todas las sucursales
+    * **Sucursal**: Acceso solo a datos de su sucursal asignada
+    
+    ### Sucursales Disponibles
+    
+    Jutiapa 1, Jutiapa 2, Jutiapa 3, Progreso, Quesada, Acatempa, 
+    Yupiltepeque, Atescatempa, Adelanto, Jeréz, Comapa, Carina
+    """,
     version="2.0.0",
-    lifespan=lifespan
+    lifespan=lifespan,
+    docs_url="/docs",
+    redoc_url="/redoc",
+    openapi_tags=[
+        {
+            "name": "Autenticación",
+            "description": "Endpoints para login, logout y gestión de sesiones"
+        },
+        {
+            "name": "Pasteles Normales",
+            "description": "Gestión de pedidos de pasteles normales"
+        },
+        {
+            "name": "Pedidos de Clientes",
+            "description": "Gestión de pedidos personalizados de clientes"
+        },
+        {
+            "name": "Administración",
+            "description": "Panel de administración y gestión de datos"
+        },
+        {
+            "name": "Pedidos API",
+            "description": "API REST para operaciones CRUD de pedidos"
+        },
+        {
+            "name": "Reportes",
+            "description": "Generación de reportes en PDF"
+        },
+        {
+            "name": "Sistema",
+            "description": "Endpoints de salud y diagnóstico del sistema"
+        }
+    ],
+    contact={
+        "name": "Mi Pastel",
+        "email": "soporte@mipastel.com"
+    },
+    license_info={
+        "name": "Propietario",
+    }
 )
 
 setup_security_middleware(app)
@@ -68,8 +135,13 @@ print("  - /clientes")
 print("  - /admin")
 print("  - /api/pedidos")
 
-@app.get("/login", response_class=HTMLResponse)
+@app.get("/login", response_class=HTMLResponse, tags=["Autenticación"])
 async def mostrar_login(request: Request, error: str = None):
+    """
+    Display the login page.
+    
+    If user is already authenticated, redirects to home page.
+    """
     user_data = verificar_sesion(request)
     if user_data:
         return RedirectResponse(url="/", status_code=302)
@@ -79,25 +151,57 @@ async def mostrar_login(request: Request, error: str = None):
         "error": error
     })
 
-@app.post("/login")
+@app.post("/login", tags=["Autenticación"])
 async def procesar_login(
         request: Request,
-        username: str = Form(...),
-        password: str = Form(...)
+        username: str = Form(..., description="Nombre de usuario"),
+        password: str = Form(..., description="Contraseña")
 ):
+    """
+    Process login credentials and create a session.
+    
+    Returns a redirect to the home page if successful,
+    or back to login page with error message if failed.
+    """
+    from utils.audit import AuditLogger
+    
     user_data = verificar_credenciales(username, password)
     if user_data:
+        # Log successful login
+        client_ip = request.client.host if request.client else None
+        AuditLogger.log_login_success(username, ip_address=client_ip)
+        
         response = RedirectResponse(url="/", status_code=302)
         crear_respuesta_con_sesion(response, user_data)
         return response
     else:
+        # Log failed login attempt
+        client_ip = request.client.host if request.client else None
+        AuditLogger.log_login_failure(
+            username,
+            reason="Invalid credentials",
+            ip_address=client_ip
+        )
+        
         return templates.TemplateResponse("login.html", {
             "request": request,
             "error": "Usuario o contraseña incorrectos"
         })
 
-@app.get("/logout")
+@app.get("/logout", tags=["Autenticación"])
 async def cerrar_sesion_usuario(request: Request):
+    """
+    Log out the current user and destroy their session.
+    
+    Redirects to the login page.
+    """
+    from utils.audit import AuditLogger
+    
+    user_data = verificar_sesion(request)
+    if user_data:
+        client_ip = request.client.host if request.client else None
+        AuditLogger.log_logout(user_data.get("username"), ip_address=client_ip)
+    
     response = RedirectResponse(url="/login", status_code=302)
     cerrar_sesion(response)
     return response
@@ -261,8 +365,13 @@ async def generar_reporte_ventas_pdf(request: Request, fecha: str, sucursal: str
             content={"error": f"Error al generar el reporte de ventas: {str(e)}"}
         )
 
-@app.get("/health")
+@app.get("/health", tags=["Sistema"])
 async def health_check():
+    """
+    Health check endpoint to verify server status.
+    
+    Returns server status, IP address, and available routers.
+    """
     return JSONResponse({
         "status": "ok",
         "ip_servidor": get_local_ip(),
@@ -275,8 +384,13 @@ async def health_check():
         ]
     })
 
-@app.get("/debug/routes")
+@app.get("/debug/routes", tags=["Sistema"])
 async def debug_routes():
+    """
+    Debug endpoint to list all registered routes.
+    
+    Useful for development and troubleshooting.
+    """
     routes = []
     for route in app.routes:
         if hasattr(route, 'methods'):

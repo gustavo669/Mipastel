@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Form, HTTPException, Request
+from fastapi import APIRouter, Form, HTTPException, Request, Depends
 from fastapi.templating import Jinja2Templates
 from database import DatabaseManager, obtener_precio_db
 import logging
@@ -6,6 +6,7 @@ from typing import Optional
 from config import (
     SABORES_NORMALES, TAMANOS_NORMALES, SUCURSALES
 )
+from api.auth import requiere_autenticacion, requiere_permiso_sucursal
 
 router = APIRouter(prefix="/normales", tags=["Pasteles Normales"])
 logger = logging.getLogger(__name__)
@@ -13,13 +14,22 @@ templates = Jinja2Templates(directory="templates")
 
 
 @router.get("/formulario")
-async def mostrar_formulario_normales(request: Request):
+async def mostrar_formulario_normales(
+        request: Request,
+        user_data: dict = Depends(requiere_autenticacion)
+):
+    """
+    Display the normal cakes order form.
+    
+    Requires authentication.
+    """
     try:
         return templates.TemplateResponse("formulario_normales.html", {
             "request": request,
             "sabores_normales": SABORES_NORMALES,
             "tamanos": TAMANOS_NORMALES,
-            "sucursales": SUCURSALES
+            "sucursales": SUCURSALES,
+            "user_data": user_data
         })
     except Exception as e:
         logger.error(f"Error al cargar formulario normales: {e}", exc_info=True)
@@ -38,8 +48,17 @@ async def registrar_pedido_normal(
         detalles: Optional[str] = Form(None),
         sabor_personalizado: Optional[str] = Form(None),
         es_otro: Optional[bool] = Form(False),
+        user_data: dict = Depends(requiere_autenticacion)
 ):
+    """
+    Register a normal cake order.
+    
+    Requires authentication and branch permission.
+    Users can only register orders for their assigned branch (except admins).
+    """
     try:
+        # Verify branch permission
+        requiere_permiso_sucursal(user_data, sucursal)
         if tamano not in TAMANOS_NORMALES:
             raise HTTPException(status_code=400, detail="Tamaño inválido")
 

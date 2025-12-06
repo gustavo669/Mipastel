@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -29,7 +30,7 @@
             font-family: 'Segoe UI', 'Open Sans', 'Lato', sans-serif;
             color: var(--text-dark);
             min-height: 100vh;
-            -webkit-font-smoothing: antialiased; /* Texto más nítido */
+            -webkit-font-smoothing: antialiased;
         }
 
         h1, h2, h3, h4, h5, h6 {
@@ -38,10 +39,9 @@
             letter-spacing: -0.5px;
         }
 
-        /* --- NAVBAR MEJORADA --- */
         .navbar {
             background: rgba(255, 255, 255, 0.95) !important;
-            backdrop-filter: blur(10px); /* Efecto vidrio */
+            backdrop-filter: blur(10px);
             border-bottom: 1px solid var(--border-pink);
             box-shadow: 0 4px 20px rgba(142, 68, 173, 0.05);
         }
@@ -54,7 +54,6 @@
             text-shadow: 2px 2px 0px rgba(240, 214, 236, 0.5);
         }
 
-        /* --- BOTONES CON GRADIENTES SUAVES --- */
         .btn {
             border: none;
             border-radius: 50px;
@@ -62,7 +61,7 @@
             font-weight: 600;
             letter-spacing: 0.5px;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
         }
 
         .btn-primary, .btn-secondary, .btn-ventas, .btn-rango {
@@ -89,6 +88,13 @@
             color: white;
         }
 
+        .btn-outline-danger:hover {
+            background: var(--danger-red);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(255, 111, 163, 0.3);
+        }
+
         .btn-danger {
             background: linear-gradient(135deg, var(--danger-red) 0%, #ff4f87 100%);
             color: white;
@@ -100,15 +106,15 @@
             color: white;
         }
 
-        /* --- TARJETAS Y CONTENEDORES --- */
         .hero-section, .form-section, .date-filter-section, .table-container, .stats-card {
             background: white;
             border-radius: 20px;
-            border: 1px solid var(--border-pink); /* Borde más sutil */
+            border: 1px solid var(--border-pink);
             box-shadow: var(--shadow-soft);
             padding: 2rem;
             margin-bottom: 2rem;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: fadeInUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
         }
 
         .stats-card:hover {
@@ -123,13 +129,13 @@
             overflow: hidden;
         }
 
-        /* --- FORMS --- */
         .form-control, .form-select {
             border: 2px solid var(--border-pink);
             border-radius: 12px;
             padding: 12px 18px;
             background-color: #fcfcfc;
             color: var(--text-dark);
+            transition: all 0.3s ease;
         }
 
         .form-control:focus, .form-select:focus {
@@ -138,11 +144,32 @@
             box-shadow: 0 0 0 4px rgba(142, 68, 173, 0.1);
         }
 
-        /* --- MEJORAS PRINCIPALES EN TABLAS --- */
         .table-responsive {
             border-radius: 20px;
-            overflow: hidden; /* Importante para bordes redondeados */
+            overflow-x: auto;
+            overflow-y: hidden;
             box-shadow: var(--shadow-soft);
+            animation: fadeInUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) backwards 0.2s;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .table-responsive::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .table-responsive::-webkit-scrollbar-track {
+            background: rgba(142, 68, 173, 0.05);
+            border-radius: 10px;
+        }
+
+        .table-responsive::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .table-responsive::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #a66bbf 0%, #9b59b6 100%);
         }
 
         .table {
@@ -166,10 +193,6 @@
             padding: 18px 15px;
             border: none;
             white-space: nowrap;
-        }
-
-        /* Sticky Header (opcional, útil para listas largas) */
-        .table thead th {
             position: sticky;
             top: 0;
             z-index: 10;
@@ -180,7 +203,6 @@
             background-color: white;
         }
 
-        /* Alternancia de colores muy sutil */
         .table tbody tr:nth-child(even) {
             background-color: rgba(255, 245, 251, 0.4);
         }
@@ -193,40 +215,37 @@
             font-size: 0.95rem;
         }
 
-        /* Efecto Hover Profesional en Filas */
         .table tbody tr:hover {
             background-color: var(--light-pink);
-            /* En lugar de scale, usamos una sombra y un borde lateral */
             box-shadow: inset 4px 0 0 var(--primary-purple), 0 5px 15px rgba(142, 68, 173, 0.05);
-            transform: none; /* Quitamos el scale para evitar movimiento brusco */
+            transform: none;
             z-index: 2;
             position: relative;
         }
 
-        /* Estilo para la primera celda (ID o Nombre) */
         .table tbody td:first-child {
             font-weight: 600;
             color: var(--dark-purple);
         }
 
-        /* Ultima fila sin borde abajo */
         .table tbody tr:last-child td {
             border-bottom: none;
         }
 
-        /* Badges dentro de tablas */
-        .badge-status {
+        .badge {
+            background: linear-gradient(135deg, var(--primary-purple) 0%, var(--dark-purple) 100%);
+            border-radius: 20px;
             padding: 6px 12px;
-            border-radius: 30px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            text-transform: uppercase;
+            font-weight: 600;
         }
-        .badge-success { background: rgba(72, 199, 116, 0.15); color: #257942; }
-        .badge-warning { background: rgba(255, 221, 87, 0.2); color: #947600; }
-        .badge-danger { background: rgba(255, 111, 163, 0.15); color: #b00b3e; }
 
-        /* --- TABS --- */
+        .badge-color {
+            padding: 5px 10px;
+            border-radius: 8px;
+            color: #000;
+            font-weight: 600;
+        }
+
         .nav-tabs {
             border-bottom: 2px solid var(--border-pink);
             gap: 10px;
@@ -237,7 +256,7 @@
             color: var(--text-muted);
             font-weight: 600;
             padding: 12px 25px;
-            border-radius: 30px; /* Tabs redondeados */
+            border-radius: 30px;
             background: transparent;
             transition: all 0.3s;
         }
@@ -253,7 +272,6 @@
             box-shadow: 0 4px 10px rgba(142, 68, 173, 0.3);
         }
 
-        /* --- FOOTER --- */
         footer {
             background: white;
             border-top: 1px solid var(--border-pink);
@@ -263,27 +281,51 @@
             font-size: 0.9rem;
         }
 
-        /* --- ANIMACIONES --- */
         @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px);}
-            to   { opacity: 1; transform: translateY(0);}
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
-        .fade-in {
-            animation: fadeInUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+        .fade-in, .tab-pane {
+            animation: fadeInUp 0.5s ease;
         }
 
-        /* --- RESPONSIVE --- */
+        .stats-card:nth-child(1) { animation-delay: 0.1s; }
+        .stats-card:nth-child(2) { animation-delay: 0.2s; }
+        .stats-card:nth-child(3) { animation-delay: 0.3s; }
+        .stats-card:nth-child(4) { animation-delay: 0.4s; }
+
+        .quick-filter-btn {
+            margin: 5px;
+            animation: fadeInUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) backwards 0.5s;
+        }
+
         @media (max-width: 768px) {
-            .navbar-brand { font-size: 2rem; }
-            .table thead { display: none; } /* En móviles a veces es mejor ocultar header y hacer tarjetas */
+            .navbar-brand {
+                font-size: 2rem;
+            }
 
-            /* O simplemente ajustar padding para móviles si prefieres tabla clásica */
-            .table td, .table th { padding: 10px; }
+            .table thead {
+                display: none;
+            }
 
-            .stats-card { margin-bottom: 1rem; }
-        }</style>
+            .table td, .table th {
+                padding: 10px;
+            }
+
+            .stats-card {
+                margin-bottom: 1rem;
+            }
+        }
+    </style>
 </head>
+
 <body>
 
 <nav class="navbar navbar-expand-lg navbar-light">
@@ -291,12 +333,12 @@
         <a class="navbar-brand" href="/">Mi Pastel</a>
         <div class="navbar-nav ms-auto">
             <div class="user-info">
-                <span class="navbar-text me-3">
-                    <i class="fas fa-user-circle" style="color: #d63384; font-size: 1.2rem;"></i>
-                    Hola, <strong style="color: #690f73;">Administrador</strong>
-                </span>
+                    <span class="navbar-text me-3">
+                        <i class="fas fa-user-circle" style="color: #d63384; font-size: 1.2rem;"></i>
+                        Hola, <strong style="color: #690f73;">Administrador</strong>
+                    </span>
                 <a class="btn btn-sm btn-outline-danger btn-logout" href="/logout">
-                    <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                    <i class="fas fa-sign-out-alt"></i> Salir
                 </a>
             </div>
         </div>
@@ -305,22 +347,22 @@
 
 <div class="container mt-4">
 
-    <h1 class="text-center mb-4" style="color: #d63384;">
+    <h1 class="text-center mb-4 fade-in" style="color: #d63384;">
         <i class="fas fa-chart-bar"></i> Panel de Visualización
     </h1>
 
-    <p class="text-center text-muted mb-4">Vista de todos los pedidos - Solo lectura</p>
+    <p class="text-center text-muted mb-4 fade-in">Vista de todos los pedidos - Solo lectura</p>
 
     <!-- Filtro de Fechas -->
     <div class="date-filter-section">
         <div class="row align-items-end">
             <div class="col-md-3">
                 <label class="form-label"><strong>Fecha Inicio:</strong></label>
-                <input type="date" id="fechaInicio" class="form-control" value="{{ fecha_actual }}">
+                <input type="date" id="fechaInicio" class="form-control" value="">
             </div>
             <div class="col-md-3">
                 <label class="form-label"><strong>Fecha Fin:</strong></label>
-                <input type="date" id="fechaFin" class="form-control" value="{{ fecha_actual }}">
+                <input type="date" id="fechaFin" class="form-control" value="">
             </div>
             <div class="col-md-6">
                 <label class="form-label d-block">&nbsp;</label>
@@ -346,7 +388,7 @@
             <div class="card stats-card">
                 <div class="card-body text-center">
                     <h5 class="card-title">Pedidos Tiendas</h5>
-                    <h2 class="text-primary" id="statTiendas">{{ normales|length }}</h2>
+                    <h2 class="text-primary" id="statTiendas">0</h2>
                 </div>
             </div>
         </div>
@@ -355,7 +397,7 @@
             <div class="card stats-card">
                 <div class="card-body text-center">
                     <h5 class="card-title">Pedidos Clientes</h5>
-                    <h2 class="text-primary" id="statClientes">{{ clientes|length }}</h2>
+                    <h2 class="text-primary" id="statClientes">0</h2>
                 </div>
             </div>
         </div>
@@ -364,13 +406,7 @@
             <div class="card stats-card">
                 <div class="card-body text-center">
                     <h5 class="card-title">Ingresos Tiendas</h5>
-                    <h2 class="text-success" id="statIngresosTiendas">
-                        Q{% set total_normales = namespace(value=0) %}
-                        {% for pedido in normales %}
-                        {% set total_normales.value = total_normales.value + (pedido.precio * pedido.cantidad) %}
-                        {% endfor %}
-                        {{ "%.2f"|format(total_normales.value) }}
-                    </h2>
+                    <h2 class="text-success" id="statIngresosTiendas">Q0.00</h2>
                 </div>
             </div>
         </div>
@@ -379,13 +415,7 @@
             <div class="card stats-card">
                 <div class="card-body text-center">
                     <h5 class="card-title">Ingresos Clientes</h5>
-                    <h2 class="text-success" id="statIngresosClientes">
-                        Q{% set total_clientes = namespace(value=0) %}
-                        {% for pedido in clientes %}
-                        {% set total_clientes.value = total_clientes.value + pedido.total %}
-                        {% endfor %}
-                        {{ "%.2f"|format(total_clientes.value) }}
-                    </h2>
+                    <h2 class="text-success" id="statIngresosClientes">Q0.00</h2>
                 </div>
             </div>
         </div>
@@ -395,12 +425,12 @@
     <ul class="nav nav-tabs mb-4" id="adminTab">
         <li class="nav-item">
             <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#normales">
-                Pedidos de Tiendas (<span id="countNormales">{{ normales|length }}</span>)
+                Pedidos de Tiendas (<span id="countNormales">0</span>)
             </button>
         </li>
         <li class="nav-item">
             <button class="nav-link" data-bs-toggle="tab" data-bs-target="#clientes">
-                Pedidos de Clientes (<span id="countClientes">{{ clientes|length }}</span>)
+                Pedidos de Clientes (<span id="countClientes">0</span>)
             </button>
         </li>
     </ul>
@@ -409,52 +439,27 @@
         <!-- Tab Pedidos Normales -->
         <div class="tab-pane fade show active" id="normales">
             <div class="table-responsive">
-                <table class="table table-hover">
+                <table class="table table-premium table-hover">
                     <thead>
                     <tr>
                         <th>ID</th>
-                        <th>Sabor</th>
                         <th>Tamaño</th>
-                        <th>Precio</th>
+                        <th>Sabor</th>
                         <th>Cantidad</th>
+                        <th>Precio Unit.</th>
                         <th>Total</th>
                         <th>Sucursal</th>
                         <th>Fecha Entrega</th>
                         <th>Fecha Registro</th>
                     </tr>
                     </thead>
-                    <tbody>
-                    {% if normales %}
-                        {% for pedido in normales %}
-                        <tr>
-                            <td>{{ pedido.id }}</td>
-                            <td>{{ pedido.sabor }}</td>
-                            <td>{{ pedido.tamano }}</td>
-                            <td>Q{{ "%.2f"|format(pedido.precio) }}</td>
-                            <td>{{ pedido.cantidad }}</td>
-                            <td><strong>Q{{ "%.2f"|format(pedido.precio * pedido.cantidad) }}</strong></td>
-                            <td><span class="badge bg-primary">{{ pedido.sucursal }}</span></td>
-                            <td>
-                                {% if pedido.fecha_entrega %}
-                                {{ pedido.fecha_entrega[8:10] }}/{{ pedido.fecha_entrega[5:7] }}/{{ pedido.fecha_entrega[:4] }}
-                                {% else %}
-                                -
-                                {% endif %}
-                            </td>
-                            <td>
-                                {{ pedido.fecha[8:10] }}/{{ pedido.fecha[5:7] }}/{{ pedido.fecha[:4] }}
-                                {{ pedido.fecha[11:16] if pedido.fecha|length > 10 else '' }}
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    {% else %}
-                        <tr>
-                            <td colspan="9" class="text-center text-muted py-5">
-                                <i class="fas fa-cake fa-3x mb-3 d-block"></i>
-                                No hay pasteles de tienda registrados
-                            </td>
-                        </tr>
-                    {% endif %}
+                    <tbody id="tablaNormales">
+                    <tr>
+                        <td colspan="9" class="text-center text-muted py-5">
+                            <i class="fas fa-cake fa-3x mb-3 d-block"></i>
+                            No hay pasteles de tienda registrados
+                        </td>
+                    </tr>
                     </tbody>
                 </table>
             </div>
@@ -463,66 +468,30 @@
         <!-- Tab Pedidos Clientes -->
         <div class="tab-pane fade" id="clientes">
             <div class="table-responsive">
-                <table class="table table-hover">
+                <table class="table table-premium table-hover">
                     <thead>
                     <tr>
                         <th>ID</th>
-                        <th>Color</th>
-                        <th>Sabor</th>
                         <th>Tamaño</th>
+                        <th>Sabor</th>
                         <th>Cantidad</th>
-                        <th>Precio</th>
+                        <th>Precio Unit.</th>
                         <th>Total</th>
                         <th>Sucursal</th>
                         <th>Fecha Registro</th>
                         <th>Fecha Entrega</th>
+                        <th>Color</th>
                         <th>Dedicatoria</th>
                         <th>Detalles</th>
                     </tr>
                     </thead>
-                    <tbody>
-                    {% if clientes %}
-                        {% for pedido in clientes %}
-                        <tr>
-                            <td>{{ pedido.id }}</td>
-                            <td>
-                                {% if pedido.color %}
-                                <span class="badge-color" style="background-color: {{ pedido.color }}; color: #000; padding: 5px 10px; border-radius: 8px; font-weight: 600;">
-                                    {{ pedido.color }}
-                                </span>
-                                {% else %}
-                                <span class="text-muted">-</span>
-                                {% endif %}
-                            </td>
-                            <td>{{ pedido.sabor }}</td>
-                            <td>{{ pedido.tamano }}</td>
-                            <td>{{ pedido.cantidad }}</td>
-                            <td>Q{{ "%.2f"|format(pedido.precio) }}</td>
-                            <td><strong>Q{{ "%.2f"|format(pedido.total) }}</strong></td>
-                            <td><span class="badge bg-primary">{{ pedido.sucursal }}</span></td>
-                            <td>
-                                {{ pedido.fecha[8:10] }}/{{ pedido.fecha[5:7] }}/{{ pedido.fecha[:4] }}
-                                {{ pedido.fecha[11:16] if pedido.fecha|length > 10 else '' }}
-                            </td>
-                            <td>
-                                {% if pedido.fecha_entrega %}
-                                {{ pedido.fecha_entrega[8:10] }}/{{ pedido.fecha_entrega[5:7] }}/{{ pedido.fecha_entrega[:4] }}
-                                {% else %}
-                                -
-                                {% endif %}
-                            </td>
-                            <td>{{ pedido.dedicatoria if pedido.dedicatoria else '-' }}</td>
-                            <td>{{ pedido.detalles if pedido.detalles else '-' }}</td>
-                        </tr>
-                        {% endfor %}
-                    {% else %}
-                        <tr>
-                            <td colspan="12" class="text-center text-muted py-5">
-                                <i class="fas fa-star fa-3x mb-3 d-block"></i>
-                                No hay pedidos de clientes registrados
-                            </td>
-                        </tr>
-                    {% endif %}
+                    <tbody id="tablaClientes">
+                    <tr>
+                        <td colspan="12" class="text-center text-muted py-5">
+                            <i class="fas fa-star fa-3x mb-3 d-block"></i>
+                            No hay pedidos de clientes registrados
+                        </td>
+                    </tr>
                     </tbody>
                 </table>
             </div>
@@ -530,7 +499,7 @@
     </div>
 
     <!-- Botones de Reportes -->
-    <div class="text-center mt-5 mb-4">
+    <div class="text-center mt-5 mb-4 fade-in">
         <button class="btn btn-ventas btn-lg me-3" data-bs-toggle="modal" data-bs-target="#modalReporteVentas">
             <i class="fas fa-dollar-sign"></i> Reporte de Ventas
         </button>
@@ -545,9 +514,9 @@
 <div class="modal fade" id="modalReporteVentas" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header">
+            <div class="modal-header" style="background: linear-gradient(135deg, #ff66b2, #d63384); color: white;">
                 <h5 class="modal-title">Generar Reporte de Ventas</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <form id="formReporteVentas">
@@ -563,9 +532,6 @@
                         </label>
                         <select class="form-select" id="sucursalReporteVentas">
                             <option value="">Todas las Sucursales</option>
-                            {% for sucursal in sucursales %}
-                            <option value="{{ sucursal }}">{{ sucursal }}</option>
-                            {% endfor %}
                         </select>
                     </div>
                 </form>
@@ -593,7 +559,6 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-    // Establecer fecha actual
     function establecerFechaHoy() {
         const today = new Date();
         const year = today.getFullYear();
@@ -602,7 +567,6 @@
         return `${year}-${month}-${day}`;
     }
 
-    // Filtros rápidos
     function setFiltroHoy() {
         const hoy = establecerFechaHoy();
         document.getElementById('fechaInicio').value = hoy;
@@ -633,7 +597,6 @@
         document.getElementById('fechaFin').value = fin.toISOString().split('T')[0];
     }
 
-    // Aplicar filtro (actualizar dinámicamente sin recargar página)
     async function aplicarFiltro() {
         const fechaInicio = document.getElementById('fechaInicio').value;
         const fechaFin = document.getElementById('fechaFin').value;
@@ -649,25 +612,19 @@
         }
 
         try {
-            // Mostrar indicador de carga (opcional)
             document.body.style.cursor = 'wait';
 
-            // Obtener pedidos normales
             const respNormales = await fetch(`/admin/normales?fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}`);
             const dataNormales = await respNormales.json();
 
-            // Obtener pedidos de clientes
             const respClientes = await fetch(`/admin/clientes?fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}`);
             const dataClientes = await respClientes.json();
 
-            // Actualizar tablas
             actualizarTablaNormales(dataNormales.normales || []);
             actualizarTablaClientes(dataClientes.clientes || []);
 
-            // Actualizar estadísticas
             actualizarEstadisticas(dataNormales.normales || [], dataClientes.clientes || []);
 
-            // Restaurar cursor
             document.body.style.cursor = 'default';
         } catch (error) {
             console.error('Error al aplicar filtro:', error);
@@ -676,9 +633,8 @@
         }
     }
 
-    // Actualizar tabla de pedidos normales
     function actualizarTablaNormales(pedidos) {
-        const tbody = document.querySelector('#normales table tbody');
+        const tbody = document.getElementById('tablaNormales');
         if (!tbody) return;
 
         if (pedidos.length === 0) {
@@ -693,10 +649,10 @@
             const total = (pedido.precio || 0) * (pedido.cantidad || 0);
             row.innerHTML = `
                 <td>${pedido.id || ''}</td>
-                <td>${pedido.sabor || ''}</td>
                 <td>${pedido.tamano || ''}</td>
-                <td>Q${(pedido.precio || 0).toFixed(2)}</td>
+                <td>${pedido.sabor || ''}</td>
                 <td>${pedido.cantidad || 0}</td>
+                <td>Q${(pedido.precio || 0).toFixed(2)}</td>
                 <td><strong>Q${total.toFixed(2)}</strong></td>
                 <td><span class="badge bg-primary">${pedido.sucursal || ''}</span></td>
                 <td>${formatearFechaSolo(pedido.fecha_entrega)}</td>
@@ -708,9 +664,8 @@
         document.getElementById('countNormales').textContent = pedidos.length;
     }
 
-    // Actualizar tabla de pedidos de clientes
     function actualizarTablaClientes(pedidos) {
-        const tbody = document.querySelector('#clientes table tbody');
+        const tbody = document.getElementById('tablaClientes');
         if (!tbody) return;
 
         if (pedidos.length === 0) {
@@ -722,21 +677,21 @@
         tbody.innerHTML = '';
         pedidos.forEach(pedido => {
             const row = document.createElement('tr');
-            const colorBadge = pedido.color 
+            const colorBadge = pedido.color
                 ? `<span class="badge-color" style="background-color: ${pedido.color}; color: #000; padding: 5px 10px; border-radius: 8px; font-weight: 600;">${pedido.color}</span>`
                 : '<span class="text-muted">-</span>';
-            
+
             row.innerHTML = `
                 <td>${pedido.id || ''}</td>
-                <td>${colorBadge}</td>
-                <td>${pedido.sabor || ''}</td>
                 <td>${pedido.tamano || ''}</td>
+                <td>${pedido.sabor || ''}</td>
                 <td>${pedido.cantidad || 0}</td>
                 <td>Q${(pedido.precio || 0).toFixed(2)}</td>
                 <td><strong>Q${(pedido.total || 0).toFixed(2)}</strong></td>
                 <td><span class="badge bg-primary">${pedido.sucursal || ''}</span></td>
                 <td>${formatearFechaHora(pedido.fecha)}</td>
                 <td>${formatearFechaSolo(pedido.fecha_entrega)}</td>
+                <td>${colorBadge}</td>
                 <td>${pedido.dedicatoria || '-'}</td>
                 <td>${pedido.detalles || '-'}</td>
             `;
@@ -746,20 +701,16 @@
         document.getElementById('countClientes').textContent = pedidos.length;
     }
 
-    // Actualizar estadísticas
     function actualizarEstadisticas(normales, clientes) {
-        // Calcular totales
         const totalNormales = normales.reduce((sum, p) => sum + (p.precio * p.cantidad), 0);
         const totalClientes = clientes.reduce((sum, p) => sum + (p.total || 0), 0);
 
-        // Actualizar contadores
         document.getElementById('statTiendas').textContent = normales.length;
         document.getElementById('statClientes').textContent = clientes.length;
         document.getElementById('statIngresosTiendas').textContent = 'Q' + totalNormales.toFixed(2);
         document.getElementById('statIngresosClientes').textContent = 'Q' + totalClientes.toFixed(2);
     }
 
-    // Formatear fecha solo (DD/MM/YYYY)
     function formatearFechaSolo(fecha) {
         if (!fecha) return '-';
         try {
@@ -773,7 +724,6 @@
         }
     }
 
-    // Formatear fecha con hora (DD/MM/YYYY HH:MM)
     function formatearFechaHora(fecha) {
         if (!fecha) return '-';
         try {
@@ -789,7 +739,6 @@
         }
     }
 
-    // Generar reporte de ventas
     function generarReporteVentasPDF() {
         const fecha = document.getElementById('fechaReporteVentas').value;
         const sucursal = document.getElementById('sucursalReporteVentas').value;
@@ -815,7 +764,6 @@
         }, 300);
     }
 
-    // Generar reporte por rango
     function generarReporteRango() {
         const fechaInicio = document.getElementById('fechaInicio').value;
         const fechaFin = document.getElementById('fechaFin').value;
@@ -839,11 +787,9 @@
         }, 300);
     }
 
-    // Inicializar fechas al cargar
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         const hoy = establecerFechaHoy();
 
-        // Establecer fechas de inicio y fin
         if (document.getElementById('fechaInicio')) {
             document.getElementById('fechaInicio').value = hoy;
         }
@@ -851,7 +797,6 @@
             document.getElementById('fechaFin').value = hoy;
         }
 
-        // Establecer fecha en modal de ventas
         if (document.getElementById('fechaReporteVentas')) {
             document.getElementById('fechaReporteVentas').value = hoy;
         }
@@ -866,4 +811,5 @@
 </script>
 
 </body>
+
 </html>

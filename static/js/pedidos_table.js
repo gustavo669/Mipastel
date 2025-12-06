@@ -1,18 +1,14 @@
-// JavaScript para cargar y manejar tablas de pedidos registrados - ACTUALIZADO
+// JavaScript para cargar y manejar tablas de pedidos registrados - ORDEN FINAL CORREGIDA
 
 // Función principal para cargar pedidos registrados
 async function cargarPedidosRegistrados(fecha = null) {
     if (!fecha) {
-        // Usar fecha de inicio si existe, sino usar hoy
-        const fechaInput = document.getElementById('fechaInicio');
-        fecha = fechaInput ? fechaInput.value : new Date().toISOString().split('T')[0];
+        const fechaInput = document.getElementById('fechaBusqueda');
+        fecha = fechaInput ? fechaInput.value : '';
     }
 
     try {
-        // Cargar pedidos normales
         await cargarPedidosNormales(fecha);
-
-        // Cargar pedidos de clientes
         await cargarPedidosClientes(fecha);
     } catch (error) {
         console.error('Error cargando pedidos:', error);
@@ -20,16 +16,17 @@ async function cargarPedidosRegistrados(fecha = null) {
     }
 }
 
-// Cargar pedidos normales (tienda) - CON TODAS LAS COLUMNAS
+// Cargar pedidos normales - ORDEN: ID, Tamaño, Sabor, Cantidad, Precio Unit., Total, Fecha Entrega, Estado, Acciones
 async function cargarPedidosNormales(fecha) {
     try {
-        const resp = await fetch(`/api/pedidos/normales?fecha=${fecha}`);
+        const url = fecha ? `/api/pedidos/normales?fecha=${fecha}` : '/api/pedidos/normales';
+        const resp = await fetch(url);
         const data = await resp.json();
 
         const tbody = document.getElementById('tablaNormalesRegistrados');
 
         if (!data.pedidos || data.pedidos.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="11" class="text-center text-muted">No hay pedidos para esta fecha</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="9" class="text-center text-muted">No hay pedidos para esta fecha</td></tr>';
             return;
         }
 
@@ -43,17 +40,15 @@ async function cargarPedidosNormales(fecha) {
                 : '<span class="badge bg-secondary">Bloqueado</span>';
 
             row.innerHTML = `
-                <td class="text-center">${pedido.id || ''}</td>
-                <td>${pedido.sabor || ''}</td>
+                <td class="text-center"><strong>${pedido.id || ''}</strong></td>
                 <td>${pedido.tamano || ''}</td>
-                <td class="text-end">Q${(pedido.precio || 0).toFixed(2)}</td>
+                <td>${pedido.sabor || ''}</td>
                 <td class="text-center">${pedido.cantidad || 0}</td>
+                <td class="text-end">Q${(pedido.precio || 0).toFixed(2)}</td>
                 <td class="text-end"><strong>Q${(pedido.total || 0).toFixed(2)}</strong></td>
-                <td class="text-center"><span class="badge bg-primary">${pedido.sucursal || ''}</span></td>
                 <td class="text-center">${formatearFechaSolo(pedido.fecha_entrega)}</td>
-                <td class="text-center">${formatearFechaHora(pedido.fecha)}</td>
                 <td class="text-center">${estadoBadge}</td>
-                <td class="text-center">
+                <td class="text-center" style="white-space: nowrap;">
                     ${editable ? `
                         <button class="btn btn-sm btn-primary me-1" onclick="editarPedidoNormal(${pedido.id})" title="Editar">
                             <i class="fas fa-edit"></i>
@@ -70,20 +65,21 @@ async function cargarPedidosNormales(fecha) {
     } catch (error) {
         console.error('Error cargando pedidos normales:', error);
         const tbody = document.getElementById('tablaNormalesRegistrados');
-        tbody.innerHTML = '<tr><td colspan="11" class="text-center text-danger">Error al cargar pedidos</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="9" class="text-center text-danger">Error al cargar pedidos</td></tr>';
     }
 }
 
-// Cargar pedidos de clientes - CON TODAS LAS COLUMNAS
+// Cargar pedidos de clientes - ORDEN: ID, Tamaño, Sabor, Cantidad, Precio Unit., Total, Fecha Entrega, Color, Dedicatoria, Detalles, Imagen, Estado, Acciones
 async function cargarPedidosClientes(fecha) {
     try {
-        const resp = await fetch(`/api/pedidos/clientes?fecha=${fecha}`);
+        const url = fecha ? `/api/pedidos/clientes?fecha=${fecha}` : '/api/pedidos/clientes';
+        const resp = await fetch(url);
         const data = await resp.json();
 
         const tbody = document.getElementById('tablaClientesRegistrados');
 
         if (!data.pedidos || data.pedidos.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="14" class="text-center text-muted">No hay pedidos para esta fecha</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="13" class="text-center text-muted">No hay pedidos para esta fecha</td></tr>';
             return;
         }
 
@@ -96,8 +92,19 @@ async function cargarPedidosClientes(fecha) {
                 ? '<span class="badge bg-success">Editable</span>'
                 : '<span class="badge bg-secondary">Bloqueado</span>';
 
+            // Mostrar imagen si existe
+            const imagenHtml = pedido.imagen
+                ? `<img src="${pedido.imagen}" style="max-width: 50px; max-height: 50px; border-radius: 5px;" title="Ver imagen">`
+                : '<span class="text-muted">-</span>';
+
             row.innerHTML = `
-                <td class="text-center">${pedido.id || ''}</td>
+                <td class="text-center"><strong>${pedido.id || ''}</strong></td>
+                <td>${pedido.tamano || ''}</td>
+                <td>${pedido.sabor || ''}</td>
+                <td class="text-center">${pedido.cantidad || 0}</td>
+                <td class="text-end">Q${(pedido.precio || 0).toFixed(2)}</td>
+                <td class="text-end"><strong>Q${(pedido.total || 0).toFixed(2)}</strong></td>
+                <td class="text-center">${formatearFechaSolo(pedido.fecha_entrega)}</td>
                 <td class="text-center">
                     ${pedido.color ? `
                         <span class="badge-color" style="background-color: ${pedido.color}; color: #000; padding: 5px 10px; border-radius: 8px; font-weight: 600;">
@@ -105,18 +112,11 @@ async function cargarPedidosClientes(fecha) {
                         </span>
                     ` : '<span class="text-muted">-</span>'}
                 </td>
-                <td>${pedido.sabor || ''}</td>
-                <td>${pedido.tamano || ''}</td>
-                <td class="text-center">${pedido.cantidad || 0}</td>
-                <td class="text-end">Q${(pedido.precio || 0).toFixed(2)}</td>
-                <td class="text-end"><strong>Q${(pedido.total || 0).toFixed(2)}</strong></td>
-                <td class="text-center"><span class="badge bg-primary">${pedido.sucursal || ''}</span></td>
-                <td class="text-center">${formatearFechaHora(pedido.fecha)}</td>
-                <td class="text-center">${formatearFechaSolo(pedido.fecha_entrega)}</td>
-                <td class="text-truncate" style="max-width: 150px;" title="${pedido.dedicatoria || ''}">${pedido.dedicatoria || '-'}</td>
-                <td class="text-truncate" style="max-width: 150px;" title="${pedido.detalles || ''}">${pedido.detalles || '-'}</td>
+                <td class="text-truncate" style="max-width: 120px;" title="${pedido.dedicatoria || ''}">${pedido.dedicatoria || '-'}</td>
+                <td class="text-truncate" style="max-width: 120px;" title="${pedido.detalles || ''}">${pedido.detalles || '-'}</td>
+                <td class="text-center">${imagenHtml}</td>
                 <td class="text-center">${estadoBadge}</td>
-                <td class="text-center">
+                <td class="text-center" style="white-space: nowrap;">
                     ${editable ? `
                         <button class="btn btn-sm btn-primary me-1" onclick="editarPedidoCliente(${pedido.id})" title="Editar">
                             <i class="fas fa-edit"></i>
@@ -133,7 +133,7 @@ async function cargarPedidosClientes(fecha) {
     } catch (error) {
         console.error('Error cargando pedidos clientes:', error);
         const tbody = document.getElementById('tablaClientesRegistrados');
-        tbody.innerHTML = '<tr><td colspan="14" class="text-center text-danger">Error al cargar pedidos</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="13" class="text-center text-danger">Error al cargar pedidos</td></tr>';
     }
 }
 
@@ -169,8 +169,9 @@ function formatearFechaHora(fecha) {
 // Editar pedido normal
 async function editarPedidoNormal(id) {
     try {
-        const fecha = document.getElementById('fechaInicio')?.value || new Date().toISOString().split('T')[0];
-        const resp = await fetch(`/api/pedidos/normales?fecha=${fecha}`);
+        const fecha = document.getElementById('fechaBusqueda')?.value || '';
+        const url = fecha ? `/api/pedidos/normales?fecha=${fecha}` : '/api/pedidos/normales';
+        const resp = await fetch(url);
         const data = await resp.json();
         const pedido = data.pedidos.find(p => p.id === id);
 
@@ -242,8 +243,9 @@ async function guardarEdicionNormal() {
 // Editar pedido cliente
 async function editarPedidoCliente(id) {
     try {
-        const fecha = document.getElementById('fechaInicio')?.value || new Date().toISOString().split('T')[0];
-        const resp = await fetch(`/api/pedidos/clientes?fecha=${fecha}`);
+        const fecha = document.getElementById('fechaBusqueda')?.value || '';
+        const url = fecha ? `/api/pedidos/clientes?fecha=${fecha}` : '/api/pedidos/clientes';
+        const resp = await fetch(url);
         const data = await resp.json();
         const pedido = data.pedidos.find(p => p.id === id);
 
@@ -367,21 +369,15 @@ async function eliminarPedidoCliente(id) {
 }
 
 // Inicializar cuando se carga la página
-document.addEventListener('DOMContentLoaded', function() {
-    const fechaInicio = document.getElementById('fechaInicio');
-    if (fechaInicio && !fechaInicio.value) {
-        fechaInicio.value = new Date().toISOString().split('T')[0];
+document.addEventListener('DOMContentLoaded', function () {
+    const fechaBusqueda = document.getElementById('fechaBusqueda');
+    if (fechaBusqueda && !fechaBusqueda.value) {
+        fechaBusqueda.value = new Date().toISOString().split('T')[0];
     }
 
-    const fechaFin = document.getElementById('fechaFin');
-    if (fechaFin && !fechaFin.value) {
-        fechaFin.value = new Date().toISOString().split('T')[0];
-    }
-
-    // Cargar pedidos al iniciar (solo si estamos en la pestaña de registrados)
     const tabRegistrados = document.querySelector('[data-bs-target="#registrados"]');
     if (tabRegistrados) {
-        tabRegistrados.addEventListener('shown.bs.tab', function() {
+        tabRegistrados.addEventListener('shown.bs.tab', function () {
             cargarPedidosRegistrados();
         });
     }
