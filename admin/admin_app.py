@@ -1254,7 +1254,7 @@ class AdminApp(QMainWindow):
 
         # Diálogo para seleccionar tipo de reporte
         dialog = QDialog(self)
-        dialog.setWindowTitle("Generar Reporte de Listas")
+        dialog.setWindowTitle("Generar Reporte de Lista")
         dialog.resize(450, 250)
         dialog.setStyleSheet(DARK_STYLE)
 
@@ -1262,14 +1262,14 @@ class AdminApp(QMainWindow):
         layout.setSpacing(15)
         layout.setContentsMargins(20, 20, 20, 20)
 
-        titulo = QLabel("Seleccione el tipo de reporte:")
+        titulo = QLabel("Seleccione el tipo de lista:")
         titulo.setStyleSheet("font-size: 15pt; margin-bottom: 10px;")
         layout.addWidget(titulo)
 
         # Radio buttons
         radio_layout = QVBoxLayout()
-        radio_fecha = QRadioButton("Reporte de una fecha específica")
-        radio_rango = QRadioButton("Reporte por rango de fechas")
+        radio_fecha = QRadioButton("Lista de fecha específica")
+        radio_rango = QRadioButton("Lista por rango de fechas")
         radio_fecha.setChecked(True)
         radio_layout.addWidget(radio_fecha)
         radio_layout.addWidget(radio_rango)

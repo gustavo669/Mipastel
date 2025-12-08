@@ -11,9 +11,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
     <script src="/static/js/pedidos_table.js"></script>
     <style>
-        /* ===============================================
-        VARIABLES & ROOT CONFIGURATION
-        =============================================== */
         :root {
             --primary-purple: #8e44ad;
             --dark-purple: #6f2f86;
@@ -35,7 +32,7 @@
             font-family: 'Segoe UI', 'Open Sans', 'Lato', sans-serif;
             color: var(--text-dark);
             min-height: 100vh;
-            -webkit-font-smoothing: antialiased; /* Texto más nítido */
+            -webkit-font-smoothing: antialiased;
         }
 
         h1, h2, h3, h4, h5, h6 {
@@ -47,12 +44,10 @@
         .text-primary { color: var(--primary-purple) !important; }
         .text-success { color: var(--success-green) !important; }
 
-        /* ===============================================
-        NAVBAR
-        =============================================== */
+
         .navbar {
             background: rgba(255, 255, 255, 0.95) !important;
-            backdrop-filter: blur(10px); /* Efecto vidrio */
+            backdrop-filter: blur(10px);
             border-bottom: 1px solid var(--border-pink);
             box-shadow: 0 4px 20px rgba(142, 68, 173, 0.05);
         }
@@ -65,9 +60,6 @@
             text-shadow: 2px 2px 0px rgba(240, 214, 236, 0.5);
         }
 
-        /* ===============================================
-        HERO & SECTIONS
-        =============================================== */
         .hero-section {
             background: linear-gradient(135deg, #fff0f6 0%, #fffaf6 100%);
             border-radius: 15px;
@@ -77,10 +69,6 @@
             box-shadow: 0 4px 15px rgba(142, 68, 173, 0.1);
         }
 
-        /* ===============================================
-        BUTTONS (Unified Gradients)
-        =============================================== */
-        /* Primary */
         .btn-primary {
             background: linear-gradient(180deg, #9b59b6 0%, #7d3c98 100%);
             border: none;
@@ -99,7 +87,6 @@
             color: white;
         }
 
-        /* Success */
         .btn-success {
             background: linear-gradient(180deg, #48c774 0%, #2e8b57 100%);
             border: none;
@@ -118,7 +105,6 @@
             color: white;
         }
 
-        /* Danger */
         .btn-danger {
             background: linear-gradient(180deg, var(--danger-red) 0%, #ff5f97 100%);
             border: none;
@@ -135,30 +121,19 @@
             box-shadow: 0 4px 12px rgba(255, 111, 163, 0.4);
         }
 
-        /* Outlines */
-        .btn-outline-danger {
-            border: 2px solid var(--danger-red);
-            color: var(--danger-red);
-            border-radius: 20px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            background: transparent;
-        }
-
-        .btn-outline-danger:hover {
-            background: var(--danger-red);
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 10px rgba(255, 111, 163, 0.3);
-        }
-
         .btn-outline-primary {
-            border: 2px solid var(--primary-purple);
+            border: 0px solid var(--primary-purple);
             color: var(--primary-purple);
             border-radius: 20px;
             font-weight: 600;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(255, 111, 163, 0.3);
             transition: all 0.3s ease;
             background: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
         }
 
         .btn-outline-primary:hover {
@@ -166,11 +141,11 @@
             color: white;
             transform: translateY(-2px);
             box-shadow: 0 4px 10px rgba(142, 68, 173, 0.3);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 2px rgba(255, 111, 163, 0.3);
         }
 
-        /* ===============================================
-        FORMS
-        =============================================== */
         .form-section {
             background: white;
             border-radius: 15px;
@@ -210,32 +185,6 @@
             margin-bottom: 0.5rem;
         }
 
-        /* Date Filter Section (from Code 1) */
-        .date-filter-section {
-            background: white;
-            padding: 2rem;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(142, 68, 173, 0.1);
-            margin-bottom: 2rem;
-            border: 2px solid var(--border-pink);
-        }
-
-        .quick-filter-btn {
-            margin: 5px;
-            border-radius: 20px;
-            padding: 10px 20px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-
-        /* ===============================================
-        TABS & NAVIGATION
-        =============================================== */
-        /* Standard Nav Tabs */
-        .nav-tabs {
-            border-bottom: 2px solid var(--border-pink);
-        }
-
         .nav-tabs .nav-link {
             color: var(--text-dark);
             font-weight: 600;
@@ -260,7 +209,6 @@
             transform: translateY(-2px);
         }
 
-        /* Nav Pills (from Code 2) */
         .nav-pills .nav-link {
             color: var(--text-dark);
             font-weight: 600;
@@ -285,9 +233,6 @@
             box-shadow: 0 4px 12px rgba(142, 68, 173, 0.3);
         }
 
-        /* ===============================================
-        CARDS & STATS
-        =============================================== */
         .stats-card {
             background: white;
             border-left: 5px solid var(--primary-purple);
@@ -314,7 +259,6 @@
             font-weight: bold;
         }
 
-        /* Success Card */
         .success-card {
             background: white;
             border-radius: 20px;
@@ -329,9 +273,6 @@
             margin-bottom: 1rem;
         }
 
-        /* ===============================================
-        TABLES
-        =============================================== */
         .table-container {
             background: white;
             border-radius: 15px;
@@ -339,71 +280,6 @@
             margin: 1rem 0;
             box-shadow: 0 4px 15px rgba(142, 68, 173, 0.1);
             border: 2px solid var(--border-pink);
-        }
-
-        .table {
-            background-color: white;
-            border: 2px solid var(--border-pink);
-            border-radius: 8px;
-            overflow: hidden;
-        }
-
-        .table thead {
-            background: linear-gradient(135deg, var(--primary-purple) 0%, var(--dark-purple) 100%);
-            color: white;
-        }
-
-        .table thead th {
-            border: none;
-            padding: 12px;
-            font-weight: 600;
-        }
-
-        .table tbody tr {
-            transition: all 0.2s ease;
-        }
-
-        .table tbody tr:nth-child(even) {
-            background-color: var(--light-pink);
-        }
-
-        .table tbody tr:hover {
-            background-color: #ffe6f5;
-            transform: scale(1.01);
-            box-shadow: 0 2px 8px rgba(142, 68, 173, 0.1);
-        }
-
-        .table tbody td {
-            padding: 10px;
-            border-color: var(--border-pink);
-        }
-
-        .table-responsive {
-            border-radius: 20px;
-            overflow-x: auto;
-            overflow-y: hidden;
-            box-shadow: var(--shadow-soft);
-            animation: fadeInUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) backwards 0.2s;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .table-responsive::-webkit-scrollbar {
-            height: 8px;
-        }
-
-        .table-responsive::-webkit-scrollbar-track {
-            background: rgba(142, 68, 173, 0.05);
-            border-radius: 10px;
-        }
-
-        .table-responsive::-webkit-scrollbar-thumb {
-            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
-            border-radius: 10px;
-            transition: all 0.3s ease;
-        }
-
-        .table-responsive::-webkit-scrollbar-thumb:hover {
-            background: linear-gradient(135deg, #a66bbf 0%, #9b59b6 100%);
         }
 
         .table {
@@ -441,6 +317,12 @@
             background-color: rgba(255, 245, 251, 0.4);
         }
 
+        .table tbody tr:hover {
+            background-color: #ffe6f5;
+            transform: scale(1.01);
+            box-shadow: 0 2px 8px rgba(142, 68, 173, 0.1);
+        }
+
         .table tbody td {
             padding: 16px 15px;
             vertical-align: middle;
@@ -466,11 +348,34 @@
             border-bottom: none;
         }
 
+        .table-responsive {
+            border-radius: 20px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            box-shadow: var(--shadow-soft);
+            animation: fadeInUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) backwards 0.2s;
+            -webkit-overflow-scrolling: touch;
+        }
 
+        .table-responsive::-webkit-scrollbar {
+            height: 8px;
+        }
 
-        /* ===============================================
-        ELEMENTS: Badges, Alerts, Price, Cart
-        =============================================== */
+        .table-responsive::-webkit-scrollbar-track {
+            background: rgba(142, 68, 173, 0.05);
+            border-radius: 10px;
+        }
+
+        .table-responsive::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .table-responsive::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #a66bbf 0%, #9b59b6 100%);
+        }
+
         .badge {
             background: linear-gradient(135deg, var(--primary-purple) 0%, var(--dark-purple) 100%);
             border-radius: 20px;
@@ -496,7 +401,6 @@
             color: var(--dark-purple);
         }
 
-        /* Price Display */
         .price-display {
             background: var(--light-pink);
             border-radius: 10px;
@@ -510,7 +414,6 @@
             color: var(--dark-purple);
         }
 
-        /* Cart Items */
         .cart-item {
             background: var(--light-pink);
             border-left: 4px solid var(--primary-purple);
@@ -539,7 +442,6 @@
             box-shadow: 0 2px 6px rgba(255, 111, 163, 0.4);
         }
 
-        /* Banner */
         .banner-container {
             width: 100%;
             height: 300px;
@@ -561,9 +463,7 @@
             transform: scale(1.05);
         }
 
-        /* ===============================================
-        MODALS & FOOTER
-        =============================================== */
+
         .modal-header {
             background: linear-gradient(135deg, #9b59b6 0%, #7d3c98 100%);
             color: white;
@@ -582,9 +482,7 @@
             padding: 1.5rem 0;
         }
 
-        /* ===============================================
-        ANIMATIONS
-        =============================================== */
+
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
@@ -594,9 +492,6 @@
             animation: fadeIn 0.5s ease;
         }
 
-        /* ===============================================
-        RESPONSIVE
-        =============================================== */
         @media (max-width: 768px) {
             .navbar-brand {
                 font-size: 1.8rem;
@@ -623,10 +518,7 @@
                     <strong style="color: #690f73;">{{ user_data.sucursal }}</strong>
                 </span>
             <a class="btn btn-sm btn-outline-primary" href="/admin">
-                <i class="fas fa-chart-bar"></i> Panel Admin
-            </a>
-            <a class="btn btn-sm btn-outline-danger ms-2" href="/logout">
-                <i class="fas fa-sign-out-alt"></i> Salir
+                <i class="fas fa-chart-bar"></i> Panel
             </a>
         </div>
     </div>
@@ -837,6 +729,8 @@
             </div>
         </div>
 
+        <!-- Reemplaza esta sección en templates/index.html -->
+
         <div class="tab-pane fade" id="registrados">
             <div class="table-container">
                 <h4 class="mb-4" style="color:#d63384;">
@@ -864,6 +758,7 @@
                         <thead>
                         <tr>
                             <th>ID</th>
+                            <th>Sucursal</th>
                             <th>Tamaño</th>
                             <th>Sabor</th>
                             <th>Cantidad</th>
@@ -888,6 +783,7 @@
                         <thead>
                         <tr>
                             <th>ID</th>
+                            <th>Sucursal</th>
                             <th>Tamaño</th>
                             <th>Sabor</th>
                             <th>Cantidad</th>
@@ -1005,6 +901,7 @@
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     const SUCURSAL = "{{ user_data.sucursal }}";
     let cartaNormales = [];
@@ -1021,6 +918,294 @@
             hoy: formatoFecha(hoy),
             manana: formatoFecha(manana)
         };
+    }
+
+    async function cargarPedidosRegistrados() {
+        const fecha = document.getElementById('fechaBusqueda').value;
+
+        if (!fecha) {
+            alert('Por favor selecciona una fecha');
+            return;
+        }
+
+        try {
+            const respNormales = await fetch(`/api/pedidos/normales?fecha_inicio=${fecha}&fecha_fin=${fecha}`);
+            const dataNormales = await respNormales.json();
+            actualizarTablaNormales(dataNormales.pedidos || []);
+
+            const respClientes = await fetch(`/api/pedidos/clientes?fecha_inicio=${fecha}&fecha_fin=${fecha}`);
+            const dataClientes = await respClientes.json();
+            actualizarTablaClientes(dataClientes.pedidos || []);
+
+        } catch (error) {
+            console.error('Error al cargar pedidos:', error);
+            alert('Error al cargar los pedidos');
+        }
+    }
+
+    function actualizarTablaNormales(pedidos) {
+        const tbody = document.getElementById('tablaNormalesRegistrados');
+
+        if (!pedidos || pedidos.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="9" class="text-center text-muted">No hay pedidos para esta fecha</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = '';
+        pedidos.forEach(pedido => {
+            const total = (pedido.precio || 0) * (pedido.cantidad || 0);
+            const estadoBadge = pedido.editable
+                ? '<span class="badge bg-success">Editable</span>'
+                : '<span class="badge bg-secondary">Entregado</span>';
+
+            const fechaEntrega = pedido.fecha_entrega ? new Date(pedido.fecha_entrega).toLocaleDateString('es-ES') : '-';
+
+            const row = `
+                <tr>
+                    <td><strong>${pedido.id}</strong></td>
+                    <td><span class="badge bg-primary">${pedido.sucursal || ''}</span></td>
+                    <td>${pedido.tamano || ''}</td>
+                    <td>${pedido.sabor || ''}</td>
+                    <td class="text-center">${pedido.cantidad || 0}</td>
+                    <td class="text-end">Q${(pedido.precio || 0).toFixed(2)}</td>
+                    <td class="text-end"><strong>Q${total.toFixed(2)}</strong></td>
+                    <td class="text-center">${fechaEntrega}</td>
+                    <td class="text-center">${estadoBadge}</td>
+                    <td class="text-center">
+                        ${pedido.editable ? `
+                            <button class="btn btn-sm btn-primary me-1" onclick="editarPedidoNormal(${pedido.id})" title="Editar">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="eliminarPedidoNormal(${pedido.id})" title="Eliminar">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        ` : '<span class="text-muted">-</span>'}
+                    </td>
+                </tr>
+            `;
+            tbody.innerHTML += row;
+        });
+    }
+
+    function actualizarTablaClientes(pedidos) {
+        const tbody = document.getElementById('tablaClientesRegistrados');
+
+        if (!pedidos || pedidos.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="13" class="text-center text-muted">No hay pedidos para esta fecha</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = '';
+        pedidos.forEach(pedido => {
+            const total = pedido.total || 0;
+            const estadoBadge = pedido.editable
+                ? '<span class="badge bg-success">Editable</span>'
+                : '<span class="badge bg-secondary">Entregado</span>';
+
+            const fechaEntrega = pedido.fecha_entrega ? new Date(pedido.fecha_entrega).toLocaleDateString('es-ES') : '-';
+            const colorBadge = pedido.color
+                ? `<span class="badge-color" style="background-color: ${pedido.color}; color: #000; padding: 5px 10px; border-radius: 8px; font-weight: 600;">${pedido.color}</span>`
+                : '<span class="text-muted">-</span>';
+
+            const row = `
+                <tr>
+                    <td><strong>${pedido.id}</strong></td>
+                    <td><span class="badge bg-primary">${pedido.sucursal || ''}</span></td>
+                    <td>${pedido.tamano || ''}</td>
+                    <td>${pedido.sabor || ''}</td>
+                    <td class="text-center">${pedido.cantidad || 0}</td>
+                    <td class="text-end">Q${(pedido.precio || 0).toFixed(2)}</td>
+                    <td class="text-end"><strong>Q${total.toFixed(2)}</strong></td>
+                    <td class="text-center">${fechaEntrega}</td>
+                    <td class="text-center">${colorBadge}</td>
+                    <td class="text-truncate">${pedido.dedicatoria || '-'}</td>
+                    <td class="text-truncate">${pedido.detalles || '-'}</td>
+                    <td class="text-center">${pedido.foto_path ? 'Sí' : 'No'}</td>
+                    <td class="text-center">${estadoBadge}</td>
+                    <td class="text-center">
+                        ${pedido.editable ? `
+                            <button class="btn btn-sm btn-primary me-1" onclick="editarPedidoCliente(${pedido.id})" title="Editar">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="eliminarPedidoCliente(${pedido.id})" title="Eliminar">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        ` : '<span class="text-muted">-</span>'}
+                    </td>
+                </tr>
+            `;
+            tbody.innerHTML += row;
+        });
+    }
+
+    async function editarPedidoNormal(id) {
+        const fecha = document.getElementById('fechaBusqueda').value;
+        const resp = await fetch(`/api/pedidos/normales?fecha_inicio=${fecha}&fecha_fin=${fecha}`);
+        const data = await resp.json();
+        const pedido = data.pedidos.find(p => p.id === id);
+
+        if (!pedido) {
+            alert('Pedido no encontrado');
+            return;
+        }
+
+        document.getElementById('editIdNormal').value = pedido.id;
+        document.getElementById('editSaborNormal').value = pedido.sabor || '';
+        document.getElementById('editTamanoNormal').value = pedido.tamano || '';
+        document.getElementById('editCantidadNormal').value = pedido.cantidad || 1;
+        document.getElementById('editFechaNormal').value = pedido.fecha_entrega || '';
+        document.getElementById('editDetallesNormal').value = pedido.detalles || '';
+
+        const hoy = new Date().toISOString().split('T')[0];
+        document.getElementById('editFechaNormal').min = hoy;
+
+        const modal = new bootstrap.Modal(document.getElementById('modalEditarNormal'));
+        modal.show();
+    }
+
+    async function guardarEdicionNormal() {
+        const id = document.getElementById('editIdNormal').value;
+        const cantidad = document.getElementById('editCantidadNormal').value;
+        const fecha_entrega = document.getElementById('editFechaNormal').value;
+        const detalles = document.getElementById('editDetallesNormal').value;
+
+        if (!cantidad || !fecha_entrega) {
+            alert('Por favor completa todos los campos requeridos');
+            return;
+        }
+
+        try {
+            const formData = new FormData();
+            formData.append('cantidad', cantidad);
+            formData.append('fecha_entrega', fecha_entrega);
+            formData.append('detalles', detalles);
+
+            const resp = await fetch(`/api/pedidos/normal/${id}`, {
+                method: 'PUT',
+                body: formData
+            });
+
+            if (resp.ok) {
+                bootstrap.Modal.getInstance(document.getElementById('modalEditarNormal')).hide();
+                cargarPedidosRegistrados();
+            } else {
+                const error = await resp.json();
+                alert('Error: ' + (error.detail || 'No se pudo actualizar'));
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error al actualizar el pedido');
+        }
+    }
+
+    async function eliminarPedidoNormal(id) {
+        if (!confirm('¿Estás seguro de que deseas eliminar este pedido?')) {
+            return;
+        }
+
+        try {
+            const resp = await fetch(`/api/pedidos/normal/${id}`, {
+                method: 'DELETE'
+            });
+
+            if (resp.ok) {
+                cargarPedidosRegistrados();
+            } else {
+                const error = await resp.json();
+                alert('Error: ' + (error.detail || 'No se pudo eliminar'));
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error al eliminar el pedido');
+        }
+    }
+
+    async function editarPedidoCliente(id) {
+        const fecha = document.getElementById('fechaBusqueda').value;
+        const resp = await fetch(`/api/pedidos/clientes?fecha_inicio=${fecha}&fecha_fin=${fecha}`);
+        const data = await resp.json();
+        const pedido = data.pedidos.find(p => p.id === id);
+
+        if (!pedido) {
+            alert('Pedido no encontrado');
+            return;
+        }
+
+        document.getElementById('editIdCliente').value = pedido.id;
+        document.getElementById('editSaborCliente').value = pedido.sabor || '';
+        document.getElementById('editTamanoCliente').value = pedido.tamano || '';
+        document.getElementById('editCantidadCliente').value = pedido.cantidad || 1;
+        document.getElementById('editFechaCliente').value = pedido.fecha_entrega || '';
+        document.getElementById('editColorCliente').value = pedido.color || '';
+        document.getElementById('editDedicatoriaCliente').value = pedido.dedicatoria || '';
+        document.getElementById('editDetallesCliente').value = pedido.detalles || '';
+
+        const hoy = new Date().toISOString().split('T')[0];
+        document.getElementById('editFechaCliente').min = hoy;
+
+        const modal = new bootstrap.Modal(document.getElementById('modalEditarCliente'));
+        modal.show();
+    }
+
+    async function guardarEdicionCliente() {
+        const id = document.getElementById('editIdCliente').value;
+        const cantidad = document.getElementById('editCantidadCliente').value;
+        const fecha_entrega = document.getElementById('editFechaCliente').value;
+        const color = document.getElementById('editColorCliente').value;
+        const dedicatoria = document.getElementById('editDedicatoriaCliente').value;
+        const detalles = document.getElementById('editDetallesCliente').value;
+
+        if (!cantidad || !fecha_entrega) {
+            alert('Por favor completa los campos requeridos');
+            return;
+        }
+
+        try {
+            const formData = new FormData();
+            formData.append('cantidad', cantidad);
+            formData.append('fecha_entrega', fecha_entrega);
+            if (color) formData.append('color', color);
+            if (dedicatoria) formData.append('dedicatoria', dedicatoria);
+            if (detalles) formData.append('detalles', detalles);
+
+            const resp = await fetch(`/api/pedidos/cliente/${id}`, {
+                method: 'PUT',
+                body: formData
+            });
+
+            if (resp.ok) {
+                bootstrap.Modal.getInstance(document.getElementById('modalEditarCliente')).hide();
+                cargarPedidosRegistrados();
+            } else {
+                const error = await resp.json();
+                alert('Error: ' + (error.detail || 'No se pudo actualizar'));
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error al actualizar el pedido');
+        }
+    }
+
+    async function eliminarPedidoCliente(id) {
+        if (!confirm('¿Estás seguro de que deseas eliminar este pedido?')) {
+            return;
+        }
+
+        try {
+            const resp = await fetch(`/api/pedidos/cliente/${id}`, {
+                method: 'DELETE'
+            });
+
+            if (resp.ok) {
+                cargarPedidosRegistrados();
+            } else {
+                const error = await resp.json();
+                alert('Error: ' + (error.detail || 'No se pudo eliminar'));
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error al eliminar el pedido');
+        }
     }
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -1047,6 +1232,8 @@
         });
         document.getElementById('tamanoCliente').addEventListener('change', () => actualizarPrecio('cliente'));
         document.getElementById('cantidadCliente').addEventListener('input', () => actualizarPrecio('cliente'));
+
+        cargarPedidosRegistrados();
     });
 
     function toggleOtro(selectId, inputId) {
@@ -1191,8 +1378,6 @@
 
         const tab = new bootstrap.Tab(document.querySelector('[data-bs-target="#pedidos"]'));
         tab.show();
-
-        alert('Pedido agregado a la lista');
     }
 
     function eliminarDeLista(tipo, index) {
@@ -1209,36 +1394,6 @@
         cartaNormales = [];
         cartaClientes = [];
         actualizarVista();
-    }
-
-    async function registrarDirecto(tipo) {
-        const form = tipo === 'normal' ? document.getElementById('formNormal') : document.getElementById('formCliente');
-        const formData = new FormData(form);
-
-        formData.append('sucursal', SUCURSAL);
-
-        const endpoint = tipo === 'normal' ? '/normales/registrar' : '/clientes/registrar';
-
-        try {
-            const response = await fetch(endpoint, {
-                method: 'POST',
-                body: formData
-            });
-
-            if (response.ok) {
-                limpiarFormulario(tipo);
-                alert('✓ Pedido registrado exitosamente');
-                cargarPedidosRegistrados();
-                const tab = new bootstrap.Tab(document.querySelector('[data-bs-target="#registrados"]'));
-                tab.show();
-            } else {
-                const error = await response.json();
-                alert('Error: ' + (error.detail || 'No se pudo registrar'));
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            alert('Error al registrar pedido: ' + error.message);
-        }
     }
 
     async function registrarTodos() {
@@ -1307,7 +1462,9 @@
                 cartaNormales = [];
                 cartaClientes = [];
                 actualizarVista();
-                window.location.href = '/static/exito.html';
+                cargarPedidosRegistrados();
+                const tab = new bootstrap.Tab(document.querySelector('[data-bs-target="#registrados"]'));
+                tab.show();
             } else {
                 alert('Error al registrar pedidos');
             }
@@ -1339,7 +1496,7 @@
             <div class="cart-item">
                 <div class="d-flex justify-content-between">
                     <div>
-                        <strong>${p.sabor}</strong> - ${p.tamano} x${p.cantidad}
+                        <strong>${p.sucursal}<strong>${p.sabor}</strong> - ${p.tamano} x${p.cantidad}
                         <br><small>Entrega: ${p.fecha_entrega} | Total: Q${(p.precio * p.cantidad).toFixed(2)}</small>
                     </div>
                     <button class="btn btn-sm btn-danger" onclick="eliminarDeLista('normal', ${i})">
@@ -1359,7 +1516,7 @@
             <div class="cart-item">
                 <div class="d-flex justify-content-between">
                     <div>
-                        <strong>${p.sabor}</strong> - ${p.tamano} x${p.cantidad}
+                        <strong>${p.sucursal}<strong>${p.sabor}</strong> - ${p.tamano} x${p.cantidad}
                         <br><small>Entrega: ${p.fecha_entrega} | Total: Q${(p.precio * p.cantidad).toFixed(2)}</small>
                         ${p.dedicatoria ? '<br><small>Dedicatoria: ' + p.dedicatoria + '</small>' : ''}
                     </div>
