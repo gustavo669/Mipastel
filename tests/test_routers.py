@@ -18,20 +18,6 @@ from api.auth import hash_session
 
 
 @pytest.fixture
-def authenticated_client(client):
-    """Create a client with authenticated session for jutiapa1."""
-    username = "jutiapa1"
-    session_token = hash_session(username)
-    
-    client.cookies.set("session_token", session_token)
-    client.cookies.set("username", username)
-    client.cookies.set("sucursal", "Jutiapa 1")
-    client.cookies.set("rol", "sucursal")
-    
-    return client
-
-
-@pytest.fixture
 def admin_client(client):
     """Create a client with authenticated session for admin."""
     username = "admin"

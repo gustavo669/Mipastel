@@ -41,6 +41,7 @@ async function cargarPedidosNormales(fecha) {
 
             row.innerHTML = `
                 <td class="text-center"><strong>${pedido.id || ''}</strong></td>
+                <td><span class="badge bg-primary">${pedido.sucursal || ''}</span></td> 
                 <td>${pedido.tamano || ''}</td>
                 <td>${pedido.sabor || ''}</td>
                 <td class="text-center">${pedido.cantidad || 0}</td>
@@ -99,6 +100,7 @@ async function cargarPedidosClientes(fecha) {
 
             row.innerHTML = `
                 <td class="text-center"><strong>${pedido.id || ''}</strong></td>
+                <td><span class="badge bg-primary">${pedido.sucursal || ''}</span></td> 
                 <td>${pedido.tamano || ''}</td>
                 <td>${pedido.sabor || ''}</td>
                 <td class="text-center">${pedido.cantidad || 0}</td>

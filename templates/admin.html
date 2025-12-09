@@ -498,13 +498,10 @@
         </div>
     </div>
 
-    <!-- Botones de Reportes -->
+    <!-- Botón de Reporte de Ventas ÚNICO -->
     <div class="text-center mt-5 mb-4 fade-in">
-        <button class="btn btn-ventas btn-lg me-3" data-bs-toggle="modal" data-bs-target="#modalReporteVentas">
-            <i class="fas fa-dollar-sign"></i> Reporte de Ventas
-        </button>
-        <button class="btn btn-rango btn-lg" onclick="generarReporteRango()">
-            <i class="fas fa-file-pdf"></i> Reporte por Rango
+        <button class="btn btn-ventas btn-lg" data-bs-toggle="modal" data-bs-target="#modalReporteVentas">
+            <i class="fas fa-dollar-sign"></i> Generar Reporte de Ventas
         </button>
     </div>
 
@@ -518,6 +515,7 @@
                 <h5 class="modal-title">Generar Reporte de Ventas</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
+
             <div class="modal-body">
                 <form id="formReporteVentas">
                     <div class="mb-3">
@@ -525,14 +523,6 @@
                             <i class="fas fa-calendar"></i> Fecha del Reporte
                         </label>
                         <input type="date" class="form-control" id="fechaReporteVentas" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="sucursalReporteVentas" class="form-label">
-                            <i class="fas fa-store"></i> Sucursal
-                        </label>
-                        <select class="form-select" id="sucursalReporteVentas">
-                            <option value="">Todas las Sucursales</option>
-                        </select>
                     </div>
                 </form>
             </div>
@@ -741,7 +731,6 @@
 
     function generarReporteVentasPDF() {
         const fecha = document.getElementById('fechaReporteVentas').value;
-        const sucursal = document.getElementById('sucursalReporteVentas').value;
 
         if (!fecha) {
             alert('Por favor selecciona una fecha');
@@ -749,10 +738,9 @@
             return;
         }
 
-        let url = `/reportes/ventas-pdf?fecha=${fecha}`;
-        if (sucursal) {
-            url += `&sucursal=${encodeURIComponent(sucursal)}`;
-        }
+        // Usar la sucursal del usuario actual
+        const sucursal = "{{ user_data.sucursal }}";
+        let url = `/reportes/ventas-pdf?fecha=${fecha}&sucursal=${encodeURIComponent(sucursal)}`;
 
         const modal = bootstrap.Modal.getInstance(document.getElementById('modalReporteVentas'));
         if (modal) modal.hide();
@@ -761,29 +749,6 @@
 
         setTimeout(() => {
             alert('El reporte de ventas se está generando...');
-        }, 300);
-    }
-
-    function generarReporteRango() {
-        const fechaInicio = document.getElementById('fechaInicio').value;
-        const fechaFin = document.getElementById('fechaFin').value;
-
-        if (!fechaInicio || !fechaFin) {
-            alert('Por favor selecciona el rango de fechas');
-            return;
-        }
-
-        if (new Date(fechaFin) < new Date(fechaInicio)) {
-            alert('La fecha fin debe ser posterior a la fecha inicio');
-            return;
-        }
-
-        let url = `/reportes/rango-pdf?fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}`;
-
-        window.open(url, '_blank');
-
-        setTimeout(() => {
-            alert('El reporte por rango se está generando...');
         }, 300);
     }
 
