@@ -580,6 +580,8 @@
                             </select>
                             <input type="text" class="form-control mt-2 d-none" id="saborOtroNormal"
                                    placeholder="Sabor personalizado">
+                            <input class="form-control mt-2 d-none" id="precioOtroNormal" min="0" placeholder="Precio manual (Q)"
+                                   step="0.01" type="number">
                         </div>
 
                         <div class="col-md-6">
@@ -639,6 +641,8 @@
                             </select>
                             <input type="text" class="form-control mt-2 d-none" id="saborOtroCliente"
                                    placeholder="Sabor personalizado">
+                            <input class="form-control mt-2 d-none" id="precioOtroCliente" min="0" placeholder="Precio manual (Q)"
+                                   step="0.01" type="number">
                         </div>
 
                         <div class="col-md-6">
@@ -1530,7 +1534,9 @@
     }
 
 </script>
+<script src="/static/js/pedidos.js"></script>
 <script src="/static/js/pedidos_table.js"></script>
+<script src="/static/js/precios.js"></script>
 </body>
 
 </html>

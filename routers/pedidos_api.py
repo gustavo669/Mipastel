@@ -1,10 +1,11 @@
-from fastapi import APIRouter, Request, Form, HTTPException, UploadFile, File
-from typing import Optional
-from datetime import datetime, date
 import logging
-import shutil
 import os
+import shutil
+from datetime import datetime, date
 from pathlib import Path
+from typing import Optional
+
+from fastapi import APIRouter, Request, Form, HTTPException, UploadFile, File
 
 logger = logging.getLogger(__name__)
 
@@ -33,9 +34,9 @@ def parse_fecha_entrega(fecha_str):
 
 @router.get("/normales")
 async def get_pedidos_normales(
-    request: Request, 
-    fecha_inicio: Optional[str] = None,
-    fecha_fin: Optional[str] = None
+        request: Request,
+        fecha_inicio: Optional[str] = None,
+        fecha_fin: Optional[str] = None
 ):
     from auth import verificar_sesion
 
@@ -74,9 +75,9 @@ async def get_pedidos_normales(
 
 @router.get("/clientes")
 async def get_pedidos_clientes(
-    request: Request,
-    fecha_inicio: Optional[str] = None,
-    fecha_fin: Optional[str] = None
+        request: Request,
+        fecha_inicio: Optional[str] = None,
+        fecha_fin: Optional[str] = None
 ):
     from auth import verificar_sesion
 
@@ -115,7 +116,7 @@ async def get_pedidos_clientes(
 @router.post("/registrar")
 async def registrar_pedido(
         request: Request,
-        tipo: str = Form(...),  # 'normal' o 'cliente'
+        tipo: str = Form(...),
         sabor: str = Form(...),
         tamano: str = Form(...),
         cantidad: int = Form(...),
@@ -123,9 +124,13 @@ async def registrar_pedido(
         detalles: Optional[str] = Form(None),
         color: Optional[str] = Form(None),
         dedicatoria: Optional[str] = Form(None),
-        # foto es opcional, solo para pedidos de cliente
         foto: Optional[UploadFile] = File(None)
 ):
+    """
+    Registrar un pedido (normal o cliente).
+
+    REQUIERE AUTENTICACIÓN Y PERMISO DE SUCURSAL.
+    """
     from auth import verificar_sesion
 
     user_data = verificar_sesion(request)
@@ -138,6 +143,11 @@ async def registrar_pedido(
 
     if not sabor or not tamano:
         raise HTTPException(status_code=400, detail="Faltan campos obligatorios: sabor y tamaño")
+
+    # La sucursal es la del usuario autenticado
+    sucursal = user_data.get("sucursal")
+    if not sucursal:
+        raise HTTPException(status_code=400, detail="Usuario sin sucursal asignada")
 
     try:
         fecha_obj = parse_fecha_entrega(fecha_entrega) if fecha_entrega else None
@@ -155,7 +165,7 @@ async def registrar_pedido(
             "cantidad": int(cantidad),
             "fecha_entrega": fecha_obj.isoformat() if fecha_obj else None,
             "detalles": detalles.strip() if detalles else "",
-            "sucursal": user_data.get("sucursal"),
+            "sucursal": sucursal,
             "precio": None,
             "sabor_personalizado": None
         }
@@ -180,17 +190,20 @@ async def registrar_pedido(
             except Exception:
                 pedido_data["precio"] = 0
 
-            # Insertar usando la función que tenga tu DB (ajusta nombre si es distinto)
-            if hasattr(db, "insertar_pastel_normal"):
-                new_id = db.insertar_pastel_normal(pedido_data)
-            elif hasattr(db, "crear_pastel_normal"):
-                new_id = db.crear_pastel_normal(pedido_data)
-            else:
-                # Si no tienes una función concreta, intenta método genérico
-                if hasattr(db, "guardar_pastel_normal"):
-                    new_id = db.guardar_pastel_normal(pedido_data)
-                else:
-                    raise Exception("Función de inserción para 'normal' no encontrada en DatabaseManager")
+            new_id = db.insertar_pastel_normal(pedido_data)
+
+            # Auditoría
+            try:
+                from utils.audit import log_pedido_normal_created
+                log_pedido_normal_created(
+                    username=user_data['username'],
+                    pedido_id=new_id,
+                    sucursal=sucursal,
+                    sabor=sabor,
+                    tamano=tamano
+                )
+            except Exception as audit_error:
+                logger.warning(f"Error al registrar auditoría: {audit_error}")
 
             return {"success": True, "message": "Pedido normal registrado", "id": new_id}
 
@@ -198,22 +211,26 @@ async def registrar_pedido(
             pedido_data["color"] = color.strip() if color else None
             pedido_data["dedicatoria"] = dedicatoria.strip() if dedicatoria else None
 
-            # Obtenemos precio si existe
             try:
                 precio = db.obtener_precio_por_sabor_tamano(sabor.strip(), tamano.strip())
                 pedido_data["precio"] = float(precio) if precio else 0
             except Exception:
                 pedido_data["precio"] = 0
 
-            if hasattr(db, "insertar_pedido_cliente"):
-                new_id = db.insertar_pedido_cliente(pedido_data)
-            elif hasattr(db, "crear_pedido_cliente"):
-                new_id = db.crear_pedido_cliente(pedido_data)
-            else:
-                if hasattr(db, "guardar_pedido_cliente"):
-                    new_id = db.guardar_pedido_cliente(pedido_data)
-                else:
-                    raise Exception("Función de inserción para 'cliente' no encontrada en DatabaseManager")
+            new_id = db.insertar_pedido_cliente(pedido_data)
+
+            # Auditoría
+            try:
+                from utils.audit import log_pedido_cliente_created
+                log_pedido_cliente_created(
+                    username=user_data['username'],
+                    pedido_id=new_id,
+                    sucursal=sucursal,
+                    sabor=sabor,
+                    tamano=tamano
+                )
+            except Exception as audit_error:
+                logger.warning(f"Error al registrar auditoría: {audit_error}")
 
             return {"success": True, "message": "Pedido de cliente registrado", "id": new_id}
 
@@ -248,13 +265,14 @@ async def actualizar_pedido_normal(
 
     try:
         from database import obtener_normal_por_id_db, actualizar_pastel_normal_db
+        from api.auth import requiere_permiso_sucursal
 
         pedido = obtener_normal_por_id_db(pedido_id)
         if not pedido:
             raise HTTPException(status_code=404, detail="Pedido no encontrado")
 
-        if pedido.get('sucursal') != user_data['sucursal']:
-            raise HTTPException(status_code=403, detail="No autorizado para editar este pedido")
+        # Verificar permiso de sucursal
+        requiere_permiso_sucursal(user_data, pedido.get('sucursal'))
 
         fecha_entrega_obj = datetime.strptime(fecha_entrega, "%Y-%m-%d").date()
         if fecha_entrega_obj < date.today():
@@ -270,6 +288,18 @@ async def actualizar_pedido_normal(
             'detalles': detalles or pedido.get('detalles', ''),
             'sabor_personalizado': pedido.get('sabor_personalizado')
         })
+
+        # Auditoría
+        try:
+            from utils.audit import log_pedido_updated
+            log_pedido_updated(
+                username=user_data['username'],
+                pedido_type='pedido_normal',
+                pedido_id=pedido_id,
+                changes={'cantidad': cantidad, 'fecha_entrega': fecha_entrega}
+            )
+        except Exception as audit_error:
+            logger.warning(f"Error al registrar auditoría: {audit_error}")
 
         logger.info(f"Updated normal order {pedido_id} by {user_data['username']}")
         return {"success": True, "message": "Pedido actualizado correctamente"}
@@ -299,13 +329,14 @@ async def actualizar_pedido_cliente(
 
     try:
         from database import obtener_cliente_por_id_db, actualizar_pedido_cliente_db
+        from api.auth import requiere_permiso_sucursal
 
         pedido = obtener_cliente_por_id_db(pedido_id)
         if not pedido:
             raise HTTPException(status_code=404, detail="Pedido no encontrado")
 
-        if pedido.get('sucursal') != user_data['sucursal']:
-            raise HTTPException(status_code=403, detail="No autorizado para editar este pedido")
+        # Verificar permiso de sucursal
+        requiere_permiso_sucursal(user_data, pedido.get('sucursal'))
 
         fecha_entrega_obj = datetime.strptime(fecha_entrega, "%Y-%m-%d").date()
         if fecha_entrega_obj < date.today():
@@ -324,6 +355,18 @@ async def actualizar_pedido_cliente(
             'foto_path': pedido.get('foto_path'),
             'fecha_entrega': fecha_entrega
         })
+
+        # Auditoría
+        try:
+            from utils.audit import log_pedido_updated
+            log_pedido_updated(
+                username=user_data['username'],
+                pedido_type='pedido_cliente',
+                pedido_id=pedido_id,
+                changes={'cantidad': cantidad, 'fecha_entrega': fecha_entrega}
+            )
+        except Exception as audit_error:
+            logger.warning(f"Error al registrar auditoría: {audit_error}")
 
         logger.info(f"Updated client order {pedido_id} by {user_data['username']}")
         return {"success": True, "message": "Pedido actualizado correctamente"}
@@ -345,19 +388,32 @@ async def eliminar_pedido_normal(request: Request, pedido_id: int):
 
     try:
         from database import obtener_normal_por_id_db, eliminar_normal_db
+        from api.auth import requiere_permiso_sucursal
 
         pedido = obtener_normal_por_id_db(pedido_id)
         if not pedido:
             raise HTTPException(status_code=404, detail="Pedido no encontrado")
 
-        if pedido.get('sucursal') != user_data['sucursal']:
-            raise HTTPException(status_code=403, detail="No autorizado para eliminar este pedido")
+        # Verificar permiso de sucursal
+        requiere_permiso_sucursal(user_data, pedido.get('sucursal'))
 
         fecha_entrega = parse_fecha_entrega(pedido.get('fecha_entrega'))
         if fecha_entrega and fecha_entrega < date.today():
             raise HTTPException(status_code=400, detail="No se pueden eliminar pedidos con fecha de entrega pasada")
 
         eliminar_normal_db(pedido_id)
+
+        # Auditoría
+        try:
+            from utils.audit import log_pedido_deleted
+            log_pedido_deleted(
+                username=user_data['username'],
+                pedido_type='pedido_normal',
+                pedido_id=pedido_id,
+                sucursal=pedido.get('sucursal')
+            )
+        except Exception as audit_error:
+            logger.warning(f"Error al registrar auditoría: {audit_error}")
 
         logger.info(f"Deleted normal order {pedido_id} by {user_data['username']}")
         return {"success": True, "message": "Pedido eliminado correctamente"}
@@ -379,19 +435,32 @@ async def eliminar_pedido_cliente(request: Request, pedido_id: int):
 
     try:
         from database import obtener_cliente_por_id_db, eliminar_cliente_db
+        from api.auth import requiere_permiso_sucursal
 
         pedido = obtener_cliente_por_id_db(pedido_id)
         if not pedido:
             raise HTTPException(status_code=404, detail="Pedido no encontrado")
 
-        if pedido.get('sucursal') != user_data['sucursal']:
-            raise HTTPException(status_code=403, detail="No autorizado para eliminar este pedido")
+        # Verificar permiso de sucursal
+        requiere_permiso_sucursal(user_data, pedido.get('sucursal'))
 
         fecha_entrega = parse_fecha_entrega(pedido.get('fecha_entrega'))
         if fecha_entrega and fecha_entrega < date.today():
             raise HTTPException(status_code=400, detail="No se pueden eliminar pedidos con fecha de entrega pasada")
 
         eliminar_cliente_db(pedido_id)
+
+        # Auditoría
+        try:
+            from utils.audit import log_pedido_deleted
+            log_pedido_deleted(
+                username=user_data['username'],
+                pedido_type='pedido_cliente',
+                pedido_id=pedido_id,
+                sucursal=pedido.get('sucursal')
+            )
+        except Exception as audit_error:
+            logger.warning(f"Error al registrar auditoría: {audit_error}")
 
         logger.info(f"Deleted client order {pedido_id} by {user_data['username']}")
         return {"success": True, "message": "Pedido eliminado correctamente"}

@@ -81,24 +81,28 @@ async function actualizarPrecioNormal() {
     const precioUnitarioEl = document.getElementById("precioUnitarioNormal");
     const precioTotalEl = document.getElementById("precioTotalNormal");
     const precioManualEl = document.getElementById("precioOtroNormal");
-    const precioManual = parseFloat(precioManualEl?.value) || 0;
 
-    if (!precioUnitarioEl || !precioTotalEl || !precioManualEl) return;
+    if (!precioUnitarioEl || !precioTotalEl) return;
 
-    if (sabor === "Otro" || tamano === "Otro" || precioManual > 0) {
-        const precioUnitario = precioManual > 0 ? precioManual : 0.00;
-        precioUnitarioEl.textContent = "Q" + precioUnitario.toFixed(2) + (precioManual > 0 ? " (Manual)" : "");
-        precioTotalEl.textContent = "Q" + (precioUnitario * cantidad).toFixed(2);
-        precioManualEl.classList.remove("d-none");
-        precioManualEl.required = true;
+    const precioManual = precioManualEl ? parseFloat(precioManualEl.value) || 0 : 0;
+
+    if (sabor === "Otro" && precioManual > 0) {
+        precioUnitarioEl.textContent = "Q" + precioManual.toFixed(2) + " (Manual)";
+        precioTotalEl.textContent = "Q" + (precioManual * cantidad).toFixed(2);
+        if (precioManualEl) {
+            precioManualEl.classList.remove("d-none");
+            precioManualEl.required = true;
+        }
         return;
     }
 
-    if (!sabor || !tamano) {
-        precioUnitarioEl.textContent = "Q0.00";
+    if (!sabor || !tamano || sabor === "Otro") {
+        precioUnitarioEl.textContent = "Q0.00 (Manual Requerido)";
         precioTotalEl.textContent = "Q0.00";
-        precioManualEl.classList.add("d-none");
-        precioManualEl.required = false;
+        if (precioManualEl) {
+            precioManualEl.classList.remove("d-none");
+            precioManualEl.required = true;
+        }
         return;
     }
 
@@ -109,20 +113,26 @@ async function actualizarPrecioNormal() {
         if (data.encontrado && data.precio > 0) {
             precioUnitarioEl.textContent = "Q" + data.precio.toFixed(2);
             precioTotalEl.textContent = "Q" + (data.precio * cantidad).toFixed(2);
-            precioManualEl.classList.add("d-none");
-            precioManualEl.required = false;
+            if (precioManualEl) {
+                precioManualEl.classList.add("d-none");
+                precioManualEl.required = false;
+            }
         } else {
             precioUnitarioEl.textContent = "Q0.00 (Manual Requerido)";
             precioTotalEl.textContent = "Q0.00";
-            precioManualEl.classList.remove("d-none");
-            precioManualEl.required = true;
+            if (precioManualEl) {
+                precioManualEl.classList.remove("d-none");
+                precioManualEl.required = true;
+            }
         }
     } catch (error) {
         console.error("Error al obtener precio normal:", error);
         precioUnitarioEl.textContent = "Q0.00 (Error)";
         precioTotalEl.textContent = "Q0.00";
-        precioManualEl.classList.remove("d-none");
-        precioManualEl.required = true;
+        if (precioManualEl) {
+            precioManualEl.classList.remove("d-none");
+            precioManualEl.required = true;
+        }
     }
 }
 
@@ -133,24 +143,28 @@ async function actualizarPrecioCliente() {
     const precioUnitarioEl = document.getElementById("precioUnitarioCliente");
     const precioTotalEl = document.getElementById("precioTotalCliente");
     const precioManualEl = document.getElementById("precioOtroCliente");
-    const precioManual = parseFloat(precioManualEl?.value) || 0;
 
-    if (!precioUnitarioEl || !precioTotalEl || !precioManualEl) return;
+    if (!precioUnitarioEl || !precioTotalEl) return;
 
-    if (sabor === "Otro" || tamano === "Otro" || precioManual > 0) {
-        const precioUnitario = precioManual > 0 ? precioManual : 0.00;
-        precioUnitarioEl.textContent = "Q" + precioUnitario.toFixed(2) + (precioManual > 0 ? " (Manual)" : "");
-        precioTotalEl.textContent = "Q" + (precioUnitario * cantidad).toFixed(2);
-        precioManualEl.classList.remove("d-none");
-        precioManualEl.required = true;
+    const precioManual = precioManualEl ? parseFloat(precioManualEl.value) || 0 : 0;
+
+    if (sabor === "Otro" && precioManual > 0) {
+        precioUnitarioEl.textContent = "Q" + precioManual.toFixed(2) + " (Manual)";
+        precioTotalEl.textContent = "Q" + (precioManual * cantidad).toFixed(2);
+        if (precioManualEl) {
+            precioManualEl.classList.remove("d-none");
+            precioManualEl.required = true;
+        }
         return;
     }
 
-    if (!sabor || !tamano) {
-        precioUnitarioEl.textContent = "Q0.00";
+    if (!sabor || !tamano || sabor === "Otro") {
+        precioUnitarioEl.textContent = "Q0.00 (Manual Requerido)";
         precioTotalEl.textContent = "Q0.00";
-        precioManualEl.classList.add("d-none");
-        precioManualEl.required = false;
+        if (precioManualEl) {
+            precioManualEl.classList.remove("d-none");
+            precioManualEl.required = true;
+        }
         return;
     }
 
@@ -161,26 +175,43 @@ async function actualizarPrecioCliente() {
         if (data.encontrado && data.precio > 0) {
             precioUnitarioEl.textContent = "Q" + data.precio.toFixed(2);
             precioTotalEl.textContent = "Q" + (data.precio * cantidad).toFixed(2);
-            precioManualEl.classList.add("d-none");
-            precioManualEl.required = false;
+            if (precioManualEl) {
+                precioManualEl.classList.add("d-none");
+                precioManualEl.required = false;
+            }
         } else {
             precioUnitarioEl.textContent = "Q0.00 (Manual Requerido)";
             precioTotalEl.textContent = "Q0.00";
-            precioManualEl.classList.remove("d-none");
-            precioManualEl.required = true;
+            if (precioManualEl) {
+                precioManualEl.classList.remove("d-none");
+                precioManualEl.required = true;
+            }
         }
     } catch (error) {
         console.error("Error al obtener precio cliente:", error);
         precioUnitarioEl.textContent = "Q0.00 (Error)";
         precioTotalEl.textContent = "Q0.00";
-        precioManualEl.classList.remove("d-none");
-        precioManualEl.required = true;
+        if (precioManualEl) {
+            precioManualEl.classList.remove("d-none");
+            precioManualEl.required = true;
+        }
     }
 }
 
 async function registrarDirecto(tipo) {
     const form = tipo === 'normal' ? document.getElementById('formNormal') : document.getElementById('formCliente');
     const formData = new FormData(form);
+
+    // Agregar precio manual si está disponible
+    const precioManualId = tipo === 'normal' ? 'precioOtroNormal' : 'precioOtroCliente';
+    const precioManualEl = document.getElementById(precioManualId);
+    const precioManual = precioManualEl && !precioManualEl.classList.contains('d-none')
+        ? parseFloat(precioManualEl.value) || 0
+        : 0;
+
+    if (precioManual > 0) {
+        formData.append('precio', precioManual);
+    }
 
     const endpoint = tipo === 'normal' ? '/normales/registrar' : '/clientes/registrar';
 

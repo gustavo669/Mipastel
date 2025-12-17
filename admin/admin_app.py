@@ -1,5 +1,6 @@
-import sys, os
 import logging
+import os
+import sys
 from typing import Optional
 
 logging.basicConfig(level=logging.INFO)
