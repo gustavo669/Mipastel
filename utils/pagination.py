@@ -5,10 +5,10 @@ Provides helper functions and classes for implementing pagination
 in database queries and API responses.
 """
 
-from typing import TypeVar, Generic, List, Optional, Dict, Any
 from math import ceil
-from pydantic import BaseModel
+from typing import TypeVar, Generic, List, Dict, Any
 
+from pydantic import BaseModel
 
 T = TypeVar('T')
 

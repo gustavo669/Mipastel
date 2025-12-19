@@ -18,6 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
     establecerFechaManana('fechaEntregaNormal');
     establecerFechaManana('fechaEntregaCliente');
 
+    // NORMALES
     document.getElementById('saborNormal')?.addEventListener('change', () => {
         toggleOtro('saborNormal', 'saborOtroNormal', 'precioOtroNormal');
         actualizarPrecioNormal();
@@ -26,6 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('cantidadNormal')?.addEventListener('input', actualizarPrecioNormal);
     document.getElementById('precioOtroNormal')?.addEventListener('input', actualizarPrecioNormal);
 
+    // CLIENTES
     document.getElementById('saborCliente')?.addEventListener('change', () => {
         toggleOtro('saborCliente', 'saborOtroCliente', 'precioOtroCliente');
         actualizarPrecioCliente();
@@ -34,20 +36,14 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('cantidadCliente')?.addEventListener('input', actualizarPrecioCliente);
     document.getElementById('precioOtroCliente')?.addEventListener('input', actualizarPrecioCliente);
 
-    document.getElementById('formNormal')?.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        await registrarDirecto('normal');
-    });
-
-    document.getElementById('formCliente')?.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        await registrarDirecto('cliente');
-    });
-
     actualizarPrecioNormal();
     actualizarPrecioCliente();
 });
 
+/**
+ * Toggle para mostrar/ocultar campos "Otro"
+ * SOLO muestra precio manual si es "Otro"
+ */
 function toggleOtro(selectId, inputId, priceInputId) {
     const select = document.getElementById(selectId);
     const input = document.getElementById(inputId);
@@ -55,16 +51,22 @@ function toggleOtro(selectId, inputId, priceInputId) {
 
     if (select && input) {
         if (select.value === "Otro") {
+            // Mostrar campo de sabor personalizado
             input.classList.remove("d-none");
             input.required = true;
+
+            // MOSTRAR PRECIO MANUAL SOLO SI ES "OTRO"
             if (priceInput) {
                 priceInput.classList.remove("d-none");
                 priceInput.required = true;
             }
         } else {
+            // Ocultar campos
             input.classList.add("d-none");
             input.required = false;
             input.value = "";
+
+            // OCULTAR PRECIO MANUAL SI NO ES "OTRO"
             if (priceInput) {
                 priceInput.classList.add("d-none");
                 priceInput.required = false;
@@ -74,6 +76,9 @@ function toggleOtro(selectId, inputId, priceInputId) {
     }
 }
 
+/**
+ * Actualiza precio para pedidos normales
+ */
 async function actualizarPrecioNormal() {
     const sabor = document.getElementById("saborNormal")?.value;
     const tamano = document.getElementById("tamanoNormal")?.value;
@@ -84,25 +89,26 @@ async function actualizarPrecioNormal() {
 
     if (!precioUnitarioEl || !precioTotalEl) return;
 
-    const precioManual = precioManualEl ? parseFloat(precioManualEl.value) || 0 : 0;
+    // Si es "Otro" y tiene precio manual
+    if (sabor === "Otro" && precioManualEl && !precioManualEl.classList.contains('d-none')) {
+        const precioManual = parseFloat(precioManualEl.value) || 0;
 
-    if (sabor === "Otro" && precioManual > 0) {
-        precioUnitarioEl.textContent = "Q" + precioManual.toFixed(2) + " (Manual)";
-        precioTotalEl.textContent = "Q" + (precioManual * cantidad).toFixed(2);
-        if (precioManualEl) {
-            precioManualEl.classList.remove("d-none");
-            precioManualEl.required = true;
+        if (precioManual > 0) {
+            precioUnitarioEl.textContent = "Q" + precioManual.toFixed(2) + " (Manual)";
+            precioTotalEl.textContent = "Q" + (precioManual * cantidad).toFixed(2);
+            return;
+        } else {
+            // Sin precio manual aún
+            precioUnitarioEl.textContent = "Q0.00 (Ingresa precio)";
+            precioTotalEl.textContent = "Q0.00";
+            return;
         }
-        return;
     }
 
+    // Si no es "Otro" o el campo está oculto, obtener precio de BD
     if (!sabor || !tamano || sabor === "Otro") {
-        precioUnitarioEl.textContent = "Q0.00 (Manual Requerido)";
+        precioUnitarioEl.textContent = "Q0.00";
         precioTotalEl.textContent = "Q0.00";
-        if (precioManualEl) {
-            precioManualEl.classList.remove("d-none");
-            precioManualEl.required = true;
-        }
         return;
     }
 
@@ -113,29 +119,20 @@ async function actualizarPrecioNormal() {
         if (data.encontrado && data.precio > 0) {
             precioUnitarioEl.textContent = "Q" + data.precio.toFixed(2);
             precioTotalEl.textContent = "Q" + (data.precio * cantidad).toFixed(2);
-            if (precioManualEl) {
-                precioManualEl.classList.add("d-none");
-                precioManualEl.required = false;
-            }
         } else {
-            precioUnitarioEl.textContent = "Q0.00 (Manual Requerido)";
+            precioUnitarioEl.textContent = "Q0.00 (No encontrado)";
             precioTotalEl.textContent = "Q0.00";
-            if (precioManualEl) {
-                precioManualEl.classList.remove("d-none");
-                precioManualEl.required = true;
-            }
         }
     } catch (error) {
         console.error("Error al obtener precio normal:", error);
         precioUnitarioEl.textContent = "Q0.00 (Error)";
         precioTotalEl.textContent = "Q0.00";
-        if (precioManualEl) {
-            precioManualEl.classList.remove("d-none");
-            precioManualEl.required = true;
-        }
     }
 }
 
+/**
+ * Actualiza precio para pedidos de clientes
+ */
 async function actualizarPrecioCliente() {
     const sabor = document.getElementById("saborCliente")?.value;
     const tamano = document.getElementById("tamanoCliente")?.value;
@@ -146,25 +143,26 @@ async function actualizarPrecioCliente() {
 
     if (!precioUnitarioEl || !precioTotalEl) return;
 
-    const precioManual = precioManualEl ? parseFloat(precioManualEl.value) || 0 : 0;
+    // Si es "Otro" y tiene precio manual
+    if (sabor === "Otro" && precioManualEl && !precioManualEl.classList.contains('d-none')) {
+        const precioManual = parseFloat(precioManualEl.value) || 0;
 
-    if (sabor === "Otro" && precioManual > 0) {
-        precioUnitarioEl.textContent = "Q" + precioManual.toFixed(2) + " (Manual)";
-        precioTotalEl.textContent = "Q" + (precioManual * cantidad).toFixed(2);
-        if (precioManualEl) {
-            precioManualEl.classList.remove("d-none");
-            precioManualEl.required = true;
+        if (precioManual > 0) {
+            precioUnitarioEl.textContent = "Q" + precioManual.toFixed(2) + " (Manual)";
+            precioTotalEl.textContent = "Q" + (precioManual * cantidad).toFixed(2);
+            return;
+        } else {
+            // Sin precio manual aún
+            precioUnitarioEl.textContent = "Q0.00 (Ingresa precio)";
+            precioTotalEl.textContent = "Q0.00";
+            return;
         }
-        return;
     }
 
+    // Si no es "Otro" o el campo está oculto, obtener precio de BD
     if (!sabor || !tamano || sabor === "Otro") {
-        precioUnitarioEl.textContent = "Q0.00 (Manual Requerido)";
+        precioUnitarioEl.textContent = "Q0.00";
         precioTotalEl.textContent = "Q0.00";
-        if (precioManualEl) {
-            precioManualEl.classList.remove("d-none");
-            precioManualEl.required = true;
-        }
         return;
     }
 
@@ -175,65 +173,13 @@ async function actualizarPrecioCliente() {
         if (data.encontrado && data.precio > 0) {
             precioUnitarioEl.textContent = "Q" + data.precio.toFixed(2);
             precioTotalEl.textContent = "Q" + (data.precio * cantidad).toFixed(2);
-            if (precioManualEl) {
-                precioManualEl.classList.add("d-none");
-                precioManualEl.required = false;
-            }
         } else {
-            precioUnitarioEl.textContent = "Q0.00 (Manual Requerido)";
+            precioUnitarioEl.textContent = "Q0.00 (No encontrado)";
             precioTotalEl.textContent = "Q0.00";
-            if (precioManualEl) {
-                precioManualEl.classList.remove("d-none");
-                precioManualEl.required = true;
-            }
         }
     } catch (error) {
         console.error("Error al obtener precio cliente:", error);
         precioUnitarioEl.textContent = "Q0.00 (Error)";
         precioTotalEl.textContent = "Q0.00";
-        if (precioManualEl) {
-            precioManualEl.classList.remove("d-none");
-            precioManualEl.required = true;
-        }
-    }
-}
-
-async function registrarDirecto(tipo) {
-    const form = tipo === 'normal' ? document.getElementById('formNormal') : document.getElementById('formCliente');
-    const formData = new FormData(form);
-
-    // Agregar precio manual si está disponible
-    const precioManualId = tipo === 'normal' ? 'precioOtroNormal' : 'precioOtroCliente';
-    const precioManualEl = document.getElementById(precioManualId);
-    const precioManual = precioManualEl && !precioManualEl.classList.contains('d-none')
-        ? parseFloat(precioManualEl.value) || 0
-        : 0;
-
-    if (precioManual > 0) {
-        formData.append('precio', precioManual);
-    }
-
-    const endpoint = tipo === 'normal' ? '/normales/registrar' : '/clientes/registrar';
-
-    try {
-        const response = await fetch(endpoint, {
-            method: 'POST',
-            body: formData
-        });
-
-        if (response.ok) {
-            alert('Pedido registrado correctamente');
-            form.reset();
-            establecerFechaManana(tipo === 'normal' ? 'fechaEntregaNormal' : 'fechaEntregaCliente');
-            if (typeof cargarPedidosRegistrados === 'function') {
-                cargarPedidosRegistrados();
-            }
-        } else {
-            const error = await response.json();
-            alert('Error: ' + (error.detail || 'No se pudo registrar'));
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        alert('Error al registrar pedido');
     }
 }

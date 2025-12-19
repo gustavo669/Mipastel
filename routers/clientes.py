@@ -65,6 +65,7 @@ async def registrar_pedido_cliente(
         dedicatoria: Optional[str] = Form(None),
         detalles: Optional[str] = Form(None),
         sabor_personalizado: Optional[str] = Form(None),
+        es_otro: Optional[bool] = Form(False),  # ← AHORA CON DEFAULT
         foto: Optional[UploadFile] = File(None),
         user_data: dict = Depends(requiere_autenticacion)
 ):
@@ -85,7 +86,7 @@ async def registrar_pedido_cliente(
                 if fecha_entrega_obj < date.today():
                     raise HTTPException(status_code=400, detail="La fecha de entrega no puede ser anterior a hoy")
             except ValueError:
-                raise HTTPException(status_code=400, detail="Formato de fecha inválido")
+                raise HTTPException(status_code=400, detail="Formato de fecha inválido (use YYYY-MM-DD)")
 
         db = DatabaseManager()
         foto_path = None
@@ -109,12 +110,12 @@ async def registrar_pedido_cliente(
         # Determinar precio
         if precio and precio > 0:
             precio_unitario = precio
-            logger.info(f"Using precio from form: Q{precio_unitario:.2f}")
+            logger.info(f"Usando precio del cliente: Q{precio_unitario:.2f}")
         else:
             precio_unitario = obtener_precio_db(sabor_real, tamano)
-            logger.info(f"Fetched precio from database: Q{precio_unitario:.2f}")
+            logger.info(f"Obtenido precio de base de datos: Q{precio_unitario:.2f}")
 
-        if precio_unitario <= 0:
+        if precio_unitario <= 0 and not es_otro:
             raise HTTPException(status_code=400, detail="No se encontró precio válido para esta combinación")
 
         precio_total = precio_unitario * cantidad

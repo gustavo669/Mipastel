@@ -1,12 +1,15 @@
+import logging
+from datetime import datetime, date
+from typing import Optional
+
 from fastapi import APIRouter, Form, HTTPException, Request, Depends
 from fastapi.templating import Jinja2Templates
-from database import DatabaseManager, obtener_precio_db
-import logging
-from typing import Optional
+
+from api.auth import requiere_autenticacion, requiere_permiso_sucursal
 from config import (
     SABORES_NORMALES, TAMANOS_NORMALES, SUCURSALES
 )
-from api.auth import requiere_autenticacion, requiere_permiso_sucursal
+from database import DatabaseManager, obtener_precio_db
 
 router = APIRouter(prefix="/normales", tags=["Pasteles Normales"])
 logger = logging.getLogger(__name__)
@@ -20,7 +23,7 @@ async def mostrar_formulario_normales(
 ):
     """
     Display the normal cakes order form.
-    
+
     Requires authentication.
     """
     try:
@@ -47,30 +50,32 @@ async def registrar_pedido_normal(
         precio: Optional[float] = Form(None),
         detalles: Optional[str] = Form(None),
         sabor_personalizado: Optional[str] = Form(None),
-        es_otro: Optional[bool] = Form(False),
+        es_otro: Optional[bool] = Form(False),  # ← AHORA CON DEFAULT
         user_data: dict = Depends(requiere_autenticacion)
 ):
     """
     Register a normal cake order.
-    
+
     Requires authentication and branch permission.
     Users can only register orders for their assigned branch (except admins).
     """
     try:
         # Verify branch permission
         requiere_permiso_sucursal(user_data, sucursal)
+
         if tamano not in TAMANOS_NORMALES:
             raise HTTPException(status_code=400, detail="Tamaño inválido")
 
-        sabor_real = sabor_personalizado if es_otro and sabor_personalizado else sabor
+        # Determinar sabor real
+        sabor_real = sabor_personalizado if sabor_personalizado else sabor
 
-        # Use sent precio if provided, otherwise fetch from database
+        # Usar precio enviado, si no está disponible obtener de base de datos
         if precio and precio > 0:
             precio_unitario = precio
-            logger.info(f"Using precio from frontend: Q{precio_unitario:.2f}")
+            logger.info(f"Usando precio del cliente: Q{precio_unitario:.2f}")
         else:
             precio_unitario = obtener_precio_db(sabor, tamano)
-            logger.info(f"Fetched precio from database: Q{precio_unitario:.2f}")
+            logger.info(f"Obtenido precio de base de datos: Q{precio_unitario:.2f}")
 
         if precio_unitario <= 0 and not es_otro:
             raise HTTPException(
@@ -78,11 +83,13 @@ async def registrar_pedido_normal(
                 detail=f"No se encontró precio para {sabor} {tamano}. Use la opción 'Otro' para precios personalizados."
             )
 
+        # Validar fecha de entrega
         try:
-            from datetime import datetime
             fecha_valida = datetime.strptime(fecha_entrega, "%Y-%m-%d").date()
-        except:
-            raise HTTPException(status_code=400, detail="Fecha de entrega inválida")
+            if fecha_valida < date.today():
+                raise HTTPException(status_code=400, detail="La fecha de entrega no puede ser anterior a hoy")
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Formato de fecha inválido (use YYYY-MM-DD)")
 
         precio_total = precio_unitario * cantidad
 
@@ -102,9 +109,23 @@ async def registrar_pedido_normal(
 
         if resultado:
             logger.info(
-                f"Pastel normal registrado: {sabor_real} {tamano} x{cantidad} - "
+                f"Pastel normal registrado por {user_data['username']}: {sabor_real} {tamano} x{cantidad} - "
                 f"Q{precio_total:.2f} - {sucursal} (Entrega: {fecha_entrega})"
             )
+
+            # Registrar en auditoría
+            try:
+                from utils.audit import log_pedido_normal_created
+                log_pedido_normal_created(
+                    username=user_data['username'],
+                    pedido_id=resultado,
+                    sucursal=sucursal,
+                    sabor=sabor_real,
+                    tamano=tamano
+                )
+            except Exception as audit_error:
+                logger.warning(f"Error al registrar auditoría: {audit_error}")
+
             return templates.TemplateResponse("exito.html", {
                 "request": request,
                 "mensaje": "Pastel normal registrado correctamente",

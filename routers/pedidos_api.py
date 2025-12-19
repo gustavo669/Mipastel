@@ -240,7 +240,7 @@ async def registrar_pedido(
         logger.error(f"Error registering order: {e}", exc_info=True)
         # Si ocurrió un fallo guardando la foto, intenta limpiar el archivo
         try:
-            if foto and foto_path:
+            if foto_path:
                 fp = STATIC_UPLOADS / Path(foto_path).name
                 if fp.exists():
                     fp.unlink()
